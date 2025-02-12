@@ -18,7 +18,7 @@ jobs:
         id: login_docker_hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_HUB_USER_NAME }}
+          username: ${{ secrets.DOCKER_HUB_USER }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
       
       - name: Echo Docker Hub Username
