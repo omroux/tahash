@@ -1,0 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Lunasima:wght@400;700&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+
+.t1 {
+    font-family: "Lunasima", serif;
+    text-align: right;
+}
+
+.t2 {
+    font-family: "Rubik", serif;
+    text-align: right;
+}
+
+body {
+    background-color: lightblue;
+}
