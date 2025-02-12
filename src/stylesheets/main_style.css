@@ -1,15 +1,28 @@
-@import url('https://fonts.googleapis.com/css2?family=Lunasima:wght@400;700&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
 
-.t1 {
-    font-family: "Lunasima", serif;
+* {
+    font-family: "Rubik", serif;
+    color: black;
     text-align: right;
+    direction: rtl;
 }
 
-.t2 {
-    font-family: "Rubik", serif;
-    text-align: right;
+.Title {
+    text-align: center;
+    font-weight: bolder;
+    font-size: 250%;
+    color: #043959;
+    /*margin: auto auto;*/
+}
+
+.Sub-Title {
+    margin: 0
+}
+
+.Underline {
+    text-decoration: underline;
 }
 
 body {
-    background-color: lightblue;
+    background-color: lightgray;
 }
