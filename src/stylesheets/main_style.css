@@ -1,7 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
 
 :root {
-    --soft-blue: #043959;
+    --text-blue: #043959;
+    --bg-blue: #0057E1;
 }
 
 * {
@@ -12,7 +13,11 @@
 }
 
 body {
-    background-color: whitesmoke;
+    background-color: lightgray;
+}
+
+.Header {
+    background-color: var(--bg-blue);
 }
 
 .Content-Container {
@@ -38,7 +43,7 @@ body {
     text-align: center;
     font-weight: bolder;
     font-size: 500%;
-    color: var(--soft-blue);
+    color: var(--text-blue);
     margin: 1% auto;
 }
 

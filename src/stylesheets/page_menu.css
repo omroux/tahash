@@ -3,7 +3,7 @@
     --base-item-bg: 150, 150, 150;
     --current-page-scale: 1.2;
     --scale-ratio: calc(2 / 5); /* scale ration between active page and non-active page menu items */
-    --current-page-font-weight: 450;
+    --current-page-font-weight: 400;
     --item-idle-color: white;
     --item-hover-color: lightgray;
 }
@@ -47,7 +47,6 @@
         transition: font-weight 0.1s, transform 0.15s, background-color 0.2s;
         transition-timing-function: ease-in;
         transform: scale(1);
-/*        background-color: rgba(0, 0, 0, 0);*/
         font-weight: normal;
 
         /* Hover */
@@ -55,7 +54,7 @@
             transition-timing-function: ease-out;
             transform: scale(calc(1 + ((var(--current-page-scale) - 1) * var(--scale-ratio))));
 
-            background-color: rgba(var(--base-item-bg), 0.45);
+            background-color: rgba(190, 190, 190, 1);
             font-weight: calc(400 + (var(--current-page-font-weight) - 400) * var(--scale-ratio));
         }
     }
@@ -64,11 +63,12 @@
 
 @keyframes current-page-item-load {
     from {
+/*        transform: scale(var(--current-page-scale));*/
         transform: scale(calc(1 + ((var(--current-page-scale) - 1) * var(--scale-ratio))));
     }
 
     to {
-        transform: scale(var(--current-page-scale));
+        transform: scale(1);
     }
 }
 

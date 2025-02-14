@@ -1,3 +1,15 @@
 #login-btn {
-    width: 100px;
+    margin: 5% auto auto auto;
+    width: 50vw;
+    padding: 4% 2%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    font-size: 350%;
+    border-radius: 10px;
+    border-width: 5px;
+    border-style: solid;
+    background-color: powderblue;
 }
+
