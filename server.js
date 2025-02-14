@@ -15,7 +15,8 @@ app.set('views', path.join(__dirname, "src/views/"));
 
 // region Page Routing
 // filePath = the page's file path *inside* src/views/pages, including .ejs extension. (src/views/pages/:filePath)
-function renderPage(req, res, filePath, options) {
+// cssFiles = paths to extra css stylesheets (inside src/stylesheets/)
+function renderPage(req, res, filePath, options, ...cssFiles) {
     // redirect to lowercase page request (not really necessary, but better to have)
     const pathname = req.url;
     if (pathname.toLowerCase() !== pathname) {
@@ -31,8 +32,7 @@ function renderPage(req, res, filePath, options) {
             return;
         }
         options.content = str;
-        // helper function for getting the active page
-        options.isActive = (path) => path === filePath;
+        options.cssFiles = cssFiles ?? [];
         res.render("layout.ejs", options);
     });
 }
@@ -49,7 +49,7 @@ app.get("/home", (req, res) => {
 
 // Route for login page
 app.get("/login", (req, res) => {
-    renderPage(req, res, "login.ejs", { title: "Login" });
+    renderPage(req, res, "login.ejs", { title: "Login" }, "pages/login.css");
 });
 
 // Route for profile page

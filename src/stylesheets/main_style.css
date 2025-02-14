@@ -31,7 +31,7 @@ body {
     font-size: 225%;
     padding: 1% 0;
     height: 4%;
-    margin: 2% auto;
+    box-sizing: border-box;
 }
 
 .Title {
