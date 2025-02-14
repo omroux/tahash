@@ -51,6 +51,11 @@ app.get("/home", (req, res) => {
 app.get("/login", (req, res) => {
     renderPage(req, res, "login.ejs", { title: "Login" });
 });
+
+// Route for profile page
+app.get("/profile", (req, res) => {
+    renderPage(req, res, "profile.ejs", { title: "Profile" });
+});
 // endregion
 
 

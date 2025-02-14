@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
 
+:root {
+    --soft-blue: #043959;
+}
+
 * {
     font-family: "Rubik", serif;
     color: black;
@@ -21,13 +25,19 @@ body {
     margin: auto;
 }
 
+.Main-Title {
+    text-align: center;
+    font-weight: bolder;
+    font-size: 225%;
+    margin: auto auto 2% auto;
+}
+
 .Title {
     text-align: center;
     font-weight: bolder;
     font-size: 500%;
-    color: #043959;
-    margin-top: 0;
-    margin-bottom: 1%;
+    color: var(--soft-blue);
+    margin: 1% auto;
 }
 
 .Sub-Title {
