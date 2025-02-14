@@ -1,0 +1,25 @@
+.Page-Menu {
+    background-color: #333;
+    list-style-type: none;
+    overflow: hidden;
+    padding: 1em;
+}
+
+.Page-Menu li {
+    float: right;
+    border: 2px solid black;
+    margin: 5px;
+}
+
+.Page-Menu li a {
+    color: white;
+    padding: 14px 20px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.Page-Menu li :hover {
+    background-color: #ddd;
+    text-decoration: underline;
+    color: black;
+}
