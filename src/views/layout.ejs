@@ -9,14 +9,16 @@
     <title><%= locals.title ?? "Untitled Page" %></title>
 </head>
 <body>
-    <div class="Page-Menu-Container">
-        <ul class="Page-Menu">
-            <li><a href="/home">בית</a></li>
-            <li><a href="/login">התחברות</a></li>
-        </ul>
+    <div class="Header">
+        <div class="Page-Menu-Container">
+            <ul class="Page-Menu">
+                <li><a href="/home">בית</a></li>
+                <li><a href="/login">התחברות</a></li>
+            </ul>
 
-        <!-- set the active page in the page menu -->
-        <script>document.querySelector(`.Page-Menu li a[href='${window.location.pathname.toLowerCase()}']`).parentElement.classList.add("Current-Page");</script>
+            <!-- set the active page in the page menu -->
+            <script>document.querySelector(`.Page-Menu li a[href='${window.location.pathname.toLowerCase()}']`).parentElement.classList.add("Current-Page");</script>
+        </div>
     </div>
 
     <div class="Content-Container">

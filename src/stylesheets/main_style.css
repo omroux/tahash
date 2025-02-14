@@ -7,6 +7,15 @@
     direction: rtl;
 }
 
+body {
+    background-color: lightgray;
+}
+
+.Content-Container {
+    opacity: 0;
+    animation: fadeIn 0.25s ease-in forwards;
+}
+
 .Title {
     text-align: center;
     font-weight: bolder;
@@ -24,6 +33,6 @@
     text-decoration: underline;
 }
 
-body {
-    background-color: lightgray;
+@keyframes fadeIn {
+    to { opacity: 1; }
 }

@@ -1,28 +1,71 @@
+:root {
+    --base-item-bg: 50, 100, 255;
+    --current-page-scale: 1.15;
+    --scale-ratio: calc(3 / 5); /* scale ration between active page and non-active page menu items */
+    --current-page-font-weight: 500;
+}
+
 .Page-Menu {
     border-bottom: 2px solid black;
     list-style-type: none;
     overflow: hidden;
     padding: 0.5em 1em;
+    box-sizing: border-box;
+    font-size: 120%;
 }
 
+/* Menu Item */
 .Page-Menu li {
+    transition: font-weight 0.1s, transform 0.15s, background-color 0.2s;
+    transition-timing-function: ease-in;
+    background-color: rgba(0, 0, 0, 0); /* transparent */
     float: right;
     border: 2px solid black;
-    margin: 5px;
     border-radius: 10px;
+    margin: 5px calc(10px * var(--current-page-scale));
+
+    /* Text Styling */
+    & a {
+        color: black;
+        padding: 14px 20px;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    /* Current Page */
+    &.Current-Page {
+        animation: current-page-item-load 0.2s forwards;
+        border: 2px solid black;
+        background-color: rgba(var(--base-item-bg), 1);
+        font-weight: 500;
+    }
+
+    /* Not Current Page */
+    &:not(.Current-Page) {
+        transform: scale(1);
+        background-color: rgba(0, 0, 0, 0);
+        font-weight: normal;
+
+        /* Hover */
+        &:hover {
+            transition-timing-function: ease-out;
+            transform: scale(calc(1 + ((var(--current-page-scale) - 1) * var(--scale-ratio))));
+
+            text-decoration: underline;
+            background-color: rgba(var(--base-item-bg), 0.65);
+            font-weight: var(--current-page-font-weight);
+        }
+    }
 }
 
-.Page-Menu li a {
-    color: black;
-    padding: 14px 20px;
-    text-decoration: none;
-    display: inline-block;
+
+@keyframes current-page-item-load {
+    from {
+        transform: scale(calc(1 + ((var(--current-page-scale) - 1) * var(--scale-ratio))));
+    }
+
+    to {
+        transform: scale(var(--current-page-scale));
+    }
 }
 
-.Page-Menu li :hover {
-    text-decoration: underline;
-}
-
-li.Current-Page {
-    background-color: powderblue;
-}

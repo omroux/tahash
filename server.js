@@ -12,9 +12,6 @@ app.set('view engine', 'ejs');
 // set the default views directory to src/views
 app.set('views', path.join(__dirname, "src/views/"));
 
-// helper function for dynamic active page updating
-app.locals.isActive = (path) => path === req.path ? "Current-Page" : "";
-
 
 // region Page Routing
 // filePath = the page's file path *inside* src/views/pages, including .ejs extension. (src/views/pages/:filePath)
@@ -50,7 +47,6 @@ app.get("/home", (req, res) => {
     renderPage(req, res, "home.ejs", { title: "Home" });
 });
 
-
 // Route for login page
 app.get("/login", (req, res) => {
     renderPage(req, res, "login.ejs", { title: "Login" });
@@ -62,6 +58,7 @@ app.get("/login", (req, res) => {
 app.get("/src/*", (req, res) => {
     const filePath = path.resolve(path.join(__dirname, req.url));
 
+    // TODO: i don't even think this does anything
     // a file is valid if the requested path is inside __dirname, for security reasons.
     const validFile = filePath.startsWith(path.resolve(__dirname));
     if (!validFile) {
@@ -79,6 +76,7 @@ app.get("/src/*", (req, res) => {
     res.sendFile(filePath);
 });
 
+// TODO: for dynamic hiding/showing of login/profile pages, use options.loggedIn (for ejs options in the renderPage function)
 
 app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}...`);
