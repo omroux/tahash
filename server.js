@@ -12,13 +12,21 @@ app.set('view engine', 'ejs');
 // set the default views directory to src/views
 app.set('views', path.join(__dirname, "src/views/"));
 
-// shorten paths to source files (virtual path)
-app.use("/", express.static(path.join(__dirname, "src/")));
+// helper function for dynamic active page updating
+app.locals.isActive = (path) => path === req.path ? "Current-Page" : "";
 
 
 // region Page Routing
 // filePath = the page's file path *inside* src/views/pages, including .ejs extension. (src/views/pages/:filePath)
 function renderPage(req, res, filePath, options) {
+    // redirect to lowercase page request (not really necessary, but better to have)
+    const pathname = req.url;
+    if (pathname.toLowerCase() !== pathname) {
+        res.redirect(pathname.toLowerCase());
+        return;
+    }
+
+    // render the file
     ejs.renderFile(path.join(__dirname, "src/views/pages/", filePath), {}, (err, str) => {
         if (err) {
             console.error(`Error occurred receiving ${filePath} page.\nDetails:`, err);
@@ -26,6 +34,8 @@ function renderPage(req, res, filePath, options) {
             return;
         }
         options.content = str;
+        // helper function for getting the active page
+        options.isActive = (path) => path === filePath;
         res.render("layout.ejs", options);
     });
 }
