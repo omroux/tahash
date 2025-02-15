@@ -1,12 +1,17 @@
 <h1 class="Title">בית</h1>
 <h2 class="Sub-Title">תחרות שבועית:</h2>
 <p class="Paragraph">הייי</p>
+<h3>fullUrl:</h3>
+<% if (locals.fullUrl) { %>
+    <p><%= locals.fullUrl %></p>
+<% } %>
+<br><br><br>
+<h3>Callback:</h3>
 <% if (locals.cb) { %>
-    <h3>Callback:</h3>
     <p><%= locals.cb %></p>
 <% } %>
-<br><br><br><br>
+<br><br><br>
+<h3>Link:</h3>
 <% if (locals.link) { %>
-    <h3>Link:</h3>
     <p><%= locals.link %></p>
 <% } %>
