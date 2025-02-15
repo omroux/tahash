@@ -1,6 +1,12 @@
 <h1 class="Title">בית</h1>
 <h2 class="Sub-Title">תחרות שבועית:</h2>
 <p class="Paragraph">הייי</p>
+<% if (locals.cb) { %>
+    <h3>Callback:</h3>
+    <p><%= locals.cb %></p>
+<% } %>
+<br><br><br><br>
 <% if (locals.link) { %>
+    <h3>Link:</h3>
     <p><%= locals.link %></p>
 <% } %>
