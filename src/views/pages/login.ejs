@@ -1,7 +1,8 @@
-<script></script>
 <h1 class="Title">התחברות</h1>
 <button id="login-btn">
     <p id="login-btn-txt">
         התחבר עם WCA
     </p>
 </button>
+<!-- login btn onclick -->
+<script>document.querySelector("#login-btn").onclick = () => window.location.href = "<%= auth_path %>"</script>

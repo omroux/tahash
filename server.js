@@ -5,6 +5,8 @@ const express = require('express');
 const app = express();
 const PORT = 3000;
 
+const {redirectToWCAAuth} = require("./src/scripts/backend/api-utils");
+
 
 // use EJS as the view engine
 app.set('view engine', 'ejs');
@@ -15,8 +17,8 @@ app.set('views', path.join(__dirname, "src/views/"));
 
 // region Page Routing
 // filePath = the page's file path *inside* src/views/pages, including .ejs extension. (src/views/pages/:filePath)
-// cssFiles = paths to extra css stylesheets (inside src/stylesheets/)
-function renderPage(req, res, filePath, options, ...cssFiles) {
+// cssFiles = *string[]* paths to extra css stylesheets (inside src/stylesheets/)
+function renderPage(req, res, filePath, layoutOptions = {}, pageOptions = {}, cssFiles = []) {
     // redirect to lowercase page request (not really necessary, but better to have)
     const pathname = req.url;
     if (pathname.toLowerCase() !== pathname) {
@@ -25,15 +27,15 @@ function renderPage(req, res, filePath, options, ...cssFiles) {
     }
 
     // render the file
-    ejs.renderFile(path.join(__dirname, "src/views/pages/", filePath), {}, (err, str) => {
+    ejs.renderFile(path.join(__dirname, "src/views/pages/", filePath), pageOptions ?? {}, (err, str) => {
         if (err) {
             console.error(`Error occurred receiving ${filePath} page.\nDetails:`, err);
             res.status(404).send(err);
             return;
         }
-        options.content = str;
-        options.cssFiles = cssFiles ?? [];
-        res.render("layout.ejs", options);
+        layoutOptions.content = str;
+        layoutOptions.cssFiles = cssFiles ?? [];
+        res.render("layout.ejs", layoutOptions);
     });
 }
 
@@ -49,12 +51,21 @@ app.get("/home", (req, res) => {
 
 // Route for login page
 app.get("/login", (req, res) => {
-    renderPage(req, res, "login.ejs", { title: "Login" }, "pages/login.css");
+    renderPage(req,
+        res,
+        "login.ejs",
+        {title: "Login"},
+        {auth_path: "/redirect-to-auth"},
+        ["pages/login.css"]);
 });
 
 // Route for profile page
 app.get("/profile", (req, res) => {
     renderPage(req, res, "profile.ejs", { title: "Profile" });
+});
+
+app.get("/redirect-to-auth", (req, res) => {
+    redirectToWCAAuth(req, res);
 });
 // endregion
 
