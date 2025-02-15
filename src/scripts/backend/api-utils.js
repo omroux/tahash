@@ -7,8 +7,12 @@ const WCA_AUTH_URL = (callbackURI) => `https://www.worldcubeassociation.org/oaut
 // given an HTTP request (and response), redirects the requester to the auth page, securely :)
 function redirectToWCAAuth(req, res) {
     // {protocol}://{host}/auth-callback
-    const callbackUri = `${req.protocol}://${req.get('host')}/auth-callback`;
-    return {fullUrl: JSON.stringify(req.headers) ,cb: callbackUri, link: WCA_AUTH_URL(callbackUri)};
+    const pathArr = req.headers.referer.split('/');
+    const protocol = pathArr[0];
+    const host = pathArr[2];
+    const originUrl = protocol + "//" + host;
+    const callbackUri = `${protocol}//${host}/auth-callback`;
+    return {fullUrl: req.headers.referer ,cb: callbackUri, link: WCA_AUTH_URL(callbackUri)};
     // res.redirect("/?str=" + WCA_AUTH_URL(callbackUri));
 }
 
