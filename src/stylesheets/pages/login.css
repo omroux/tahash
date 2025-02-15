@@ -1,15 +1,48 @@
+:root {
+    --default-btn-color: rgb(150, 224, 230);
+    --hover-btn-color: rgb(140, 190, 200);
+}
+
 #login-btn {
-    margin: 5% auto auto auto;
-    width: 50vw;
-    padding: 4% 2%;
+    /* button sizing */
+    width: 50%;
+    margin: 5% auto;
     box-sizing: border-box;
+
+    /* center button on screen with display: flex */
     display: flex;
     flex-direction: row;
     justify-content: center;
-    font-size: 350%;
+
+    /* button design */
     border-radius: 10px;
     border-width: 5px;
     border-style: solid;
-    background-color: powderblue;
+    background-color: var(--default-btn-color);
+
+    /* cursor */
+    cursor: pointer;
+
+    /* hover transition setup */
+    transition: background-color 0.15s, transform 0.1s ease-in-out, width 0.1s;
+
+    & p {
+        transition: font-size 0.1s ease-in-out;
+        transition-delay: 0s;
+        font-size: 300%;
+        margin: 5% auto;
+        text-align: center;
+    }
+
+    &:hover {
+        background-color: var(--hover-btn-color);
+        transform: scale(1.05);
+        width: 52%;
+
+        & p {
+            font-size: 330%;
+        }
+    }
 }
+
 
