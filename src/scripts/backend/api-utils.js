@@ -10,10 +10,8 @@ function redirectToWCAAuth(req, res) {
     const pathArr = req.headers.referer.split('/');
     const protocol = pathArr[0];
     const host = pathArr[2];
-    const originUrl = protocol + "//" + host;
     const callbackUri = `${protocol}//${host}/auth-callback`;
-    return {fullUrl: req.headers.referer ,cb: callbackUri, link: WCA_AUTH_URL(callbackUri)};
-    // res.redirect("/?str=" + WCA_AUTH_URL(callbackUri));
+    res.redirect(WCA_AUTH_URL(callbackUri));
 }
 
 

@@ -25,7 +25,7 @@
             </ul>
 
             <!-- set the active page in the page menu -->
-            <script>document.querySelector(`.Page-Menu li a[href='${window.location.pathname.toLowerCase()}']`).parentElement.classList.add("Current-Page");</script>
+            <script>document.querySelector(`.Page-Menu li a[href='${window.location.pathname.toLowerCase()}']`)?.parentElement.classList.add("Current-Page");</script>
         </div>
     </div>
 

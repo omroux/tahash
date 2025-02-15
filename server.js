@@ -65,8 +65,7 @@ app.get("/profile", (req, res) => {
 });
 
 app.get("/redirect-to-auth", (req, res) => {
-    let o = redirectToWCAAuth(req, res);
-    renderPage(req, res, "home.ejs", { title: "MMM" }, o);
+    redirectToWCAAuth(req, res);
 });
 // endregion
 
