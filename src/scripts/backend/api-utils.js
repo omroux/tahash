@@ -8,8 +8,7 @@ const WCA_AUTH_URL = (callbackURI) => `https://www.worldcubeassociation.org/oaut
 function redirectToWCAAuth(req, res) {
     // {protocol}://{host}/auth-callback
     const callbackUri = `${req.protocol}://${req.get('host')}/auth-callback`;
-    console.log(WCA_AUTH_URL(callbackUri));
-    // res.redirect(WCA_AUTH_URL(callbackUri));
+    res.redirect(WCA_AUTH_URL(callbackUri));
 }
 
 
