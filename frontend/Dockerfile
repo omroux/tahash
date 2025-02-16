@@ -7,4 +7,5 @@ ENV NODE_ENV production
 RUN npm ci --only=production
 RUN npm install
 
+CMD "cd" "frontend"
 CMD "npm" "start"

@@ -93,9 +93,10 @@ app.get("/profile", async (req, res) => {
     // get the user's token (from the cookie)
     const authToken = JSON.parse(req.cookies.authToken);
 
-    renderPage(req, res, "profile.ejs", { title: "Profile", loading: true });
-
-    return;
+// TODO: finish this... :p
+//    renderPage(req, res, "profile.ejs", { title: "Profile", loading: true });
+//
+//    return;
 
     const userData = await getUserData(authToken.access_token);
     if (!userData.me) {
