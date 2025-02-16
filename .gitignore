@@ -132,3 +132,5 @@ dist
 # JetBrains
 .idea/*
 
+# Config
+config.json

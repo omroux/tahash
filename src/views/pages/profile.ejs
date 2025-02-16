@@ -1,6 +1,23 @@
 <h1 class="Title">פרופיל</h1>
-<h2 class="Sub-Title">שם:</h2>
-<h2 class="Sub-Title">WCA-ID:</h2>
-<img src="" id="wca-img" alt="wca image">
-<br><br><br>
-<button class="Round-Button" id="logout-btn">Log Out</button>
+
+<% if (userData) { %>
+    <div class="User-Data-Container">
+        <!-- Name -->
+        <div class="User-Property">
+            <h2 class="Sub-Title">שם:</h2>
+            <p class="Paragraph"><%= userData.name %></p>
+        </div>
+        <div class="User-Property">
+            <h2 class="Sub-Title">WCA-ID:</h2>
+            <p class="Paragraph"><%= userData.wca_id %></p>
+        </div>
+        <img src="<%= userData.avatar.url %>" id="wca-img" alt="wca image">
+    </div>
+    <br><br><br>
+    <button class="Round-Button" id="logout-btn">Log Out</button>
+<% } else { %>
+    <p class="Paragraph">לא נמצאו נתונים.</p>
+    <a href="/home">
+        <button>בית</button>
+    </a>
+<% } %>
