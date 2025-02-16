@@ -10,6 +10,7 @@ const __dirname = path.dirname(new URL(import.meta.url).pathname);
 let hostname, config;
 
 const authTokenCookie = "authToken";
+const localConfigFile = "config.local.json";
 const configFile = "config.json";
 
 // use EJS as the view engine
@@ -67,6 +68,12 @@ app.get("/home", (req, res) => {
 
 // Route for login page
 app.get("/login", (req, res) => {
+    // has token cookie, meaning the user is logged in
+    if (req.cookies.authToken) {
+        res.redirect("/profile");
+        return;
+    }
+
     renderPage(req,
         res,
         "login.ejs",
@@ -87,8 +94,16 @@ app.get("/profile", async (req, res) => {
     const authToken = JSON.parse(req.cookies.authToken);
     const userData = await getUserData(authToken.access_token);
     if (!userData.me) {
-        renderError(req, res, userData.error ?? "שגיאה בטעינת נתוני פרופיל WCA.");
-        return;
+        // TODO: redirect to login if needed.
+
+        // send to
+        if (userData.error) {
+            renderError(req, res, userData.error ?? "שגיאה בטעינת נתוני פרופיל WCA.");
+            return;
+        }
+        else { // maybe a problem with the cookie. send
+
+        }
     }
 
     renderPage(req,
@@ -130,6 +145,11 @@ app.get("/auth-callback", async (req, res) => {
 // endregion
 
 
+app.get("/api-request", (req, res) => {
+
+});
+
+
 // get a source file
 app.get("/src/*", (req, res) => {
     const filePath = path.resolve(path.join(__dirname, req.url));
@@ -161,7 +181,7 @@ app.get("/src/*", (req, res) => {
 function readConfigFile() {
     let configData;
     try {
-        configData = JSON.parse(fs.readFileSync(configFile, 'utf-8'));
+        configData = JSON.parse(fs.readFileSync((fs.existsSync(localConfigFile) ? localConfigFile : configFile), 'utf-8'));
     }
     catch (err) {
         console.error("Error reading config file.");
@@ -172,7 +192,7 @@ function readConfigFile() {
         throw Error("Error: invalid config file.");
 
     // validate port
-    const parsedPort = parseInt(configData.port, 10);
+    const parsedPort = parseInt(configData.port.toString(), 10);
     // check if the port is a valid number and within the valid range (0–65535)
     if (isNaN(parsedPort) || parsedPort < 0 && parsedPort > 65535)
         throw Error("Invalid port in config file.");

@@ -133,4 +133,4 @@ dist
 .idea/*
 
 # Config
-config.json
+config.local.json

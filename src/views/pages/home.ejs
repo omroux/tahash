@@ -1,4 +1,22 @@
 <h1 class="Title">בית</h1>
 <h2 class="Sub-Title">תחרות שבועית:</h2>
 <p class="Paragraph">הייי</p>
+<script>
+    window.onload = () => {
+        fetch("/login")
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text(); // Read the response as plain text
+            })
+            .then(text => {
+                console.log("HTML Response:", text); // Log the received HTML
+            })
+            .catch(err => {
+                console.error("Error:", err);
+            });
+    }
+
+</script>
 
