@@ -135,4 +135,5 @@ dist
 # Config
 config.local.json
 
-changes
+# mac junk
+**/.DS_Store
