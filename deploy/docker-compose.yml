@@ -14,7 +14,7 @@ services:
     expose:
       - 27017
     volumes:
-      mongo-data:/data/db
+      - mongo-data:/data/db
     env_file: .env
     restart: always
 
