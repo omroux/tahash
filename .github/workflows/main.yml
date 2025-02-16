@@ -30,7 +30,7 @@ jobs:
       - name: Build Docker image
         id: build_image
         run: |
-          docker build "$GITHUB_WORKSPACE" -t ${{ secrets.DOCKER_HUB_USER_NAME }}/tahash:latest --label dockerfile-path="Dockerfile"
+          docker build "$GITHUB_WORKSPACE/frontend" -f "$GITHUB_WORKSPACE/frontend/Dockerfile" -t ${{ secrets.DOCKER_HUB_USER_NAME }}/tahash:latest --label dockerfile-path="frontend/Dockerfile"
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_HUB_USER_NAME }}/tahash:latest
 
