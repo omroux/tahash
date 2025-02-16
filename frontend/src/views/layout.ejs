@@ -29,8 +29,17 @@
         </div>
     </div>
 
+
     <div class="Content-Container">
-        <%- content %>
+        <div id="loading_container" <% if (!locals.loading) { %> hidden <% } %> >
+            <h1 class="Title">טוען...</h1>
+        </div>
+
+        <div id="content_container" <% if (locals.loading) { %> hidden <% } %> >
+            <script src="src/scripts/pages/master_page.js"></script>
+            <%- content %>
+        </div>
     </div>
+
 </body>
 </html>

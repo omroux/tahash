@@ -1,23 +1,26 @@
 <h1 class="Title">פרופיל</h1>
 
-<% if (userData) { %>
+<div id="data_display">
     <div class="User-Data-Container">
         <!-- Name -->
         <div class="User-Property">
             <h2 class="Sub-Title">שם:</h2>
-            <p class="Paragraph"><%= userData.name %></p>
+            <p class="Paragraph" id="name_txt"></p>
         </div>
         <div class="User-Property">
             <h2 class="Sub-Title">WCA-ID:</h2>
-            <p class="Paragraph"><%= userData.wca_id %></p>
+            <p class="Paragraph" id="wca_id_txt"></p>
         </div>
-        <img src="<%= userData.avatar.url %>" id="wca-img" alt="wca image">
+        <img id="wca_img" alt="wca image">
     </div>
     <br><br><br>
-    <button class="Round-Button" id="logout-btn">Log Out</button>
-<% } else { %>
+    <button class="Round-Button" id="logout_btn">Log Out</button>
+</div>
+<div id="no_data">
     <p class="Paragraph">לא נמצאו נתונים.</p>
     <a href="/home">
         <button>בית</button>
     </a>
-<% } %>
+</div>
+
+<script src="src/scripts/pages/profile.js"></script>

@@ -92,13 +92,18 @@ app.get("/profile", async (req, res) => {
 
     // get the user's token (from the cookie)
     const authToken = JSON.parse(req.cookies.authToken);
+
+    renderPage(req, res, "profile.ejs", { title: "Profile", loading: true });
+
+    return;
+
     const userData = await getUserData(authToken.access_token);
     if (!userData.me) {
         // TODO: redirect to login if needed.
 
         // send to
         if (userData.error) {
-            renderError(req, res, userData.error ?? "שגיאה בטעינת נתוני פרופיל WCA.");
+//            renderError(req, res, userData.error ?? "שגיאה בטעינת נתוני פרופיל WCA.");
             return;
         }
         else { // maybe a problem with the cookie. send
