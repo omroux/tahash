@@ -151,9 +151,9 @@ app.get("/auth-callback", async (req, res) => {
 // endregion
 
 
-app.get("/api-request", (req, res) => {
-
-});
+//app.get("/api-request", (req, res) => {
+//
+//});
 
 
 // get a source file
@@ -185,14 +185,24 @@ app.get("/src/*", (req, res) => {
 // read and parse config.json
 // handles exceptions (by throwing them :p )
 function readConfigFile() {
-    let configData;
-    try {
-        configData = JSON.parse(fs.readFileSync((fs.existsSync(localConfigFile) ? localConfigFile : configFile), 'utf-8'));
-    }
-    catch (err) {
-        console.error("Error reading config file.");
-        throw err;
-    }
+    let configData = {
+        "port": 3000,
+        "baseUrl": "https://comp.kehilush.com",
+        "local": false
+    };
+//    try {
+//        configData = {
+//                "port": 3000,
+//                "baseUrl": "https://comp.kehilush.com",
+//                "local": false
+//            }
+//            ;
+////        configData = JSON.parse(fs.readFileSync((fs.existsSync(localConfigFile) ? localConfigFile : configFile), 'utf-8'));
+//    }
+//    catch (err) {
+//        console.error("Error reading config file.");
+//        throw err;
+//    }
 
     if (!configData.baseUrl || (configData.local === undefined) || !configData.port)
         throw Error("Error: invalid config file.");
