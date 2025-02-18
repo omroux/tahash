@@ -1,26 +1,43 @@
 <h1 class="Title">פרופיל</h1>
 
-<div id="data_display">
-    <div class="User-Data-Container">
-        <!-- Name -->
-        <div class="User-Property">
-            <h2 class="Sub-Title">שם:</h2>
-            <p class="Paragraph" id="name_txt"></p>
-        </div>
-        <div class="User-Property">
-            <h2 class="Sub-Title">WCA-ID:</h2>
-            <p class="Paragraph" id="wca_id_txt"></p>
-        </div>
-        <img id="wca_img" alt="wca image">
+<!-- Make this a display: flex, with a gap. (instead of using <br>s), and add styling. -->
+<div class="User-Data-Container">
+    <!-- Name -->
+    <div class="User-Property">
+        <h2 class="Sub-Title">שם:</h2>
+        <p class="Sub-title" id="name_txt" style="font-size: 180%"></p>
     </div>
-    <br><br><br>
-    <button class="Round-Button" id="logout_btn">Log Out</button>
+
+    <br><br>
+
+    <!-- WCA-id -->
+    <div class="User-Property">
+        <h2 class="Sub-Title">WCA-ID:</h2>
+        <p class="Sub-Title" id="wca_id_txt" style="font-size: 180%"></p>
+    </div>
+
+    <br><br>
+
+    <!-- WCA Image -->
+    <div class="User-Property">
+        <h2 class="Sub-Title">תמונה:</h2>
+        <img src="" id="wca_img" alt="wca image" width="200vw">
+    </div>
 </div>
-<div id="no_data">
-    <p class="Paragraph">לא נמצאו נתונים.</p>
-    <a href="/home">
-        <button>בית</button>
-    </a>
-</div>
+
+<br><br><br>
+
+<button class="Round-Button" id="logout_btn">Log Out</button>
+
+<!-- TODO: this might be cool to add instead of redirect to login -->
+<!--<div id="data_display">-->
+<!-- --This div for the data display -- -->
+<!--</div>-->
+<!--<div id="no_data" hidden>-->
+<!--    <p class="Paragraph">לא נמצאו נתונים.</p>-->
+<!--    <a href="/login">-->
+<!--        <button>התחברות.</button>-->
+<!--    </a>-->
+<!--</div>-->
 
 <script src="src/scripts/pages/profile.js"></script>

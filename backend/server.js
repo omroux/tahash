@@ -83,59 +83,10 @@ app.get("/login", (req, res) => {
 
 // Route for profile page
 app.get("/profile", async (req, res) => {
-    // get the saved user's token (from the cookie)
-    // cookie has expired/doesn't exist/something happened to it -> redirect to /login
-    let authToken = req.cookies[authTokenCookie] ? JSON.parse(req.cookies[authTokenCookie]) : null;
-    if (!authToken || !authToken.access_token) {
-        clearCookieAndRedirect();
-        return;
-    }
-
-    let userData = await getUserData(authToken.access_token);
-    // data received successfully
-    if (userData.me) {
-        renderPage(req,
-            res,
-            "profile.ejs",
-            { title: "Profile" },
-            { userData: userData.me });
-        return;
-    }
-
-    // an error occurred
-    // try to get a refresh token
-    if (!userData.refresh_token) {
-        clearCookieAndRedirect();
-        return;
-    }
-
-    const tokenData = await fetchRefreshToken(userData.refresh_token);
-    if (tokenData.error || !tokenData.access_token) {
-        clearCookieAndRedirect();
-        return;
-    }
-
-    // store the cookie with the new token
-    storeTokenCookie(tokenData);
-
-    // try to use the new refresh token
-    // note: we're not reloading the page in order to avoid an infinite loop of refreshing the page
-    userData = await getUserData(tokenData.access_token);
-    if (userData.me){
-        renderPage(req,
-            res,
-            "profile.ejs",
-            { title: "Profile" },
-            { userData: userData.me });
-        return;
-    }
-
-    clearCookieAndRedirect();
-
-    function clearCookieAndRedirect(toHome = false) {
-        res.clearCookie(authTokenCookie);
-        res.redirect(toHome ? "/home" : "/login");
-    }
+    renderPage(req,
+        res,
+        "profile.ejs",
+        { title: "Profile", loading: true });
 });
 
 // Automatically redirect to authentication
@@ -170,6 +121,62 @@ app.get("/auth-callback", async (req, res) => {
 });
 // endregion
 
+// If the user has an authToken cookie, send their "WCA-Me" information
+// Otherwise, redirect to login
+app.get("/wca-me", async (req, res) => {
+    // get the saved user's token (from the cookie)
+    if (!req.cookies[authTokenCookie]) {
+        clearCookieAndRedirect();
+        return;
+    }
+
+    // cookie has expired/doesn't exist/something happened to it -> redirect to /login
+    let authToken = null;
+    try { authToken = JSON.parse(req.cookies[authTokenCookie]); }
+    catch {
+        clearCookieAndRedirect();
+        return;
+    }
+
+    if (!authToken || !authToken.access_token) {
+        clearCookieAndRedirect();
+        return;
+    }
+
+    let userData = await getUserData(authToken.access_token);
+    // data received successfully
+    if (userData.me) {
+        res.json(userData.me);
+        return;
+    }
+
+    // an error occurred
+    // try to get a refresh token
+    if (!userData.refresh_token) {
+        clearCookieAndRedirect();
+        return;
+    }
+
+    const tokenData = await fetchRefreshToken(userData.refresh_token);
+    if (tokenData.error || !tokenData.access_token) {
+        clearCookieAndRedirect();
+        return;
+    }
+
+    // store the cookie with the new token
+    storeTokenCookie(tokenData);
+
+    // try to use the new refresh token
+    // note: we're not reloading the page in order to avoid an infinite loop of refreshing the page
+    userData = await getUserData(tokenData.access_token);
+    if (userData.me)    res.json(userData.me);
+    else                clearCookieAndRedirect();
+
+    function clearCookieAndRedirect(toHome = false) {
+        res.clearCookie(authTokenCookie);
+        res.redirect(toHome ? "/home" : "/login");
+    }
+});
 
 // get a source file
 app.get("/src/*", (req, res) => {
@@ -264,7 +271,6 @@ function readConfigFile() {
     return configData;
 }
 
-// TODO: use refresh token
 // TODO: log out button logic
 // TODO: for dynamic hiding/showing of login/profile pages, use options.loggedIn (for ejs options in the renderPage function)
 // TODO: serverutils.js file to store function that server.js uses (like renderPage, renderError, readConfigFile...)

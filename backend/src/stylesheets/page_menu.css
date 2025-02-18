@@ -62,7 +62,7 @@
 
 
 @keyframes current-page-item-load {
-    from { transform: var(--item-hover-scale); }
+    from { transform: scale(var(--item-hover-scale)); }
     to { transform: scale(1); }
 }
 
