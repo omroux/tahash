@@ -109,7 +109,7 @@ app.get("/profile", async (req, res) => {
         return;
     }
 
-    const tokenData = await fetchRefreshToken(req, userData.refresh_token);
+    const tokenData = await fetchRefreshToken(userData.refresh_token);
     if (tokenData.error || !tokenData.access_token) {
         clearCookieAndRedirect();
         return;
@@ -127,8 +127,8 @@ app.get("/profile", async (req, res) => {
             "profile.ejs",
             { title: "Profile" },
             { userData: userData.me });
+        return;
     }
-
 
     clearCookieAndRedirect();
 
