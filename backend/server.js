@@ -1,4 +1,4 @@
-import {fetchToken, getUserData, WCA_AUTH_URL} from "./src/scripts/backend/api-utils.js";
+import { fetchToken, fetchRefreshToken, getUserData, WCA_AUTH_URL } from "./src/scripts/backend/api-utils.js";
 import path from "path";
 import fs from "fs";
 import ejs from "ejs";
@@ -11,7 +11,6 @@ let hostname, config;
 
 const authTokenCookie = "authToken";
 const localConfigFile = "config.local.json";
-const configFile = "config.json";
 
 // use EJS as the view engine
 app.set('view engine', 'ejs');
@@ -84,39 +83,59 @@ app.get("/login", (req, res) => {
 
 // Route for profile page
 app.get("/profile", async (req, res) => {
-    // cookie has expired/doesn't exist -> redirect to /login
-    if (!req.cookies.authToken) {
-        res.redirect("/login");
+    // get the saved user's token (from the cookie)
+    // cookie has expired/doesn't exist/something happened to it -> redirect to /login
+    let authToken = req.cookies[authTokenCookie] ? JSON.parse(req.cookies[authTokenCookie]) : null;
+    if (!authToken || !authToken.access_token) {
+        clearCookieAndRedirect();
         return;
     }
 
-    // get the user's token (from the cookie)
-    const authToken = JSON.parse(req.cookies.authToken);
-
-// TODO: finish this... :p
-//    renderPage(req, res, "profile.ejs", { title: "Profile", loading: true });
-//
-//    return;
-
-    const userData = await getUserData(authToken.access_token);
-    if (!userData.me) {
-        // TODO: redirect to login if needed.
-
-        // send to
-        if (userData.error) {
-//            renderError(req, res, userData.error ?? "שגיאה בטעינת נתוני פרופיל WCA.");
-            return;
-        }
-        else { // maybe a problem with the cookie. send
-
-        }
+    let userData = await getUserData(authToken.access_token);
+    // data received successfully
+    if (userData.me) {
+        renderPage(req,
+            res,
+            "profile.ejs",
+            { title: "Profile" },
+            { userData: userData.me });
+        return;
     }
 
-    renderPage(req,
-        res,
-        "profile.ejs",
-        { title: "Profile" },
-        { userData: userData.me });
+    // an error occurred
+    // try to get a refresh token
+    if (!userData.refresh_token) {
+        clearCookieAndRedirect();
+        return;
+    }
+
+    const tokenData = await fetchRefreshToken(req, userData.refresh_token);
+    if (tokenData.error || !tokenData.access_token) {
+        clearCookieAndRedirect();
+        return;
+    }
+
+    // store the cookie with the new token
+    storeTokenCookie(tokenData);
+
+    // try to use the new refresh token
+    // note: we're not reloading the page in order to avoid an infinite loop of refreshing the page
+    userData = await getUserData(tokenData.access_token);
+    if (userData.me){
+        renderPage(req,
+            res,
+            "profile.ejs",
+            { title: "Profile" },
+            { userData: userData.me });
+    }
+
+
+    clearCookieAndRedirect();
+
+    function clearCookieAndRedirect(toHome = false) {
+        res.clearCookie(authTokenCookie);
+        res.redirect(toHome ? "/home" : "/login");
+    }
 });
 
 // Automatically redirect to authentication
@@ -126,6 +145,12 @@ app.get("/redirect-to-auth", (req, res) => {
 
 // Route for auth-callback
 app.get("/auth-callback", async (req, res) => {
+    // if we didn't receive a code, redirect to home
+    if (!req.query.code) {
+        res.redirect("/");
+        return;
+    }
+
     // fetch token in callback
     const tokenData = await fetchToken(req, hostname);
     if (!tokenData.access_token) {
@@ -138,22 +163,12 @@ app.get("/auth-callback", async (req, res) => {
     }
 
     // set authToken cookie
-    res.cookie(authTokenCookie, JSON.stringify(tokenData), {
-        httpOnly: true,       // Prevents JavaScript access (helps mitigate XSS)
-        secure: true,         // Ensures cookie is only sent over HTTPS
-        sameSite: 'Strict',   // Prevents cross-site requests (mitigates CSRF)
-        maxAge: 24 * 60 * 60 * 1000 // Cookie expires after 1 day
-      });
+    storeTokenCookie(res, tokenData);
 
     // redirect to profile page
     res.redirect("/profile");
 });
 // endregion
-
-
-//app.get("/api-request", (req, res) => {
-//
-//});
 
 
 // get a source file
@@ -178,49 +193,73 @@ app.get("/src/*", (req, res) => {
     res.sendFile(filePath);
 });
 
+// save a cookie
+// cookieData is a JSON object or a string. (automatically stringifies)
+// leave options null to use default cookieOptions (httpOnly=true, secure=true, sameSite=strict, maxAge=1 day)
+function storeCookie(res, cookieName, cookieData, options = null) {
+    // default cookie options
+    options = options ?? {
+        httpOnly:   true,               // Prevents JavaScript access (helps mitigate XSS)
+        secure:     true,               // Ensures cookie is only sent over HTTPS
+        sameSite:   'Strict',           // Prevents cross-site requests (mitigates CSRF)
+        maxAge:     24 * 60 * 60 * 1000 // Cookie expires after 1 day
+      };
 
-// TODO: use refresh token
-// TODO: for dynamic hiding/showing of login/profile pages, use options.loggedIn (for ejs options in the renderPage function)
+    // cookieData is not a string
+    if (typeof(cookieData) !== "string")
+        cookieData = JSON.stringify(cookieData);
 
-// read and parse config.json
+    res.cookie(cookieName, cookieData,options);
+}
+
+// store auth token cookie (specifically)
+// tokenData is the full json response from the WCA API (assuming there wasn't an error)
+function storeTokenCookie(res, tokenData) {
+    storeCookie(res, authTokenCookie, {
+        access_token:   tokenData.access_token,
+        refresh_token:  tokenData.refresh_token,
+        expires_in:     tokenData.expires_in
+    });
+}
+
+// read the config file (default/local)
 // handles exceptions (by throwing them :p )
 function readConfigFile() {
+    // config data defaults to website config
     let configData = {
         "port": 3000,
         "baseUrl": "https://comp.kehilush.com",
         "local": false
     };
-//    try {
-//        configData = {
-//                "port": 3000,
-//                "baseUrl": "https://comp.kehilush.com",
-//                "local": false
-//            }
-//            ;
-////        configData = JSON.parse(fs.readFileSync((fs.existsSync(localConfigFile) ? localConfigFile : configFile), 'utf-8'));
-//    }
-//    catch (err) {
-//        console.error("Error reading config file.");
-//        throw err;
-//    }
 
-    if (!configData.baseUrl || (configData.local === undefined) || !configData.port)
-        throw Error("Error: invalid config file.");
+    // local config file exists
+    if (fs.existsSync(localConfigFile)) {
+        try {
+            configData = JSON.parse(fs.readFileSync(localConfigFile, 'utf-8'));
+        }
+        catch (err) {
+            console.error("Error reading config file.");
+            throw err;
+        }
 
-    // validate port
-    const parsedPort = parseInt(configData.port.toString(), 10);
-    // check if the port is a valid number and within the valid range (0–65535)
-    if (isNaN(parsedPort) || parsedPort < 0 && parsedPort > 65535)
-        throw Error("Invalid port in config file.");
-    configData.port = parsedPort;
+        if (!configData.baseUrl || (configData.local === undefined) || !configData.port)
+            throw Error("Error: invalid config file.");
 
-    // validate "local" boolean
-    configData.local = configData.local.toString();
-    if (configData.local === "true")        configData.local = true;
-    else if (configData.local === "false")  configData.local = false;
-    else throw Error("Config 'local' has to be a valid boolean");
+        // validate port
+        const parsedPort = parseInt(configData.port.toString(), 10);
+        // check if the port is a valid number and within the valid range (0–65535)
+        if (isNaN(parsedPort) || parsedPort < 0 && parsedPort > 65535)
+            throw Error("Invalid port in config file.");
+        configData.port = parsedPort;
 
-    // hostname
+        // validate "local" boolean
+        configData.local = configData.local.toString();
+        if (configData.local === "true")        configData.local = true;
+        else if (configData.local === "false")  configData.local = false;
+        else throw Error("Config 'local' has to be a valid boolean");
+    }
+
+    // build hostname
     hostname = configData.baseUrl + (configData.local ? `:${configData.port}` : "")
     return configData;
 }
@@ -228,6 +267,7 @@ function readConfigFile() {
 // TODO: use refresh token
 // TODO: log out button logic
 // TODO: for dynamic hiding/showing of login/profile pages, use options.loggedIn (for ejs options in the renderPage function)
+// TODO: serverutils.js file to store function that server.js uses (like renderPage, renderError, readConfigFile...)
 
 console.log("Reading config file...");
 config = readConfigFile();

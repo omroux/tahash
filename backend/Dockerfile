@@ -4,7 +4,7 @@ WORKDIR /app
 COPY . /app
 
 ENV NODE_ENV=production
-RUN npm ci --only=production && npm install
+RUN npm ci --only=production && npm install && ls
 
 EXPOSE 3000
 

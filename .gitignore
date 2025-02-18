@@ -137,3 +137,4 @@ config.local.json
 
 # mac junk
 **/.DS_Store
+runlocal.sh

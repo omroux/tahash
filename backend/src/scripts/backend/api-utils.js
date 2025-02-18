@@ -28,9 +28,7 @@ export async function fetchToken(req, hostname) {
     };
 
     // send request
-    console.log(options);
     const httpRes = await fetch(tokenReqUrl, options);
-//
     if (!httpRes.ok)
         return { error: `HTTP Error: "${httpRes.statusText}"` };
 
@@ -39,6 +37,11 @@ export async function fetchToken(req, hostname) {
         return { error: `API Error: "${data.error}" - ${data.error_description}` };
 
     return data;
+}
+
+
+export async function fetchRefreshToken(req, refreshToken, hostname) {
+
 }
 
 

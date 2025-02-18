@@ -1,29 +1,30 @@
+# Local Docker Deploy
 services:
   # mongo container
   mongo:
     image: mongo
     container_name: mongodb
+    env_file: .env
     expose:
       - 27017
     volumes:
       - mongo-data:/data/db
-    env_file: .mongoenv
     restart: always
 
   # website container
   website:
-    image: omroux/tahash
+    image: tahash
     container_name: website
-    env_file: .websiteenv
+    env_file: .env
     ports:
-      - "3001:3000"
+      - "3000:3000"
     volumes:
       - website-data:/app/data
-    environment:
+    environment:  # Environment variables, in addition to the .env file
       - NODE_ENV=production
       - MONGO_URL=mongodb://mongodb:27017  # Connect to MongoDB via its container name
     depends_on:
-      - mongo
+        - mongo
 
 volumes:
   mongo-data:
