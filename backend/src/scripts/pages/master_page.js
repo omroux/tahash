@@ -1,4 +1,4 @@
-xconst loadingContainer = document.querySelector("#loading_container");
+const loadingContainer = document.querySelector("#loading_container");
 const contentContainer = document.querySelector("#content_container");
 
 
@@ -29,7 +29,7 @@ function setLoadingState(state) {
 //          to tell the server this request was sent from a client (and not from a browser)
 // returns: the response from the server *as a JSON object*.
 async function sendRequest(path, options = {}) {
-    const fromClientHeader = "From-Client";
+    const fromClientHeader = "from-client";
     options.method = options.method ?? "GET";
     options.headers = options.headers ?? {};
     options.headers[fromClientHeader] = "true";

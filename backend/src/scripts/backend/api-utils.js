@@ -13,7 +13,7 @@ export const WCA_AUTH_URL = (hostname) => `https://www.worldcubeassociation.org/
 //      - if an error occurred, returns an error object
 //      - otherwise, returns the data received as JSON
 async function sendWCARequest(path, options) {
-    const reqUrl = `https://www.worldcubeassociation.org${location}`;
+    const reqUrl = `https://www.worldcubeassociation.org${path}`;
     const httpRes = await fetch(reqUrl, options);
     if (!httpRes.ok)
         return errorObject(`HTTP Error: "${httpRes.statusText}"`);

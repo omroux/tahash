@@ -1,3 +1,4 @@
+import fs from 'fs';
 import ejs from 'ejs';
 import path from 'path';
 
@@ -128,7 +129,7 @@ export function readConfigFile() {
 }
 
 
-const fromClientHeader = "From-Client";
+const fromClientHeader = "from-client";
 // check if a request was sent from a client
-export const sentFromClient = (req) => (req.get(fromClientHeader) === true);
+export const sentFromClient = (req) => (req.headers[fromClientHeader] === "true");
 

@@ -80,7 +80,7 @@ app.get("/auth-callback", async (req, res) => {
     }
 
     // fetch token in callback
-    const tokenData = await fetchToken();
+    const tokenData = await fetchToken(auth_code, hostname);
     if (tokenData.error) {
         renderError(req, res, tokenData.error ?? "שגיאה בתהליך ההתחברות.");
         return;
