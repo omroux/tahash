@@ -8,14 +8,15 @@ import {
     renderPage,
     renderError,
     storeCookie,
+    tryGetCookie,
     authTokenCookie,
     storeTokenCookie,
     readConfigFile,
-    __dirname,
+    __dirname, sentFromClient,
 } from "./serverutils.js";
+import { errorObject } from "./src/scripts/backend/global_utils.js";
 import path from "path";
 import fs from "fs";
-import ejs from "ejs";
 import express from "express";
 import cookieParser from "cookie-parser";
 const app = express();
@@ -72,24 +73,16 @@ app.get("/redirect-to-auth", (req, res) => {
 // TODO: clean this + wca-me
 app.get("/auth-callback", async (req, res) => {
     // if we didn't receive a code, redirect to home
-    if (!req.query.code) {
+    const auth_code = req.query.code;
+    if (!auth_code) {
         res.redirect("/");
         return;
     }
 
     // fetch token in callback
-    const tokenData = await fetchToken(req, hostname);
-    if (!tokenData.access_token) {
-        renderPage(
-            req,
-            res,
-            "error.ejs",
-            { title: "Error" },
-            {
-                error:
-                    JSON.stringify(tokenData.error) ?? "שגיאה בתהליך ההתחברות.",
-            },
-        );
+    const tokenData = await fetchToken();
+    if (tokenData.error) {
+        renderError(req, res, tokenData.error ?? "שגיאה בתהליך ההתחברות.");
         return;
     }
 
@@ -101,29 +94,20 @@ app.get("/auth-callback", async (req, res) => {
 });
 //endregion
 
-// If the user has an authToken cookie, send their "WCA-Me" information
-// Otherwise, redirect to login
+// use the requester's authToken cookie to fetch and send their "WCA-Me" information.
+// if an error occurres - clears the cookie, and:
+//          - if the request was received from a client, sends an error object
+//          - otherwise, redirect to login
+//
 app.get("/wca-me", async (req, res) => {
-    // get the saved user's token (from the cookie)
-    if (!req.cookies[authTokenCookie]) {
-        clearCookieAndRedirect();
+    // no cookie -> redirect to /login
+    let authToken = tryGetCookie(req, authTokenCookie);
+    if (!authToken) {
+        dataFailed();
         return;
     }
 
-    // cookie has expired/doesn't exist/something happened to it -> redirect to /login
-    let authToken = null;
-    try {
-        authToken = JSON.parse(req.cookies[authTokenCookie]);
-    } catch {
-        clearCookieAndRedirect();
-        return;
-    }
-
-    if (!authToken || !authToken.access_token) {
-        clearCookieAndRedirect();
-        return;
-    }
-
+    // get the user's data using the access token
     let userData = await getUserData(authToken.access_token);
     // data received successfully
     if (userData.me) {
@@ -131,31 +115,27 @@ app.get("/wca-me", async (req, res) => {
         return;
     }
 
-    // an error occurred
-    // try to get a refresh token
-    if (!userData.refresh_token) {
-        clearCookieAndRedirect();
-        return;
-    }
-
+    // generate a new token (with refresh token)
     const tokenData = await fetchRefreshToken(userData.refresh_token);
-    if (tokenData.error || !tokenData.access_token) {
-        clearCookieAndRedirect();
+    if (tokenData.error) {
+        dataFailed();
         return;
     }
 
     // store the cookie with the new token
-    storeTokenCookie(tokenData);
+    storeTokenCookie(res, tokenData);
 
     // try to use the new refresh token
     // note: we're not reloading the page in order to avoid an infinite loop of refreshing the page
     userData = await getUserData(tokenData.access_token);
     if (userData.me) res.json(userData.me);
-    else clearCookieAndRedirect();
+    else dataFailed();
 
-    function clearCookieAndRedirect(toHome = false) {
+    // clear the token cookie and redirect to /login
+    function dataFailed(error = "error occurred") {
         res.clearCookie(authTokenCookie);
-        res.redirect(toHome ? "/home" : "/login");
+        if (sentFromClient(req))    res.json(errorObject(error, { redirectTo: "/login" }));
+        else                        res.redirect("/login");
     }
 });
 

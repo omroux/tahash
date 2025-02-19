@@ -11,16 +11,10 @@ function updateWcaData() {
      wcaImg.src = wcaMeData.avatar.url;
 }
 
-const getWcaMe = async () => await (await fetch("/wca-me")).json();
 window.onload = async () => {
-    try {
-        wcaMeData = await getWcaMe();
-    }
-    catch (err) {
-        // redirect to login
-        window.location = "/login";
-        return;
-    }
+    wcaMeData = await sendRequest("/wca-me");
+    if (wcaMeData.error)
+        window.location = wcaMeData.redirectTo;
 
     updateWcaData();
     setLoadingState(false);

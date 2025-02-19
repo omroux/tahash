@@ -34,7 +34,7 @@ export function renderError(req, res, error = null) {
     renderPage(req,
         res,
         "error.ejs",
-        {title: "Error"},
+        { title: "Error" },
         { error: error });
 }
 
@@ -67,6 +67,22 @@ export function storeTokenCookie(res, tokenData) {
         refresh_token:  tokenData.refresh_token,
         expires_in:     tokenData.expires_in
     });
+}
+
+
+// check whether the request contains a specific cookie
+// isJson:  whether to parse the cookie's value to JSON.
+//          When `isJson=true`: if the cookie doesn't exist, or the cookie's value wasn't a JSON, returns null.
+// returns:
+//      - if the cookie doesn't exist, returns null.
+//      - if the cookie exists, returns its value (according to `isJson`)
+export function tryGetCookie(req, cookieName, isJson = true) {
+    const cookieStr = req.cookies[cookieName];
+    if (!cookieStr) return null;
+    if (!isJson) return cookieStr;
+
+    try { return JSON.parse(cookieStr); }
+    catch { return null; }
 }
 
 
@@ -110,3 +126,9 @@ export function readConfigFile() {
     // build hostname
     return configData;
 }
+
+
+const fromClientHeader = "From-Client";
+// check if a request was sent from a client
+export const sentFromClient = (req) => (req.get(fromClientHeader) === true);
+
