@@ -6,10 +6,12 @@ function updateWcaData() {
     const nameTxt = document.querySelector("#name_txt");
     const wcaIdTxt = document.querySelector("#wca_id_txt");
     const wcaImg = document.querySelector("#wca_img");
+    const wcaProfileLink = document.querySelector("#wca_profile_link");
 
     nameTxt.innerHTML = wcaMeData.name;
     wcaIdTxt.innerHTML = wcaMeData.wca_id;
     wcaImg.src = wcaMeData.avatar.url;
+    wcaProfileLink.href = wcaMeData.url;
 }
 
 window.onload = async () => {

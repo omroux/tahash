@@ -78,3 +78,8 @@
         font-size: 150%;
     }
 }
+
+#wca_img {
+    border: 5px solid black;
+    border-radius: 10px;
+}
