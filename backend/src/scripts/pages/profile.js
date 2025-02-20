@@ -12,14 +12,12 @@ function updateWcaData() {
 }
 
 window.onload = async () => {
-    setLoadingState(true);
     wcaMeData = await sendRequest("/wca-me");
     if (wcaMeData.error) {
         sessionStorage.clear();
         window.location = wcaMeData.redirectTo;
     }
 
-    setLoggedIn(true);
     updateWcaData();
     setLoadingState(false);
 };

@@ -8,8 +8,6 @@ export const __dirname = path.dirname(new URL(import.meta.url).pathname);
 // filePath = the page's file path *inside* src/views/pages, including .ejs extension. (src/views/pages/:filePath)
 // cssFiles = *string[]* paths to extra css stylesheets (inside src/stylesheets/)
 export function renderPage(req, res, filePath, layoutOptions = {}, pageOptions = {}, cssFiles = []) {
-    const loggedInHeader = "loggedIn";
-
     // redirect to lowercase page request (not really necessary, but better to have)
     const pathname = req.url;
     if (pathname.toLowerCase() !== pathname) {
@@ -27,6 +25,7 @@ export function renderPage(req, res, filePath, layoutOptions = {}, pageOptions =
         layoutOptions = layoutOptions ?? {};
         layoutOptions.content = str;
         layoutOptions.cssFiles = cssFiles ?? [];
+
         const loggedIn = tryGetCookie(req, authTokenCookie);
         layoutOptions.loggedIn = loggedIn != null;
 

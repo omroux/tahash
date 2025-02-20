@@ -15,14 +15,10 @@ const setLoadingState = (state) => { loadingContainer.hidden = !(contentContaine
 // returns: the response from the server *as a JSON object*.
 async function sendRequest(path, options = {}) {
     const fromClientHeader = "from-client";
-    const loggedInHeader = "loggedIn";
 
     options.method = options.method ?? "GET";
     options.headers = options.headers ?? {};
-
-    // client headers
     options.headers[fromClientHeader] = "true";
-    options.headers[loggedInHeader] = isLoggedIn().toString();
 
     return await (await fetch(path, options)).json();
 }
