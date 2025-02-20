@@ -31,6 +31,7 @@ app.set("views", path.join(__dirname, "src/views/"));
 app.use(cookieParser());
 
 // region page routing
+
 // "/" => redirect to home page
 app.get("/", (req, res) => {
     res.redirect("/home");
@@ -91,7 +92,10 @@ app.get("/auth-callback", async (req, res) => {
     // redirect to profile page
     res.redirect("/profile");
 });
-//endregion
+
+// endregion
+
+// region request handling
 
 // use the requester's authToken cookie to fetch and send their "WCA-Me" information.
 // if an error occurres - clears the cookie, and:
@@ -150,6 +154,8 @@ app.get("/src/*", (req, res) => {
 
     res.sendFile(filePath);
 });
+
+// endregion
 
 // TODO: log out button logic
 // TODO: for dynamic hiding/showing of login/profile pages, use options.loggedIn (for ejs options in the renderPage function)

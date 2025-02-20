@@ -1,6 +1,8 @@
 :root {
     --default-btn-color: rgb(150, 224, 230);
+    --disabled-btn-color: rgb(120, 120, 120);
     --hover-btn-color: rgb(140, 190, 200);
+    --hover-btn-scale: 1.05
 }
 
 #login-btn {
@@ -20,9 +22,6 @@
     border-style: solid;
     background-color: var(--default-btn-color);
 
-    /* cursor */
-    cursor: pointer;
-
     /* hover transition setup */
     transition: background-color 0.15s, transform 0.1s ease-in-out, width 0.1s;
 
@@ -34,14 +33,25 @@
         text-align: center;
     }
 
-    &:hover {
-        background-color: var(--hover-btn-color);
-        transform: scale(1.05);
-        width: 52%;
+    &:enabled {
+        cursor: pointer;
 
-        & p {
-            font-size: 330%;
+        &:hover {
+            background-color: var(--hover-btn-color);
+            transform: scale(var(--hover-btn-scale));
+            width: 52%;
+
+            & p {
+                font-size: 330%;
+            }
         }
+    }
+
+    &:disabled {
+        cursor: default;
+
+        background-color: var(--disabled-btn-color);
+        transform: scale(1);
     }
 }
 

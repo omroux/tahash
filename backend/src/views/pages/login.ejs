@@ -4,5 +4,12 @@
         התחבר עם WCA
     </p>
 </button>
+
 <!-- login btn onclick -->
-<script>document.querySelector("#login-btn").onclick = () => window.location.href = "<%= auth_path %>"</script>
+<script>
+    const loginBtn = document.querySelector("#login-btn");
+    loginBtn.onclick = () => {
+        loginBtn.disabled = true;
+        window.location.href = "<%= auth_path %>";
+    }
+</script>
