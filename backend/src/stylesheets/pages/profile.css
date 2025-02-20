@@ -1,0 +1,80 @@
+:root {
+    --disabled-btn-color: rgb(120, 120, 120);
+}
+
+.Data-Container {
+    /* data container spacing */
+    margin: 20px auto 30px auto;
+    padding-bottom: 40px;
+
+    /* flex 💪 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    /* background */
+
+
+    /* spacing between each property */
+    gap: 25px;
+}
+
+.User-Property {
+    /* center items */
+    display: flex;
+    align-items: center;
+
+    /* spacing between items (text and value) */
+    gap: 10px;
+
+    /* border */
+    padding: 2px 4px 2px 4px;
+
+    .User-Property .Property-Name {
+        text-align: center;
+        color: transparent;
+    }
+}
+
+#logout_btn {
+    transition: transform 0.1s ease-in-out, width 0.15s ease-in-out, background-color 0.1s ease-in-out;
+
+    display: flex;
+    justify-content: center;
+
+    margin-top: 25px;
+
+    height: fit-content;
+    width: 40%;
+
+    background-color: rgb(235, 21, 25);
+    border-radius: 10px;
+    border: 3px solid black;
+
+    cursor: pointer;
+
+    &:not(:disabled):hover {
+        transform: scale(1.05);
+        background-color: rgb(212, 20, 25);
+
+        & p {
+            font-size: 155%;
+            letter-spacing: 1px;
+        }
+    }
+
+    &:disabled {
+        cursor: default;
+
+        background-color: var(--disabled-btn-color);
+        transform: scale(1);
+    }
+
+    /* text */
+    & p {
+        transition: letter-spacing 0.1s ease-in-out, font-size 0.1s ease-in-out;
+        text-align: center;
+        font-weight: bolder;
+        font-size: 150%;
+    }
+}

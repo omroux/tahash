@@ -26,20 +26,21 @@
     transition: background-color 0.15s, transform 0.1s ease-in-out, width 0.1s;
 
     & p {
-        transition: font-size 0.1s ease-in-out;
+        transition: font-size 0.1s ease-in-out, letter-spacing 0.1s ease-in-out;
         transition-delay: 0s;
         font-size: 300%;
         margin: 5% auto;
         text-align: center;
     }
 
-    &:enabled {
+    &:not(:disabled) {
         cursor: pointer;
 
         &:hover {
+            letter-spacing: 1px;
             background-color: var(--hover-btn-color);
             transform: scale(var(--hover-btn-scale));
-            width: 52%;
+            width: 50%;
 
             & p {
                 font-size: 330%;

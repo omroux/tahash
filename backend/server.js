@@ -62,7 +62,7 @@ app.get("/login", (req, res) => {
 
 // Route for profile page
 app.get("/profile", async (req, res) => {
-    renderPage(req, res, "profile.ejs", { title: "Profile", loading: true });
+    renderPage(req, res, "profile.ejs", { title: "Profile", loading: true }, { }, [ "pages/profile.css" ]);
 });
 
 // Automatically redirect to authentication
@@ -95,7 +95,7 @@ app.get("/auth-callback", async (req, res) => {
 
 // endregion
 
-// region request handling
+// region other request handling
 
 // use the requester's authToken cookie to fetch and send their "WCA-Me" information.
 // if an error occurres - clears the cookie, and:
@@ -140,6 +140,13 @@ app.get("/wca-me", async (req, res) => {
         if (sentFromClient(req))    res.json(errorObject(error, { redirectTo: "/login" }));
         else                        res.redirect("/login");
     }
+});
+
+// if the request was made by a client, clear the authToken cookie.
+// otherwise, redirect to /profile
+app.get("/logout", (req, res) => {
+    if (sentFromClient(req))    { res.clearCookie(authTokenCookie); res.json({ response: "Success" }); }
+    else                        res.redirect("/profile");
 });
 
 // get a source file

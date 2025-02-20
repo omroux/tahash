@@ -1,33 +1,29 @@
 <h1 class="Title">פרופיל</h1>
 
 <!-- Make this a display: flex, with a gap. (instead of using <br>s), and add styling. -->
-<div class="User-Data-Container">
+<div class="Data-Container">
     <!-- Name -->
     <div class="User-Property">
-        <h2 class="Sub-Title">שם:</h2>
-        <p class="Sub-title" id="name_txt" style="font-size: 180%"></p>
+        <h2 class="Sub-Title Property-Name">שם:</h2>
+        <p class="Sub-title Property-Value" id="name_txt" style="font-size: 180%"></p>
     </div>
-
-    <br><br>
 
     <!-- WCA-id -->
     <div class="User-Property">
-        <h2 class="Sub-Title">WCA-ID:</h2>
-        <p class="Sub-Title" id="wca_id_txt" style="font-size: 180%"></p>
+        <h2 class="Sub-Title Property-Name">WCA-ID:</h2>
+        <p class="Sub-Title Property-Value" id="wca_id_txt" style="font-size: 180%"></p>
     </div>
-
-    <br><br>
 
     <!-- WCA Image -->
     <div class="User-Property">
         <h2 class="Sub-Title">תמונה:</h2>
         <img src="" id="wca_img" alt="wca image" width="200vw">
     </div>
+
+    <div id="logout_btn">
+        <p id="logout_txt">התנתק</p>
+    </div>
 </div>
-
-<br><br><br>
-
-<button class="Round-Button" id="logout_btn">Log Out</button>
 
 <!-- TODO: this might be cool to add instead of redirect to login -->
 <!--<div id="data_display">-->
