@@ -70,7 +70,6 @@ app.get("/redirect-to-auth", (req, res) => {
 });
 
 // Route for auth-callback
-// TODO: clean this + wca-me
 app.get("/auth-callback", async (req, res) => {
     // if we didn't receive a code, redirect to home
     const auth_code = req.query.code;

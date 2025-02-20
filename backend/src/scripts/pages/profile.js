@@ -3,8 +3,8 @@ const wcaIdTxt = document.querySelector("#wca_id_txt");
 const wcaImg = document.querySelector("#wca_img");
 
 let wcaMeData;
- setLoadingState(true);
 
+// update wca data on page
 function updateWcaData() {
      nameTxt.innerHTML = wcaMeData.name;
      wcaIdTxt.innerHTML = wcaMeData.wca_id;
@@ -12,10 +12,14 @@ function updateWcaData() {
 }
 
 window.onload = async () => {
+    setLoadingState(true);
     wcaMeData = await sendRequest("/wca-me");
-    if (wcaMeData.error)
+    if (wcaMeData.error) {
+        sessionStorage.clear();
         window.location = wcaMeData.redirectTo;
+    }
 
+    setLoggedIn(true);
     updateWcaData();
     setLoadingState(false);
 };

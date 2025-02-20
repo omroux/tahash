@@ -15,20 +15,24 @@
     <title><%= locals.title ?? "Untitled Page" %></title>
 </head>
 <body>
+    <script src="src/scripts/pages/page_utils.js"></script>
+
     <div class="Header">
         <h1 class="Main-Title">IL Cubers - Weekly Competition</h1>
         <div class="Page-Menu-Container">
             <ul class="Page-Menu">
-                <li><a href="/home">בית</a></li>
-                <li><a href="/login">התחברות</a></li>
-                <li><a href="/profile">פרופיל</a></li>
+                <li id="home-menu-item"><a href="/home">בית</a></li>
+                <% if (locals.loggedIn != null && loggedIn) { %>
+                    <li id="profile-menu-item"><a href="/profile">פרופיל</a></li>
+                <% } else { %>
+                    <li id="login-menu-item"><a href="/login">התחברות</a></li>
+                <% } %>
             </ul>
 
             <!-- set the active page in the page menu -->
             <script>document.querySelector(`.Page-Menu li a[href='${window.location.pathname.toLowerCase()}']`)?.parentElement.classList.add("Current-Page");</script>
         </div>
     </div>
-
 
     <div class="Content-Container">
         <div id="loading_container" <% if (!locals.loading) { %> hidden <% } %> >
@@ -40,6 +44,5 @@
             <%- content %>
         </div>
     </div>
-
 </body>
 </html>
