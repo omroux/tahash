@@ -80,6 +80,13 @@
 }
 
 #wca_img {
+    transition: transform 0.15s ease-in-out;
+
     border: 5px solid black;
     border-radius: 10px;
+
+
+    &:hover {
+        transform: scale(1.05);
+    }
 }
