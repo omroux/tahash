@@ -12,6 +12,9 @@
     /* size */
     width: 100px;
     height: 100px;
+    box-sizing: border-box;
+    padding-top: 1%;
+    padding-bottom: 1%;
 
     /* flex */
     display: flex;
@@ -20,18 +23,16 @@
 
     border: 2px solid black;
     border-radius: 10px;
-    box-sizing: border-box;
 }
 
 /* icons */
 .Cubing-Icon {
-    width: auto;
     font-size: 350%;
     text-align: center;
 }
 
 .Event-Name-Title {
     text-align: center;
-    font-size: 150%;
+    font-size: 175%;
     margin: 0;
 }
