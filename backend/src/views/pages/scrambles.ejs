@@ -1,0 +1,16 @@
+<h1 class="Title">ערבובים</h1>
+<% if (locals.events) { %>
+    <div class="Event-Select-Container">
+        <% for (let i = 0; i < events.length; i++) { %>
+            <div class="Event-Select-Box" id=<%- `event-select-${events[i].eventId}` %> >
+                <span class="Cubing-Icon <%- events[i].iconName %>"></span>
+                <h1 class="Event-Name-Title"><%- events[i].eventTitle %></h1>
+            </div>
+        <% } %>
+    </div>
+<% } else { %>
+    <div class="No-Events-Container">
+        <h1 class="Sub-Title" style="text-align: center">לא נמצאו מקצים</h1>
+        <a href="/home"><button style="transform: scale(1.5);">בית</button></a>
+    </div>
+<% } %>

@@ -56,13 +56,18 @@ app.get("/login", (req, res) => {
         "login.ejs",
         { title: "Login" },
         { auth_path: "/redirect-to-auth" },
-        ["pages/login.css"],
+        [ "src/stylesheets/pages/login.css" ],
     );
 });
 
 // Route for profile page
 app.get("/profile", async (req, res) => {
-    renderPage(req, res, "profile.ejs", { title: "Profile", loading: true }, { }, [ "pages/profile.css" ]);
+    renderPage(req,
+        res,
+        "profile.ejs",
+        {title: "Profile", loading: true},
+        {},
+        ["src/stylesheets/pages/profile.css"]);
 });
 
 // Automatically redirect to authentication
@@ -91,6 +96,39 @@ app.get("/auth-callback", async (req, res) => {
 
     // redirect to profile page
     res.redirect("/profile");
+});
+
+app.get("/scrambles", (req, res) => {
+    const events =[
+        {
+            eventId: "333",
+            eventTitle: "3x3",
+            iconName: "event-333"
+        },
+        {
+            eventId: "222so",
+            eventTitle: "2x2",
+            iconName: "event-222"
+        },
+        {
+            eventId: "444wca",
+            eventTitle: "4x4",
+            iconName: "event-444"
+        },
+        {
+            eventId: "555wca",
+            eventTitle: "5x5",
+            iconName: "event-555"
+        }
+    ];
+
+    renderPage(req,
+        res,
+        "/scrambles.ejs",
+        {title: "Scrambles"},
+        { events },
+        [ "src/stylesheets/pages/scrambles.css",
+            "https://cdn.cubing.net/v0/css/@cubing/icons/css" ]);
 });
 
 // endregion
@@ -163,9 +201,6 @@ app.get("/src/*", (req, res) => {
 });
 
 // endregion
-
-// TODO: log out button logic
-// TODO: for dynamic hiding/showing of login/profile pages, use options.loggedIn (for ejs options in the renderPage function)
 
 // Read config file
 const config = readConfigFile();

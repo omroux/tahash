@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="src/stylesheets/main_style.css"/>
 
     <!-- link extra stylesheets -->
-    <% cssFiles.forEach(cssFile => { %>
-        <link rel="stylesheet" href="src/stylesheets/<%= cssFile %>" >
+    <% stylesheets.forEach(cssFile => { %>
+        <link rel="stylesheet" href="<%= cssFile %>" >
     <% }) %>
 
     <title><%= locals.title ?? "Untitled Page" %></title>
@@ -24,6 +24,7 @@
                 <% } else { %>
                     <li id="login-menu-item"><a href="/login">התחברות</a></li>
                 <% } %>
+                <li id="scrambles-menu-item"><a href="/scrambles">ערבובים</a></li>
             </ul>
 
             <!-- set the active page in the page menu -->

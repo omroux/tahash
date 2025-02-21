@@ -1,0 +1,37 @@
+.Event-Select-Container {
+    /* size */
+    width: 80%;
+
+    /* flex */
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 5%;
+}
+
+.Event-Select-Box {
+    /* size */
+    width: 100px;
+    height: 100px;
+
+    /* flex */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+
+    border: 2px solid black;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+/* icons */
+.Cubing-Icon {
+    width: auto;
+    font-size: 350%;
+    text-align: center;
+}
+
+.Event-Name-Title {
+    text-align: center;
+    font-size: 150%;
+    margin: 0;
+}

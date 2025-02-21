@@ -6,8 +6,8 @@ export const authTokenCookie = "authToken";
 export const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 // filePath = the page's file path *inside* src/views/pages, including .ejs extension. (src/views/pages/:filePath)
-// cssFiles = *string[]* paths to extra css stylesheets (inside src/stylesheets/)
-export function renderPage(req, res, filePath, layoutOptions = {}, pageOptions = {}, cssFiles = []) {
+// stylesheets = *string[]* paths to extra css stylesheets (complete path)
+export function renderPage(req, res, filePath, layoutOptions = {}, pageOptions = {}, stylesheets = []) {
     // redirect to lowercase page request (not really necessary, but better to have)
     const pathname = req.url;
     if (pathname.toLowerCase() !== pathname) {
@@ -24,7 +24,7 @@ export function renderPage(req, res, filePath, layoutOptions = {}, pageOptions =
         }
         layoutOptions = layoutOptions ?? {};
         layoutOptions.content = str;
-        layoutOptions.cssFiles = cssFiles ?? [];
+        layoutOptions.stylesheets = stylesheets ?? [];
 
         const loggedIn = tryGetCookie(req, authTokenCookie);
         layoutOptions.loggedIn = loggedIn != null;

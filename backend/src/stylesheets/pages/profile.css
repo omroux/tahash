@@ -6,14 +6,12 @@
     /* data container spacing */
     margin: 20px auto 30px auto;
     padding-bottom: 40px;
+    width: 70%;
 
     /* flex 💪 */
     display: flex;
     flex-direction: column;
     align-items: center;
-
-    /* background */
-
 
     /* spacing between each property */
     gap: 25px;
