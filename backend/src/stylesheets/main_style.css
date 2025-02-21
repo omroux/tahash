@@ -2,8 +2,9 @@
 
 :root {
     --text-blue: #043959;
-    --bg-blue: #0057E1;
     --button-border-radius: 10px;
+    --bg-header: #0057E1;
+    --bg-body: lightgray;
 }
 
 * {
@@ -14,11 +15,11 @@
 }
 
 body {
-    background-color: lightgray;
+    background-color: var(--bg-body);
 }
 
 .Header {
-    background-color: var(--bg-blue);
+    background-color: var(--bg-header);
 }
 
 .Content-Container {

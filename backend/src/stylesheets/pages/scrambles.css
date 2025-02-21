@@ -1,34 +1,54 @@
 .Event-Select-Container {
     /* size */
     width: 80%;
+    margin: 4vh auto;
 
     /* flex */
     display: flex;
     flex-direction: row-reverse;
-    gap: 5%;
+    place-content: end center;
+    flex-wrap: wrap;
+    gap: 2.5vw;
 }
 
 .Event-Select-Box {
     /* size */
-    width: 100px;
-    height: 100px;
+    width: 7.5vw;
+    height: 7.5vw;
     box-sizing: border-box;
     padding-top: 1%;
     padding-bottom: 1%;
 
-    /* flex */
+    /* flex (center the icon) */
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
+    place-content: center;
 
-    border: 2px solid black;
+    /* border */
+    border: 0.25vw solid black;
     border-radius: 10px;
+
+    /* animation */
+    transition: transform 0.15s ease-in;
+
+    /* cursor */
+    cursor: pointer;
+
+    &:hover {
+        transition-duration: 0.12s;
+        transition-timing-function: ease-out;
+        transform: scale(1.18) rotateZ(4deg);
+    }
 }
 
 /* icons */
 .Cubing-Icon {
-    font-size: 350%;
     text-align: center;
+    font-size: 6vw;
+    padding: 2px;
+    margin: auto;
+    width: fit-content;
+    box-sizing: content-box;
 }
 
 .Event-Name-Title {

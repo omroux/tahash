@@ -119,6 +119,681 @@ app.get("/scrambles", (req, res) => {
             eventId: "555wca",
             eventTitle: "5x5",
             iconName: "event-555"
+        },
+        {
+            eventId: "666wca",
+            eventTitle: "6x6",
+            iconName: "event-666"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
+        },
+        {
+            eventId: "333ft",
+            eventTitle: "3x3ft",
+            iconName: "event-333ft"
         }
     ];
 
