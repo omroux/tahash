@@ -8,47 +8,81 @@
     flex-direction: row-reverse;
     place-content: end center;
     flex-wrap: wrap;
-    gap: 2.5vw;
+    gap: 2.4rem;
 }
 
 .Event-Select-Box {
     /* size */
-    width: 7.5vw;
-    height: 7.5vw;
+    width: 7rem;
+    height: 7rem;
     box-sizing: border-box;
+    scale: 1.1;
     padding-top: 1%;
     padding-bottom: 1%;
 
-    /* flex (center the icon) */
-    display: flex;
-    flex-direction: column;
+    /*!* flex (center the icon) *!*/
+    display: grid;
     place-content: center;
 
     /* border */
-    border: 0.25vw solid black;
+    border: 0.2rem solid black;
     border-radius: 10px;
 
     /* animation */
     transition: transform 0.15s ease-in;
 
-    /* cursor */
-    cursor: pointer;
-
     &:hover {
+        /* cursor */
+        cursor: pointer;
+
         transition-duration: 0.12s;
         transition-timing-function: ease-out;
         transform: scale(1.18) rotateZ(4deg);
+        background-color: rgba(100, 100, 100, 0.1);
+
+        & .Cubing-Icon {
+            transition: opacity 0.15s ease-out;
+            opacity: 0.45;
+        }
+
+        & p {
+            transition: opacity 0.1s ease-out;
+            opacity: 1;
+        }
+    }
+
+
+    & p {
+        transition: opacity 0.1s ease-out;
+        opacity: 0;
     }
 }
 
 /* icons */
-.Cubing-Icon {
+.Cubing-Icon, p {
+    /* positioning in "grid" */
+    grid-column: 1;
+    grid-row: 1;
+
     text-align: center;
-    font-size: 6vw;
     padding: 2px;
     margin: auto;
     width: fit-content;
     box-sizing: content-box;
+
+    /* animation */
+    transition: opacity 0.1s ease-out;
+}
+
+.Cubing-Icon {
+    font-size: 5.75rem;
+}
+
+p {
+    box-sizing: border-box;
+    font-size: 1.5rem;
+    font-weight: 500;
+    text-wrap: balance;
 }
 
 .Event-Name-Title {

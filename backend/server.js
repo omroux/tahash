@@ -127,672 +127,672 @@ app.get("/scrambles", (req, res) => {
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         },
         {
             eventId: "333ft",
-            eventTitle: "3x3ft",
+            eventTitle: "3x3 with feet",
             iconName: "event-333ft"
         }
     ];
