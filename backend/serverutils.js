@@ -1,9 +1,14 @@
 import fs from 'fs';
 import ejs from 'ejs';
 import path from 'path';
+import ms from 'ms';
+import {fetchRefreshToken, getUserData} from "./src/scripts/backend/api-utils.js";
+
 
 export const authTokenCookie = "authToken";
+export const refreshTokenCookie = "refreshToken";
 export const __dirname = path.dirname(new URL(import.meta.url).pathname);
+
 
 // filePath = the page's file path *inside* src/views/pages, including .ejs extension. (src/views/pages/:filePath)
 // stylesheets = *string[]* paths to extra css stylesheets (complete path)
@@ -16,7 +21,7 @@ export function renderPage(req, res, filePath, layoutOptions = {}, pageOptions =
     }
 
     // render the file
-    ejs.renderFile(path.join(__dirname, "src/views/pages/", filePath), pageOptions ?? {}, (err, str) => {
+    ejs.renderFile(path.join(__dirname, "src/views/pages/", filePath), pageOptions ?? {}, async (err, str) => {
         if (err) {
             console.error(`Error occurred receiving ${filePath} page.\nDetails:`, err);
             res.status(404).send(err);
@@ -26,8 +31,10 @@ export function renderPage(req, res, filePath, layoutOptions = {}, pageOptions =
         layoutOptions.content = str;
         layoutOptions.stylesheets = stylesheets ?? [];
 
-        const loggedIn = tryGetCookie(req, authTokenCookie);
-        layoutOptions.loggedIn = loggedIn != null;
+        // first try to get the auth token cookie. if it exists, the user is logged in.
+        layoutOptions.loggedIn = tryGetCookie(req, authTokenCookie)
+                                    ? true
+                                    : ((await retrieveWCAMe(req, res)) != null);
 
         res.render("layout.ejs", layoutOptions);
     });
@@ -44,16 +51,19 @@ export function renderError(req, res, error = null) {
 }
 
 
+// region Cookie Management
+
 // save a cookie
 // cookieData is a JSON object or a string. (automatically stringifies)
 // leave options null to use default cookieOptions (httpOnly=true, secure=true, sameSite=strict, maxAge=1 day)
-export function storeCookie(res, cookieName, cookieData, options = null) {
+// default value for maxAge is 1 day. maxAge is in milliseconds or in ms format (https://www.npmjs.com/package/ms)
+export function storeCookie(res, cookieName, cookieData, maxAge = null, options = null) {
     // default cookie options
     options = options ?? {
         httpOnly:   true,               // Prevents JavaScript access (helps mitigate XSS)
         secure:     true,               // Ensures cookie is only sent over HTTPS
         sameSite:   'Strict',           // Prevents cross-site requests (mitigates CSRF)
-        maxAge:     24 * 60 * 60 * 1000 // Cookie expires after 1 day
+        maxAge:     maxAge ?? 24 * 60 * 60  // Defaults to 1 day
       };
 
     // cookieData is not a string
@@ -64,14 +74,22 @@ export function storeCookie(res, cookieName, cookieData, options = null) {
 }
 
 
-// store auth token cookie (specifically)
+// store auth token cookies
 // tokenData is the full json response from the WCA API (assuming there wasn't an error)
-export function storeTokenCookie(res, tokenData) {
+export function storeTokenCookies(res, tokenData) {
     storeCookie(res, authTokenCookie, {
-        access_token:   tokenData.access_token,
-        refresh_token:  tokenData.refresh_token,
-        expires_in:     tokenData.expires_in
-    });
+        access_token:   tokenData.access_token
+    }, tokenData.expires_in * 60);  // convert to milliseconds
+
+    // store the refresh token for 7 days until the user will be required to generate a new token.
+    storeCookie(res, refreshTokenCookie, { refresh_token:  tokenData.refresh_token }, ms('7d'));
+}
+
+
+// clear the authentication token cookies
+export function clearTokenCookies(res) {
+    res.clearCookie(authTokenCookie);
+    res.clearCookie(authTokenCookie);
 }
 
 
@@ -89,6 +107,8 @@ export function tryGetCookie(req, cookieName, isJson = true) {
     try { return JSON.parse(cookieStr); }
     catch { return null; }
 }
+
+// endregion
 
 
 // read the config file (default/local)
@@ -137,3 +157,39 @@ const fromClientHeader = "from-client";
 // check if a request was sent from a client
 export const sentFromClient = (req) => (req.headers[fromClientHeader] === "true");
 
+
+// retrieve the WCAMe information of a user
+// needs both request and response in order to update the user's cookies. does not send or alter the response.
+// returns:
+//      - if the user was logged in, returns the WCA-Me json object of the user
+//      - if the user wasn't logged in, returns null
+export async function retrieveWCAMe(req, res) {
+    // no cookie -> redirect to /login
+    let authToken = tryGetCookie(req, authTokenCookie);
+    if (!authToken)
+        res.clearCookie(authTokenCookie);
+    else {
+        // get the user's data using the access token
+        let userData = await getUserData(authToken.access_token);
+
+        // data received successfully
+        if (userData.me)
+            return userData.me;
+    }
+
+    // generate a new token (with refresh token)
+    let refresh = tryGetCookie(req, refreshTokenCookie);
+    const tokenData = await fetchRefreshToken(refresh?.refresh_token);
+    if (tokenData.error) {
+        clearTokenCookies(res);
+        return null;
+    }
+
+    // store the cookies with the new token
+    storeTokenCookies(res, tokenData);
+
+    // try to use the new refresh token
+    // note: we're not reloading the page in order to avoid an infinite loop of refreshing the page
+    let userData = await getUserData(tokenData.access_token);
+    return userData?.me; // automatically null if it doesn't exist
+}

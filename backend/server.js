@@ -10,9 +10,9 @@ import {
     storeCookie,
     tryGetCookie,
     authTokenCookie,
-    storeTokenCookie,
+    storeTokenCookies,
     readConfigFile,
-    __dirname, sentFromClient,
+    __dirname, sentFromClient, clearTokenCookies, retrieveWCAMe,
 } from "./serverutils.js";
 import { errorObject } from "./src/scripts/backend/global_utils.js";
 import path from "path";
@@ -92,7 +92,7 @@ app.get("/auth-callback", async (req, res) => {
     }
 
     // set authToken cookie
-    storeTokenCookie(res, tokenData);
+    storeTokenCookies(res, tokenData);
 
     // redirect to profile page
     res.redirect("/profile");
@@ -102,103 +102,33 @@ app.get("/scrambles", (req, res) => {
     const events =[
         {
             eventId: "333",
+            scrType: "333",
             eventTitle: "3x3x3",
             iconName: "event-333"
         },
         {
-            eventId: "222so",
+            eventId: "222",
+            scrType: "222so",
             eventTitle: "2x2x2",
             iconName: "event-222"
         },
         {
-            eventId: "444wca",
+            eventId: "444",
             eventTitle: "4x4x4",
+            scrType: "444wca",
             iconName: "event-444"
         },
         {
-            eventId: "555wca",
+            eventId: "444",
+            scrType: "555wca",
             eventTitle: "5x5x5",
             iconName: "event-555"
         },
         {
-            eventId: "222so",
-            eventTitle: "2x2x2",
-            iconName: "event-222"
-        },
-        {
-            eventId: "444wca",
-            eventTitle: "4x4x4",
-            iconName: "event-444"
-        },
-        {
-            eventId: "555wca",
-            eventTitle: "5x5x5",
-            iconName: "event-555"
-        },
-        {
-            eventId: "222so",
-            eventTitle: "2x2x2",
-            iconName: "event-222"
-        },
-        {
-            eventId: "444wca",
-            eventTitle: "4x4x4",
-            iconName: "event-444"
-        },
-        {
-            eventId: "555wca",
-            eventTitle: "5x5x5",
-            iconName: "event-555"
-        },
-        {
-            eventId: "666wca",
+            eventId: "666",
+            scrType: "666wca",
             eventTitle: "6x6",
             iconName: "event-666"
-        },
-        {
-            eventId: "333ft",
-            eventTitle: "3x3 with feet",
-            iconName: "event-333ft"
-        },
-        {
-            eventId: "333ft",
-            eventTitle: "3x3 with feet",
-            iconName: "event-333ft"
-        },
-        {
-            eventId: "333ft",
-            eventTitle: "3x3 with feet",
-            iconName: "event-333ft"
-        },
-        {
-            eventId: "333ft",
-            eventTitle: "3x3 with feet",
-            iconName: "event-333ft"
-        },
-        {
-            eventId: "333ft",
-            eventTitle: "3x3 with feet",
-            iconName: "event-333ft"
-        },
-        {
-            eventId: "333ft",
-            eventTitle: "3x3 with feet",
-            iconName: "event-333ft"
-        },
-        {
-            eventId: "333ft",
-            eventTitle: "3x3 with feet",
-            iconName: "event-333ft"
-        },
-        {
-            eventId: "333ft",
-            eventTitle: "3x3 with feet",
-            iconName: "event-333ft"
-        },
-        {
-            eventId: "333ft",
-            eventTitle: "3x3 with aaaaaaaaafeet",
-            iconName: "event-333ft"
         }
     ];
 
@@ -221,50 +151,21 @@ app.get("/scrambles", (req, res) => {
 //          - otherwise, redirect to login
 //
 app.get("/wca-me", async (req, res) => {
-    // no cookie -> redirect to /login
-    let authToken = tryGetCookie(req, authTokenCookie);
-    if (!authToken) {
-        dataFailed();
-        return;
-    }
-
-    // get the user's data using the access token
-    let userData = await getUserData(authToken.access_token);
-    // data received successfully
-    if (userData.me) {
-        res.json(userData.me);
-        return;
-    }
-
-    // generate a new token (with refresh token)
-    const tokenData = await fetchRefreshToken(userData.refresh_token);
-    if (tokenData.error) {
-        dataFailed();
-        return;
-    }
-
-    // store the cookie with the new token
-    storeTokenCookie(res, tokenData);
-
-    // try to use the new refresh token
-    // note: we're not reloading the page in order to avoid an infinite loop of refreshing the page
-    userData = await getUserData(tokenData.access_token);
-    if (userData.me) res.json(userData.me);
-    else dataFailed();
-
-    // clear the token cookie and redirect to /login
-    function dataFailed(error = "error occurred") {
-        res.clearCookie(authTokenCookie);
-        if (sentFromClient(req))    res.json(errorObject(error, { redirectTo: "/login" }));
-        else                        res.redirect("/login");
-    }
+    const userData = await retrieveWCAMe(req, res);
+    if (userData)                   res.json(userData);
+    else if (sentFromClient(req))   res.json(errorObject("error occurred", { redirectTo: "/login" }));
+    else                            res.redirect("/login");
 });
 
 // if the request was made by a client, clear the authToken cookie.
 // otherwise, redirect to /profile
 app.get("/logout", (req, res) => {
-    if (sentFromClient(req))    { res.clearCookie(authTokenCookie); res.json({ response: "Success" }); }
-    else                        res.redirect("/profile");
+    if (sentFromClient(req)) {
+        clearTokenCookies(res);
+        res.json({ response: "Success" });
+    }
+    else
+        res.redirect("/profile");
 });
 
 // get a source file
