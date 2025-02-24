@@ -32,9 +32,7 @@ export function renderPage(req, res, filePath, layoutOptions = {}, pageOptions =
         layoutOptions.stylesheets = stylesheets ?? [];
 
         // first try to get the auth token cookie. if it exists, the user is logged in.
-        layoutOptions.loggedIn = tryGetCookie(req, authTokenCookie)
-                                    ? true
-                                    : ((await retrieveWCAMe(req, res)) != null);
+        layoutOptions.loggedIn = isLoggedIn(req, res);
 
         res.render("layout.ejs", layoutOptions);
     });
@@ -193,3 +191,10 @@ export async function retrieveWCAMe(req, res) {
     let userData = await getUserData(tokenData.access_token);
     return userData?.me; // automatically null if it doesn't exist
 }
+
+
+// optimized function to check whether the user is logged in.
+// needs both request and response in order to update the user's cookies. does not send or alter the response.
+export const isLoggedIn = async (req, res) => (tryGetCookie(req, authTokenCookie)
+            ? true
+            : ((await retrieveWCAMe(req, res)) != null));

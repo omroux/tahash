@@ -12,7 +12,7 @@ import {
     authTokenCookie,
     storeTokenCookies,
     readConfigFile,
-    __dirname, sentFromClient, clearTokenCookies, retrieveWCAMe,
+    __dirname, sentFromClient, clearTokenCookies, retrieveWCAMe, isLoggedIn,
 } from "./serverutils.js";
 import { errorObject } from "./src/scripts/backend/global_utils.js";
 import path from "path";
@@ -43,9 +43,9 @@ app.get("/home", (req, res) => {
 });
 
 // Route for login page
-app.get("/login", (req, res) => {
+app.get("/login", async (req, res) => {
     // has token cookie, meaning the user is logged in
-    if (req.cookies.authToken) {
+    if (await isLoggedIn(req, res)) {
         res.redirect("/profile");
         return;
     }
@@ -62,6 +62,12 @@ app.get("/login", (req, res) => {
 
 // Route for profile page
 app.get("/profile", async (req, res) => {
+    // has token cookie, meaning the user is logged in
+    if (!(await isLoggedIn(req, res))) {
+        res.redirect("/profile");
+        return;
+    }
+
     renderPage(req,
         res,
         "profile.ejs",
@@ -135,10 +141,10 @@ app.get("/scrambles", (req, res) => {
     renderPage(req,
         res,
         "/scrambles.ejs",
-        {title: "Scrambles"},
+        { title: "Scrambles" },
         { events },
         [ "src/stylesheets/pages/scrambles.css",
-            "https://cdn.cubing.net/v0/css/@cubing/icons/css" ]);
+            "https://cdn.cubing.net/v0/css/@cubing/icons/css" ]);   // event icons cdn link
 });
 
 // endregion
