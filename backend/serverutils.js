@@ -89,7 +89,7 @@ export function storeTokenCookies(res, tokenData) {
 // clear the authentication token cookies
 export function clearTokenCookies(res) {
     res.clearCookie(authTokenCookie);
-    res.clearCookie(authTokenCookie);
+    res.clearCookie(refreshTokenCookie);
 }
 
 
