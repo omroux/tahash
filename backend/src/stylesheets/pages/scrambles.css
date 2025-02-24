@@ -1,6 +1,7 @@
 :root {
     --font-size: 0;
-    --event-box-rot: 2.5deg;
+    --event-box-rot: 4deg;
+    --event-box-wiggle-amp: 1;
 }
 
 .Event-Select-Container {
@@ -37,16 +38,28 @@
 
     /* animation */
     transition-delay: 0.02s;
-    transition: transform 0.2s ease-in, background-color 0.15s ease-in;
+    transition: scale 0.2s ease-in, rotate 0.2s ease-in, background-color 0.15s ease-in;
 
     /* cursor */
     cursor: pointer;
 
     &:hover {
-        transition-duration: 0.07s;
+        transition: scale 0.07s, rotate 0.3s ease-out;
+        scale: 1.2;
         transition-timing-function: ease-out;
-        transform: scale(1.15) rotateZ(var(--event-box-rot));
+        rotate: var(--event-box-rot);
         background-color: rgba(100, 100, 100, 0.2);
+
+        /* pre-wiggle */
+        /*animation: Box-Pre-Wiggle 0s ease-out 0.2s 1 normal none running;*/
+
+        /* wiggle animation */
+        animation-name: Box-Wiggle;
+        animation-delay: .5s;
+        animation-iteration-count: infinite;
+        animation-duration: 0.7s;
+        animation-timing-function: ease-in-out;
+        animation-direction: alternate;
 
         & .Cubing-Icon {
             transition: opacity 0.15s ease-out;
@@ -103,5 +116,29 @@
 
     transition: opacity 0.2s ease-out;
     opacity: 0;
+}
+
+@keyframes Box-Pre-Wiggle {
+    0% {
+        rotate: 0;
+    }
+
+    50% {
+        rotate: var(--event-box-rot);
+    }
+
+    100% {
+        rotate: calc(var(--event-box-wiggle-amp) * var(--event-box-rot));
+    }
+}
+
+@keyframes Box-Wiggle {
+    0% {
+        rotate: calc(var(--event-box-wiggle-amp) * var(--event-box-rot));
+    }
+
+    100% {
+        rotate: calc(-1 * var(--event-box-wiggle-amp) * var(--event-box-rot));
+    }
 }
 
