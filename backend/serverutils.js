@@ -2,7 +2,7 @@ import fs from 'fs';
 import ejs from 'ejs';
 import path from 'path';
 import ms from 'ms';
-import {fetchRefreshToken, getUserData} from "./src/scripts/backend/api-utils.js";
+import { fetchRefreshToken, getUserData } from "./src/scripts/backend/api-utils.js";
 
 
 export const authTokenCookie = "authToken";

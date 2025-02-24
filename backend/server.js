@@ -19,7 +19,11 @@ import path from "path";
 import fs from "fs";
 import express from "express";
 import cookieParser from "cookie-parser";
-const app = express();
+import {config} from "dotenv";
+
+
+const app = express();  // express app
+config({ path: "../.env" }); // configure .env file
 
 // use EJS as the view engine
 app.set("view engine", "ejs");
@@ -189,13 +193,20 @@ app.get("/src/*", (req, res) => {
 
 // endregion
 
-// Read config file
-const config = readConfigFile();
-const hostname = config.baseUrl + (config.local ? `:${config.port}` : "");
+
+// -- Read config file
+const configData = readConfigFile();
+const hostname = configData.baseUrl + (configData.local ? `:${configData.port}` : "");
+
+
+// -- Connect to database
+let connectionString = process.env.MONGO_URL ?? "mongodb://mongodb:27017/";
+
+
 
 // Start receiving HTTP requests
-app.listen(config.port, () => {
+app.listen(configData.port, () => {
     console.log(
-        `Listening on ${hostname} (port ${config.port})${config.local ? ", locally" : ""}`,
+        `Listening on ${hostname} (port ${configData.port})${configData.local ? ", locally" : ""}`,
     );
 });
