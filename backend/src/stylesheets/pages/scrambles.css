@@ -1,7 +1,6 @@
 :root {
     --font-size: 0;
-    --event-box-rot: 4deg;
-    --event-box-wiggle-amp: 1;
+    --event-box-rot: 3deg;
 }
 
 .Event-Select-Container {
@@ -25,6 +24,7 @@
     height: 7.5rem;
     box-sizing: border-box;
     scale: 1.1;
+    rotate: 0;
     padding-top: 1%;
     padding-bottom: 1%;
 
@@ -37,32 +37,22 @@
     border-radius: 10px;
 
     /* animation */
-    transition-delay: 0.02s;
-    transition: scale 0.2s ease-in, rotate 0.2s ease-in, background-color 0.15s ease-in;
+    transition: scale 0.2s, rotate 0.1s, background-color 0.15s;
+    transition-timing-function: linear;
 
     /* cursor */
     cursor: pointer;
 
     &:hover {
-        transition: scale 0.07s, rotate 0.3s ease-out;
-        scale: 1.2;
+        transition: scale 0.07s, rotate 0.12s;
         transition-timing-function: ease-out;
-        rotate: var(--event-box-rot);
+        transition-delay: 0s;
+        scale: 1.17;
         background-color: rgba(100, 100, 100, 0.2);
-
-        /* pre-wiggle */
-        /*animation: Box-Pre-Wiggle 0s ease-out 0.2s 1 normal none running;*/
-
-        /* wiggle animation */
-        animation-name: Box-Wiggle;
-        animation-delay: .5s;
-        animation-iteration-count: infinite;
-        animation-duration: 0.7s;
-        animation-timing-function: ease-in-out;
-        animation-direction: alternate;
+        rotate: var(--event-box-rot);
 
         & .Cubing-Icon {
-            transition: opacity 0.15s ease-out;
+            transition: opacity 0.2s ease-out;
             opacity: 0.8;
         }
 
@@ -94,7 +84,6 @@
     font-size: 5.75rem;
 }
 
-
 .Event-Name-Title {
     /* prevent hovering over text */
     pointer-events: none;
@@ -114,31 +103,7 @@
 
     margin: auto auto 1.5rem auto;
 
-    transition: opacity 0.2s ease-out;
+    transition: opacity 0.15s ease-in;
     opacity: 0;
-}
-
-@keyframes Box-Pre-Wiggle {
-    0% {
-        rotate: 0;
-    }
-
-    50% {
-        rotate: var(--event-box-rot);
-    }
-
-    100% {
-        rotate: calc(var(--event-box-wiggle-amp) * var(--event-box-rot));
-    }
-}
-
-@keyframes Box-Wiggle {
-    0% {
-        rotate: calc(var(--event-box-wiggle-amp) * var(--event-box-rot));
-    }
-
-    100% {
-        rotate: calc(-1 * var(--event-box-wiggle-amp) * var(--event-box-rot));
-    }
 }
 
