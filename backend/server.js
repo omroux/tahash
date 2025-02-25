@@ -3,7 +3,7 @@ import {
     fetchRefreshToken,
     getUserData,
     WCA_AUTH_URL,
-} from "./src/scripts/backend/api-utils.js";
+} from "./src/scripts/backend/apiUtils.js";
 import {
     renderPage,
     renderError,
@@ -13,13 +13,20 @@ import {
     storeTokenCookies,
     readConfigFile,
     __dirname, sentFromClient, clearTokenCookies, retrieveWCAMe, isLoggedIn,
-} from "./serverutils.js";
-import { errorObject } from "./src/scripts/backend/global_utils.js";
+} from "./serverUtils.js";
+import { errorObject } from "./src/scripts/backend/globalUtils.js";
 import path from "path";
 import fs from "fs";
 import express from "express";
 import cookieParser from "cookie-parser";
 import {config} from "dotenv";
+import { MongoClient, ObjectId } from "mongodb";
+import ms from "ms";
+
+
+// database constants
+const tahashDbName = "tahash";
+const weeksCollectionName = "weeks";
 
 
 const app = express();  // express app
@@ -199,9 +206,20 @@ const configData = readConfigFile();
 const hostname = configData.baseUrl + (configData.local ? `:${configData.port}` : "");
 
 
-// -- Connect to database
-let connectionString = process.env.MONGO_URL ?? "mongodb://mongodb:27017/";
+// -- Connect to MongoDB
+let connectionString = process.env.MONGO_URL ?? "mongodb://mongodb:27017";
+let mongoClient;
+try { mongoClient = await MongoClient.connect(connectionString, { connectTimeoutMS: 5000 }); }
+catch (err) { console.error(`Error connection to MongoDB on "${connectionString}".`); throw err; }
 
+// -- Tahash Database
+console.log("Connecting to MongoDB...");
+const tahashDb = mongoClient.db(tahashDbName);
+console.log("Connected to database!");
+
+console.log("Loading weeks collection...");
+const weeksCollection = mongoClient[weeksCollectionName];
+console.log("Weeks collection loaded!");
 
 
 // Start receiving HTTP requests

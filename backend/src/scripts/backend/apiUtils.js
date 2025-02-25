@@ -1,5 +1,5 @@
 import fetch from 'node-fetch'
-import {errorObject} from "./global_utils.js";
+import {errorObject} from "./globalUtils.js";
 import { config } from "dotenv";
 config({ path: "../../../../.env" }); // configure .env file
 

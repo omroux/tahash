@@ -2,7 +2,7 @@ import fs from 'fs';
 import ejs from 'ejs';
 import path from 'path';
 import ms from 'ms';
-import { fetchRefreshToken, getUserData } from "./src/scripts/backend/api-utils.js";
+import { fetchRefreshToken, getUserData } from "./src/scripts/backend/apiUtils.js";
 
 
 export const authTokenCookie = "authToken";
@@ -32,7 +32,7 @@ export function renderPage(req, res, filePath, layoutOptions = {}, pageOptions =
         layoutOptions.stylesheets = stylesheets ?? [];
 
         // first try to get the auth token cookie. if it exists, the user is logged in.
-        layoutOptions.loggedIn = isLoggedIn(req, res);
+        layoutOptions.loggedIn = await isLoggedIn(req, res);
 
         res.render("layout.ejs", layoutOptions);
     });
