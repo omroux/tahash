@@ -31,7 +31,7 @@ const weeksCollectionName = "weeks";
 
 
 const app = express();  // express app
-config({ path: "../.env" }); // configure .env file
+config(); // configure .env file
 
 // use EJS as the view engine
 app.set("view engine", "ejs");

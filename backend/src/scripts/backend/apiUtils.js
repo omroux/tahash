@@ -1,7 +1,7 @@
 import fetch from 'node-fetch'
 import {errorObject} from "./globalUtils.js";
 import { config } from "dotenv";
-config({ path: "../../../../.env" }); // configure .env file
+config(); // configure .env file
 
 export const appId = process.env.APP_ID;
 const clientSecret = process.env.CLIENT_SECRET;
