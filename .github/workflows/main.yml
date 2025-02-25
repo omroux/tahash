@@ -70,3 +70,4 @@ jobs:
             docker compose -f ${{ secrets.DOCKER_COMPOSE_PATH }} down
             docker pull ${{ secrets.DOCKER_HUB_USER_NAME }}/tahash:latest
             docker compose -f ${{ secrets.DOCKER_COMPOSE_PATH }} up -d
+            docker ps -a
