@@ -137,3 +137,7 @@ config.local.json
 
 # mac junk
 **/.DS_Store
+
+# env
+**/.env
+cmds.txt

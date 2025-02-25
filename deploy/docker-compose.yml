@@ -2,7 +2,8 @@ services:
   # mongo container
   mongo:
     image: mongo
-    container_name: mongo
+    container_name: mongodb
+    env_file: .env
     expose:
       - 27017
     volumes:
@@ -17,12 +18,12 @@ services:
       - "3001:3000"
     volumes:
       - website-data:/app/data
+    env_file: .env
     environment:
       - NODE_ENV=production
-      - MONGO_URL=mongodb://mongodb:27017
-      - MONGO_SERVICE=mongo
-#    depends_on:
-#      - mongo
+      - MONGO_SERVICE=mongodb
+    depends_on:
+      - mongo
 
 volumes:
   mongo-data:
