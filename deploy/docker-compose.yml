@@ -20,6 +20,7 @@ services:
     environment:
       - NODE_ENV=production
       - MONGO_URL=mongodb://mongodb:27017
+      - MONGO_SERVICE=mongodb
     depends_on:
       - mongo
 

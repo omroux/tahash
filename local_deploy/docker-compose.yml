@@ -4,7 +4,7 @@ services:
   mongo:
     image: mongo:4
     container_name: mongodb_local
-    env_file: ../backend/.env
+#    env_file: ../backend/.env
     ports:
       - "27017:27017"
     expose:
@@ -25,6 +25,7 @@ services:
     environment:  # Environment variables
       - NODE_ENV=production
       - MONGO_URL=mongodb://localhost:27017/
+      - MONGO_SERVICE=mongodb_local
     depends_on:
         - mongo
 
