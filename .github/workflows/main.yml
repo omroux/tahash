@@ -69,5 +69,4 @@ jobs:
           script: |
             docker compose -f "${{ secrets.SERVER_REPOSITORY_PATH }}/deploy/docker-compose.yml" down
             docker pull ${{ secrets.DOCKER_HUB_USER_NAME }}/tahash:latest
-            docker compose -f "${{ secrets.SERVER_REPOSITORY_PATH }}/deploy/docker-compose.yml" up -d mongo
-            docker compose -f "${{ secrets.SERVER_REPOSITORY_PATH }}/deploy/docker-compose.yml" up website
+            docker compose -f "${{ secrets.SERVER_REPOSITORY_PATH }}/deploy/docker-compose.yml" up -d
