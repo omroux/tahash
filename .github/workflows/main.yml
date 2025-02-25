@@ -67,13 +67,13 @@ jobs:
           key: ${{ secrets.SERVER_PRIVATE_KEY }}
           port: 22
           script: |
+            docker ps -a
             docker compose -f ${{ secrets.DOCKER_COMPOSE_PATH }} down
             docker stop /mongo
             docker rm /mongo
             docker pull ${{ secrets.DOCKER_HUB_USER_NAME }}/tahash:latest
             docker run -d -it -p 27017:27017 --name mongo mongo:latest
-            docker ps -a
-            tree
-            cat ${{ secrets.DOCKER_COMPOSE_PATH }}
+            tree "$GITHUB_WORKSPACE"
             docker compose -f ${{ secrets.DOCKER_COMPOSE_PATH }} up frontend
+#            cat ${{ secrets.DOCKER_COMPOSE_PATH }}
 #            docker compose -f "$GITHUB_WORKSPACE/deploy/docker-compose.yml" up
