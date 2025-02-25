@@ -3,7 +3,9 @@ services:
   mongo:
     image: mongo
     container_name: mongodb
-    env_file: .env
+#    env_file: .env
+    ports:
+      - "27017:27017"
     expose:
       - 27017
     volumes:
