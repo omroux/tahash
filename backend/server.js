@@ -241,8 +241,8 @@ app.listen(getConfigData().port, async () => {
 
     // -- Connect to MongoDB
     console.log("Connecting to MongoDB...", getConfigData());
-    // const mongoUsername = process.env.MONGO_INITDB_ROOT_USERNAME;
-    // const mongoPassword = process.env.MONGO_INITDB_ROOT_PASSWORD;
+    const mongoUsername = process.env.MONGO_INITDB_ROOT_USERNAME;
+    const mongoPassword = process.env.MONGO_INITDB_ROOT_PASSWORD;
     const host = process.env.MONGO_SERVICE || (getConfigData().local ? "localhost" : "mongodb");
     let connectionString = `mongodb://${mongoUsername}:${mongoPassword}@${host}:27017/tahash?authSource=admin`;
     // let connectionString = `mongodb://${host}:27017/tahash`;
