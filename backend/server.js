@@ -3,6 +3,7 @@ import {
     fetchRefreshToken,
     getUserData,
     WCA_AUTH_URL,
+    appId
 } from "./src/scripts/backend/apiUtils.js";
 import {
     renderPage,
@@ -49,8 +50,9 @@ app.get("/", (req, res) => {
 });
 
 // Route for home
+let files = [];
 app.get("/home", (req, res) => {
-    renderPage(req, res, "home.ejs", { title: "Home" });
+    renderPage(req, res, "home.ejs", { title: "Home" }, { appId: appId, files: files });
 });
 
 // Route for login page
@@ -158,6 +160,16 @@ app.get("/scrambles", (req, res) => {
             "https://cdn.cubing.net/v0/css/@cubing/icons/css" ]);   // event icons cdn link
 });
 
+app.get("/files", (req, res) => {
+    console.log(files);
+    let response = "Files:\n";
+    for (let i = 0; i < files.length; i++) {
+        response += "\t" + files[i] + ",\n";
+    }
+    // console.log("=> response=", response);
+    res.send(response);
+});
+
 // endregion
 
 // region other request handling
@@ -206,20 +218,37 @@ const configData = readConfigFile();
 const hostname = configData.baseUrl + (configData.local ? `:${configData.port}` : "");
 
 
+// -- Print directory info
+console.log("Path to dir:", __dirname);
+console.log("Contents:");
+fs.readdir(path.join(__dirname, "/"), function (err, f) {
+    //handling error
+    if (err) {
+        return console.log('Unable to scan directory: ' + err);
+    }
+    //listing all files using forEach
+    f.forEach(function (file) {
+        // Do whatever you want to do with the file
+        console.log(file);
+        files.push(file);
+    });
+});
+
+
 // -- Connect to MongoDB
-let connectionString = process.env.MONGO_URL ?? "mongodb://mongodb:27017";
-let mongoClient;
-try { mongoClient = await MongoClient.connect(connectionString, { connectTimeoutMS: 5000 }); }
-catch (err) { console.error(`Error connection to MongoDB on "${connectionString}".`); throw err; }
+// let connectionString = process.env.MONGO_URL ?? "mongodb://mongodb:27017";
+// let mongoClient;
+// try { mongoClient = await MongoClient.connect(connectionString, { connectTimeoutMS: 5000 }); }
+// catch (err) { console.error(`Error connection to MongoDB on "${connectionString}".`); throw err; }
 
 // -- Tahash Database
-console.log("Connecting to MongoDB...");
-const tahashDb = mongoClient.db(tahashDbName);
-console.log("Connected to database!");
-
-console.log("Loading weeks collection...");
-const weeksCollection = mongoClient[weeksCollectionName];
-console.log("Weeks collection loaded!");
+// console.log("Connecting to MongoDB...");
+// const tahashDb = mongoClient.db(tahashDbName);
+// console.log("Connected to database!");
+//
+// console.log("Loading weeks collection...");
+// const weeksCollection = mongoClient[weeksCollectionName];
+// console.log("Weeks collection loaded!");
 
 
 // Start receiving HTTP requests

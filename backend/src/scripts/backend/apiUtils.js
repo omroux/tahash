@@ -3,7 +3,7 @@ import {errorObject} from "./globalUtils.js";
 import { config } from "dotenv";
 config({ path: "../../../../.env" }); // configure .env file
 
-const appId = process.env.APP_ID;
+export const appId = process.env.APP_ID;
 const clientSecret = process.env.CLIENT_SECRET;
 export const WCA_AUTH_URL = (hostname) => `https://www.worldcubeassociation.org/oauth/authorize?client_id=${appId}&redirect_uri=${encodeURIComponent(`${hostname}/auth-callback`)}&response_type=code&scope=`;
 

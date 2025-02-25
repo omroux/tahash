@@ -1,3 +1,8 @@
 <h1 class="Title">בית</h1>
 <h2 class="Sub-Title">תחרות שבועית:</h2>
 <p class="Paragraph">הייי</p>
+<p class="Paragraph">appId: <%- locals.appId %></p>
+<p class="Paragraph">Files: (len=<%- files.length %>)</p>
+<% for (let i = 0; i < files.length; i++) { %>
+    <p class="Paragraph"><%- files[i] %></p>
+<% } %>
