@@ -202,27 +202,37 @@ app.get("/src/*", (req, res) => {
     res.sendFile(filePath);
 });
 
+let tahashDb, weeksCollection;
+app.get("/weeks", async (req, res) => {
+    await weeksCollection.insertOne({ time: new Date().toString() });
+    let arr = await weeksCollection.find().toArray();
+    res.json(arr);
+});
+
 // endregion
 
 
 // -- Connect to MongoDB
-// let connectionString = process.env.MONGO_URL ?? "mongodb://mongodb:27017";
-// let mongoClient;
-// try { mongoClient = await MongoClient.connect(connectionString, { connectTimeoutMS: 5000 }); }
-// catch (err) { console.error(`Error connection to MongoDB on "${connectionString}".`); throw err; }
+console.log("Connecting to MongoDB...");
+const mongoUsername = process.env.MONGO_INITDB_ROOT_USERNAME;
+const mongoPassword = process.env.MONGO_INITDB_ROOT_PASSWORD;
+let connectionString = `mongodb://${mongoUsername}:${mongoPassword}@localhost:27017/tahash?authSource=admin`;
+console.log("Connection string:", connectionString);
+let mongoClient;
+try { mongoClient = await MongoClient.connect(connectionString, { connectTimeoutMS: 5000 }); }
+catch (err) { console.error(`Error connection to MongoDB on "${connectionString}".`); throw err; }
 
 // -- Tahash Database
-// console.log("Connecting to MongoDB...");
-// const tahashDb = mongoClient.db(tahashDbName);
-// console.log("Connected to database!");
-//
-// console.log("Loading weeks collection...");
-// const weeksCollection = mongoClient[weeksCollectionName];
-// console.log("Weeks collection loaded!");
+tahashDb = mongoClient.db(tahashDbName);
+console.log("Connected to database!");
+
+console.log("Loading weeks collection...");
+weeksCollection = tahashDb.collection(weeksCollectionName);
+console.log("Weeks collection loaded!");
 
 
 // Start receiving HTTP requests
-app.listen(getConfigData().port, () => {
+app.listen(getConfigData().port, async () => {
     console.log(
         `Listening on ${getHostname()} (port ${getConfigData().port})${getConfigData().local ? ", locally" : ""}`,
     );

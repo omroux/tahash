@@ -1,8 +1,8 @@
 DOCKER_COMPOSE_PATH="./local_deploy/docker-compose.yml"
 DATABASE_COMPOSE_SERVICE=mongo
-DATABASE_CONTAINER_NAME=mongodb
+DATABASE_CONTAINER_NAME=mongodb_local
+WEBSITE_CONTAINER_NAME=website_local
 WEBSITE_DOCKERFILE_PATH="./backend/"
-WEBSITE_CONTAINER_NAME=website
 WEBSITE_DOCKER_BUILD_NAME=tahash
 
 # USAGE: ./manager.sh [db/all] [on/off]
@@ -42,3 +42,5 @@ elif [ "$1" == "all" ]; then
 else
     echo "Usage: 1=db/all, 2=on/off"
 fi
+
+# mongo command: mongosh --port 27017 --username admin --password 'password' --authenticationDatabase admin

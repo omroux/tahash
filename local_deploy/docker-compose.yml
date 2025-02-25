@@ -2,11 +2,11 @@
 services:
   # mongo container
   mongo:
-    image: mongo
+    image: mongo:4
     container_name: mongodb_local
-    env_file: .env
-    expose:
-      - 27017
+    env_file: ../backend/.env
+    ports:
+      - "27017:27017"
     volumes:
       - mongo-data:/data/db
     restart: always
@@ -15,18 +15,17 @@ services:
   website:
     image: tahash
     container_name: website_local
-    env_file: .env
+    env_file: ../backend/.env
     ports:
       - "3000:3000"
     volumes:
       - website-data:/app/data
     environment:  # Environment variables
       - NODE_ENV=production
-      - MONGO_URL=mongodb://mongodb_local:27017  # Connect to MongoDB via its container name
+      - MONGO_URL=mongodb://localhost:27017/
     depends_on:
         - mongo
 
 volumes:
   mongo-data:
-    driver: local
   website-data:
