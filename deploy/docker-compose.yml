@@ -7,14 +7,12 @@ services:
       - 27017
     volumes:
       - mongo-data:/data/db
-    env_file: .env
     restart: always
 
   # website container
   website:
     image: omroux/tahash
     container_name: website
-    env_file: .env
     ports:
       - "3001:3000"
     volumes:
