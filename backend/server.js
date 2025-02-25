@@ -2,8 +2,7 @@ import {
     fetchToken,
     fetchRefreshToken,
     getUserData,
-    WCA_AUTH_URL,
-    appId
+    WCA_AUTH_URL
 } from "./src/scripts/backend/apiUtils.js";
 import {
     renderPage,
@@ -13,7 +12,7 @@ import {
     authTokenCookie,
     storeTokenCookies,
     readConfigFile,
-    __dirname, sentFromClient, clearTokenCookies, retrieveWCAMe, isLoggedIn,
+    __dirname, sentFromClient, clearTokenCookies, retrieveWCAMe, isLoggedIn, envConfigOptions, getConfigData, getHostname
 } from "./serverUtils.js";
 import { errorObject } from "./src/scripts/backend/globalUtils.js";
 import path from "path";
@@ -25,13 +24,15 @@ import { MongoClient, ObjectId } from "mongodb";
 import ms from "ms";
 
 
+// general setup
+const app = express();  // express app
+config(envConfigOptions); // configure .env file
+
+
 // database constants
 const tahashDbName = "tahash";
 const weeksCollectionName = "weeks";
 
-
-const app = express();  // express app
-config(); // configure .env file
 
 // use EJS as the view engine
 app.set("view engine", "ejs");
@@ -42,6 +43,7 @@ app.set("views", path.join(__dirname, "src/views/"));
 // middleware to parse cookies
 app.use(cookieParser());
 
+
 // region page routing
 
 // "/" => redirect to home page
@@ -50,9 +52,8 @@ app.get("/", (req, res) => {
 });
 
 // Route for home
-let files = [];
 app.get("/home", (req, res) => {
-    renderPage(req, res, "home.ejs", { title: "Home" }, { appId: appId, files: files });
+    renderPage(req, res, "home.ejs", { title: "Home" });
 });
 
 // Route for login page
@@ -91,7 +92,7 @@ app.get("/profile", async (req, res) => {
 
 // Automatically redirect to authentication
 app.get("/redirect-to-auth", (req, res) => {
-    res.redirect(WCA_AUTH_URL(hostname));
+    res.redirect(WCA_AUTH_URL(getHostname()));
 });
 
 // Route for auth-callback
@@ -104,7 +105,7 @@ app.get("/auth-callback", async (req, res) => {
     }
 
     // fetch token in callback
-    const tokenData = await fetchToken(auth_code, hostname);
+    const tokenData = await fetchToken(auth_code);
     if (tokenData.error) {
         renderError(req, res, tokenData.error ?? "שגיאה בתהליך ההתחברות.");
         return;
@@ -160,22 +161,13 @@ app.get("/scrambles", (req, res) => {
             "https://cdn.cubing.net/v0/css/@cubing/icons/css" ]);   // event icons cdn link
 });
 
-app.get("/files", (req, res) => {
-    console.log(files);
-    let response = "Files:\n";
-    for (let i = 0; i < files.length; i++) {
-        response += "\t" + files[i] + ",\n";
-    }
-    // console.log("=> response=", response);
-    res.send(response);
-});
-
 // endregion
+
 
 // region other request handling
 
 // use the requester's authToken cookie to fetch and send their "WCA-Me" information.
-// if an error occurres - clears the cookie, and:
+// if an error occurs - clears the cookie, and:
 //          - if the request was received from a client, sends an error object
 //          - otherwise, redirect to login
 //
@@ -213,28 +205,6 @@ app.get("/src/*", (req, res) => {
 // endregion
 
 
-// -- Read config file
-const configData = readConfigFile();
-const hostname = configData.baseUrl + (configData.local ? `:${configData.port}` : "");
-
-
-// -- Print directory info
-console.log("Path to dir:", __dirname);
-console.log("Contents:");
-fs.readdir(path.join(__dirname, "/"), function (err, f) {
-    //handling error
-    if (err) {
-        return console.log('Unable to scan directory: ' + err);
-    }
-    //listing all files using forEach
-    f.forEach(function (file) {
-        // Do whatever you want to do with the file
-        console.log(file);
-        files.push(file);
-    });
-});
-
-
 // -- Connect to MongoDB
 // let connectionString = process.env.MONGO_URL ?? "mongodb://mongodb:27017";
 // let mongoClient;
@@ -252,8 +222,8 @@ fs.readdir(path.join(__dirname, "/"), function (err, f) {
 
 
 // Start receiving HTTP requests
-app.listen(configData.port, () => {
+app.listen(getConfigData().port, () => {
     console.log(
-        `Listening on ${hostname} (port ${configData.port})${configData.local ? ", locally" : ""}`,
+        `Listening on ${getHostname()} (port ${getConfigData().port})${getConfigData().local ? ", locally" : ""}`,
     );
 });

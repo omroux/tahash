@@ -5,9 +5,20 @@ import ms from 'ms';
 import { fetchRefreshToken, getUserData } from "./src/scripts/backend/apiUtils.js";
 
 
+// -- Global constants/properties
 export const authTokenCookie = "authToken";
 export const refreshTokenCookie = "refreshToken";
 export const __dirname = path.dirname(new URL(import.meta.url).pathname);
+
+// config data property
+let _configData = null;
+let _hostname = null;
+export const getConfigData = () => _configData ?? (_configData = readConfigFile());
+export const getHostname = () =>
+        _hostname ?? (_hostname = getConfigData().baseUrl + (getConfigData().local ? `:${getConfigData().port}` : ""));
+
+// config options for reading .env file
+export const envConfigOptions = getConfigData().local ? { path: path.join(__dirname + "/.env") } : {};
 
 
 // filePath = the page's file path *inside* src/views/pages, including .ejs extension. (src/views/pages/:filePath)
@@ -111,6 +122,7 @@ export function tryGetCookie(req, cookieName, isJson = true) {
 
 // read the config file (default/local)
 // handles exceptions (by throwing them :p )
+// returns the configData
 export function readConfigFile() {
     const localConfigFile = "config.local.json";
 

@@ -1,9 +1,11 @@
 import fetch from 'node-fetch'
 import {errorObject} from "./globalUtils.js";
 import { config } from "dotenv";
-config(); // configure .env file
+import {envConfigOptions, getHostname} from "../../../serverUtils.js";
 
-export const appId = process.env.APP_ID;
+config(envConfigOptions); // configure .env file
+
+const appId = process.env.APP_ID;
 const clientSecret = process.env.CLIENT_SECRET;
 export const WCA_AUTH_URL = (hostname) => `https://www.worldcubeassociation.org/oauth/authorize?client_id=${appId}&redirect_uri=${encodeURIComponent(`${hostname}/auth-callback`)}&response_type=code&scope=`;
 
@@ -42,7 +44,7 @@ export async function getUserData(token) {
 // hostname is the base url
 // returns the response as json
 // if an error has occurred, returns an object with a string field called error
-export async function fetchToken(auth_code, hostname) {
+export async function fetchToken(auth_code) {
     if (!auth_code) return errorObject("invalid (null) authentication code.");
 
     // build the HTTP Request
@@ -51,7 +53,7 @@ export async function fetchToken(auth_code, hostname) {
         client_secret:    clientSecret,
         grant_type:       "authorization_code",
         code:             auth_code,
-        redirect_uri:     hostname + "/auth-callback"
+        redirect_uri:     getHostname() + "/auth-callback"
     };
 
     const options = {
