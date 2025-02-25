@@ -213,10 +213,12 @@ app.get("/weeks", async (req, res) => {
 
 
 // -- Connect to MongoDB
-console.log("Connecting to MongoDB...");
+console.log("Connecting to MongoDB...", getConfigData());
 const mongoUsername = process.env.MONGO_INITDB_ROOT_USERNAME;
 const mongoPassword = process.env.MONGO_INITDB_ROOT_PASSWORD;
-let connectionString = `mongodb://${mongoUsername}:${mongoPassword}@localhost:27017/tahash?authSource=admin`;
+const host = getConfigData().local ? "mongodb_local" : "mongodb";
+let connectionString = `mongodb://${mongoUsername}:${mongoPassword}@${host}:27017/tahash?authSource=admin`;
+// let connectionString = "mongodb://localhost:27017/tahash"
 console.log("Connection string:", connectionString);
 let mongoClient;
 try { mongoClient = await MongoClient.connect(connectionString, { connectTimeoutMS: 5000 }); }
