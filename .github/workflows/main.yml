@@ -72,4 +72,4 @@ jobs:
             docker pull ${{ secrets.DOCKER_HUB_USER_NAME }}/tahash:latest
             docker run -d -it -p 27017:27017 --name mongo mongo:latest
             docker ps -a
-            docker compose -f ${{ secrets.DOCKER_COMPOSE_PATH }} website up
+            docker compose -f ${{ secrets.DOCKER_COMPOSE_PATH }} up website
