@@ -51,6 +51,7 @@ app.get("/", (req, res) => {
     res.redirect("/home");
 });
 
+let tahashDb, weeksCollection;
 // Route for home
 app.get("/home", (req, res) => {
     renderPage(req, res, "home.ejs", { title: "Home" });
@@ -202,11 +203,16 @@ app.get("/src/*", (req, res) => {
     res.sendFile(filePath);
 });
 
-let tahashDb, weeksCollection;
+
 app.get("/weeks", async (req, res) => {
-    await weeksCollection.insertOne({ time: new Date().toString() });
-    let arr = await weeksCollection.find().toArray();
-    res.json(arr);
+    try {
+        await weeksCollection.insertOne({ time: new Date().toString() });
+        let arr = await weeksCollection.find().toArray();
+        res.json(arr);
+    }
+    catch (err) {
+        renderError(req, res, err.toString());
+    }
 });
 
 // endregion
