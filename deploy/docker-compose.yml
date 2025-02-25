@@ -2,7 +2,7 @@ services:
   # mongo container
   mongo:
     image: mongo
-    container_name: mongodb
+    container_name: mongo
     expose:
       - 27017
     volumes:
