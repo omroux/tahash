@@ -73,4 +73,6 @@ jobs:
             docker pull ${{ secrets.DOCKER_HUB_USER_NAME }}/tahash:latest
             docker run -d -it -p 27017:27017 --name mongo mongo:latest
             docker ps -a
+            cat ${{ secrets.DOCKER_COMPOSE_PATH }}
             docker compose -f ${{ secrets.DOCKER_COMPOSE_PATH }} up website
+#            docker compose -f "$GITHUB_WORKSPACE/deploy/docker-compose.yml" up
