@@ -30,6 +30,10 @@ export class TahashWeek {
         this.startDate =    src.startDate   || null;
         this.endDate =      src.endDate     || null;
         this.data =         src.data        || [];
+
+        // "normalize" date to only the date, ignore time of day
+        this.startDate?.setHours(0, 0, 0, 0);
+        this.endDate?.setHours(0, 0, 0, 0);
     }
 
 
@@ -39,9 +43,11 @@ export class TahashWeek {
     }
 
 
-    // has this competition already ended?
-    weekEnded() {
-        // TODO: weekEnded method
+    // is this week currently active as the current Tahash week?
+    isActive() {
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        return this.startDate <= now && now <= this.endDate;
     }
 
     // returns array of user ids
@@ -49,11 +55,9 @@ export class TahashWeek {
         // TODO: getCompetitorList method
     }
 
-    // get event data by event id
-    getEventData(eventId) {
+    // get the results of an event by its event id
+    getEventResults(eventId) {
         // TODO: implement getEventData method
     }
-
-
 }
 

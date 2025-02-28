@@ -80,7 +80,7 @@ export function storeCookie(res, cookieName, cookieData, maxAge = null, options 
     if (typeof(cookieData) !== "string")
         cookieData = JSON.stringify(cookieData);
 
-    res.cookie(cookieName, cookieData,options);
+    res.cookie(cookieName, cookieData, options);
 }
 
 
@@ -202,7 +202,7 @@ export async function retrieveWCAMe(req, res) {
     // try to use the new refresh token
     // note: we're not reloading the page in order to avoid an infinite loop of refreshing the page
     let userData = await getUserData(tokenData.access_token);
-    return userData?.me; // automatically null if it doesn't exist
+    return userData ? userData.me : null; // automatically null if it doesn't exist
 }
 
 

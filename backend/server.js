@@ -50,7 +50,7 @@ console.log("Connecting to MongoDB...", getConfigData());
 const tahashDb = await loadDatabase(tahashDbName);
 console.log("Connected to MongoDB!");
 const weekManager = new WeekManager(tahashDb.collection(weeksCollectionName));
-const userManager = new UserManager(tahashDb.collection(usersCollectionName))
+const userManager = new UserManager(tahashDb.collection(usersCollectionName));
 
 
 // use EJS as the view engine
@@ -95,12 +95,7 @@ app.get("/login", async (req, res) => {
 
 // Route for profile page
 app.get("/profile", async (req, res) => {
-    // has token cookie, meaning the user is logged in
-    if (!(await isLoggedIn(req, res))) {
-        res.redirect("/profile");
-        return;
-    }
-
+    // the case where the user isn't logged in is handled by profile.js
     renderPage(req,
         res,
         "profile.ejs",
@@ -219,18 +214,6 @@ app.get("/src/*", (req, res) => {
     }
 
     res.sendFile(filePath);
-});
-
-
-app.get("/weeks", async (req, res) => {
-    try {
-        await weeksCollection.insertOne({ time: new Date().toString() });
-        let arr = await weeksCollection.find().toArray();
-        res.json(arr);
-    }
-    catch (err) {
-        renderError(req, res, err.toString());
-    }
 });
 
 // endregion

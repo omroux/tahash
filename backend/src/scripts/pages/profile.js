@@ -17,7 +17,6 @@ function updateWcaData() {
 window.onload = async () => {
     wcaMeData = await sendRequest("/wca-me");
     if (wcaMeData.error) {
-        sessionStorage.clear();
         window.location = wcaMeData.redirectTo;
     }
 
