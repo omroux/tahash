@@ -1,10 +1,10 @@
-import {WriteError} from "mongodb";
 import {TahashWeek} from "./TahashWeek.js";
 
 // Manages the "weeks" collection
 export class WeekManager {
     #collection;
 
+    // Construct a WeekManager
     constructor(weeksCollection) {
         this.#collection = weeksCollection;
     }
@@ -15,18 +15,18 @@ export class WeekManager {
     async getTahashWeek(weekNumber, createIfNull = false) {
         const weekSrc = { weekNumber: weekNumber };
 
-        // find the week, don't return the document's id
-        const week = await this.#collection.findOne(weekSrc, { _id: 0 });
+        // find the week in the database
+        const weekJSON = await this.#collection.findOne(weekSrc);
 
-        if (week) return week;
+        if (weekJSON) return new TahashWeek(this, weekJSON);
         if (!createIfNull) return null;
 
         // create and save new week
         const newWeek = new TahashWeek(this, weekSrc);
         await this.saveWeek(newWeek);
-
         return newWeek;
     }
+
 
     // save a TahashWeek to the database by its week number (if it already exists, just update its values).
     // returns whether the update has been acknowledged (usually true).
@@ -36,10 +36,7 @@ export class WeekManager {
                 weekNumber: tahashWeek.weekNumber,
                 startDate: tahashWeek.startDate,
                 endDate:  tahashWeek.endDate,
-                competitors:  tahashWeek.competitors,
-                submissions:  tahashWeek.submissions,
-                scrambles:  tahashWeek.scrambles,
-                events:  tahashWeek.events
+                data:  tahashWeek.data
                 } },
             { upsert: true }).acknowledged;
     }

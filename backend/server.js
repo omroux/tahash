@@ -30,7 +30,8 @@ import cookieParser from "cookie-parser";
 import {config} from "dotenv";
 import { MongoClient, ObjectId } from "mongodb";
 import ms from "ms";
-import {WeekManager} from "./src/scripts/backend/database/WeekManager.js";
+import {WeekManager} from "./src/scripts/backend/database/weeks/WeekManager.js";
+import {UserManager} from "./src/scripts/backend/database/users/UserManager.js";
 
 
 // general setup
@@ -42,12 +43,14 @@ config(envConfigOptions); // configure .env file
 // database constants
 const tahashDbName = "tahash";
 const weeksCollectionName = "weeks";
+const usersCollectionName = "users";
 
 // MongoDB
 console.log("Connecting to MongoDB...", getConfigData());
 const tahashDb = await loadDatabase(tahashDbName);
 console.log("Connected to MongoDB!");
 const weekManager = new WeekManager(tahashDb.collection(weeksCollectionName));
+const userManager = new UserManager(tahashDb.collection(usersCollectionName))
 
 
 // use EJS as the view engine
