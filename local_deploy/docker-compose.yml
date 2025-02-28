@@ -24,7 +24,6 @@ services:
       - website-data:/app/data
     environment:  # Environment variables
       - NODE_ENV=production
-      - MONGO_URL=mongodb://localhost:27017/
       - MONGO_SERVICE=mongodb_local
     depends_on:
         - mongo

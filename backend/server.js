@@ -12,7 +12,15 @@ import {
     authTokenCookie,
     storeTokenCookies,
     readConfigFile,
-    __dirname, sentFromClient, clearTokenCookies, retrieveWCAMe, isLoggedIn, envConfigOptions, getConfigData, getHostname
+    __dirname,
+    sentFromClient,
+    clearTokenCookies,
+    retrieveWCAMe,
+    isLoggedIn,
+    envConfigOptions,
+    getConfigData,
+    getHostname,
+    loadDatabase
 } from "./serverUtils.js";
 import { errorObject } from "./src/scripts/backend/globalUtils.js";
 import path from "path";
@@ -22,6 +30,7 @@ import cookieParser from "cookie-parser";
 import {config} from "dotenv";
 import { MongoClient, ObjectId } from "mongodb";
 import ms from "ms";
+import {WeekManager} from "./src/scripts/backend/database/WeekManager.js";
 
 
 // general setup
@@ -29,9 +38,16 @@ const app = express();  // express app
 config(envConfigOptions); // configure .env file
 
 
+// -- Database
 // database constants
 const tahashDbName = "tahash";
 const weeksCollectionName = "weeks";
+
+// MongoDB
+console.log("Connecting to MongoDB...", getConfigData());
+const tahashDb = await loadDatabase(tahashDbName);
+console.log("Connected to MongoDB!");
+const weekManager = new WeekManager(tahashDb.collection(weeksCollectionName));
 
 
 // use EJS as the view engine
@@ -51,7 +67,6 @@ app.get("/", (req, res) => {
     res.redirect("/home");
 });
 
-let tahashDb, weeksCollection;
 // Route for home
 app.get("/home", (req, res) => {
     renderPage(req, res, "home.ejs", { title: "Home" });
@@ -218,51 +233,9 @@ app.get("/weeks", async (req, res) => {
 // endregion
 
 
-// // -- Connect to MongoDB
-// console.log("Connecting to MongoDB...", getConfigData());
-// // const mongoUsername = process.env.MONGO_INITDB_ROOT_USERNAME;
-// // const mongoPassword = process.env.MONGO_INITDB_ROOT_PASSWORD;
-// const host = getConfigData().local ? "mongodb_local" : "mongodb";
-// // let connectionString = `mongodb://${mongoUsername}:${mongoPassword}@${host}:27017/tahash?authSource=admin`;
-// let connectionString = `mongodb://${host}:27017/tahash`;
-// console.log("Connection string:", connectionString);
-// let mongoClient;
-// try { mongoClient = await MongoClient.connect(connectionString, { connectTimeoutMS: 5000 }); }
-// catch (err) { console.error(`Error connection to MongoDB on "${connectionString}".`); throw err; }
-//
-// // -- Tahash Database
-// tahashDb = mongoClient.db(tahashDbName);
-// console.log("Connected to database!");
-//
-// console.log("Loading weeks collection...");
-// weeksCollection = tahashDb.collection(weeksCollectionName);
-// console.log("Weeks collection loaded!");
-
-
 // Start receiving HTTP requests
 app.listen(getConfigData().port, async () => {
     console.log(
         `Listening on ${getHostname()} (port ${getConfigData().port})${getConfigData().local ? ", locally" : ""}`,
     );
-
-    // -- Connect to MongoDB
-    console.log("Connecting to MongoDB...", getConfigData());
-    const mongoUsername = process.env.MONGO_INITDB_ROOT_USERNAME;
-    const mongoPassword = process.env.MONGO_INITDB_ROOT_PASSWORD;
-    const host = process.env.MONGO_SERVICE || (getConfigData().local ? "localhost" : "mongo");
-    let connectionString = `mongodb://${mongoUsername}:${mongoPassword}@${host}:27017/tahash?authSource=admin`;
-    // let connectionString = `mongodb://${host}:27017/tahash`;
-    // let connectionString = `mongodb://mongodb:27017/tahash`;
-    console.log("Connection string:", connectionString);
-    let mongoClient;
-    try { mongoClient = await MongoClient.connect(connectionString, { connectTimeoutMS: 5000 }); }
-    catch (err) { console.error(`Error connection to MongoDB on "${connectionString}".`); throw err; }
-
-    // -- Tahash Database
-    tahashDb = mongoClient.db(tahashDbName);
-    console.log("Connected to database!");
-
-    console.log("Loading weeks collection...");
-    weeksCollection = tahashDb.collection(weeksCollectionName);
-    console.log("Weeks collection loaded!");
 });

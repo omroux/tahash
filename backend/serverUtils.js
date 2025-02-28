@@ -3,6 +3,7 @@ import ejs from 'ejs';
 import path from 'path';
 import ms from 'ms';
 import { fetchRefreshToken, getUserData } from "./src/scripts/backend/apiUtils.js";
+import {MongoClient} from "mongodb";
 
 
 // -- Global constants/properties
@@ -210,3 +211,23 @@ export async function retrieveWCAMe(req, res) {
 export const isLoggedIn = async (req, res) => (tryGetCookie(req, authTokenCookie)
             ? true
             : ((await retrieveWCAMe(req, res)) != null));
+
+
+export async function loadDatabase(dbName) {
+    // retrieve mongodb host url
+    const mongoUsername = process.env.MONGO_INITDB_ROOT_USERNAME;
+    const mongoPassword = process.env.MONGO_INITDB_ROOT_PASSWORD;
+    const host = process.env.MONGO_SERVICE || (getConfigData().local ? "localhost" : "mongodb");
+
+    // use the credentials, if they exist
+    const hasCredentials = (mongoUsername && mongoPassword);
+    const mongoUrlPrefix = hasCredentials ? `${mongoUsername}:${mongoPassword}@` : "";
+    const mongoUrlParams = hasCredentials ? "?authSource=admin" : "";
+
+
+    // build mongo connection string
+    const connectionString = `mongodb://${mongoUrlPrefix}${host}:27017/tahash${mongoUrlParams}`;
+
+    const mongoClient = await MongoClient.connect(connectionString, { connectTimeoutMS: 5000 });
+    return mongoClient.db(dbName);
+}
