@@ -3,6 +3,7 @@
     --event-box-rot: 3deg;
 }
 
+/* container of event boxes */
 .Event-Select-Container {
     /* size */
     width: 100%;
@@ -87,7 +88,7 @@
 .Event-Name-Title {
     /* prevent hovering over text */
     pointer-events: none;
-
+    
     box-sizing: border-box;
     font-size: var(--font-size, 1rem);
     font-weight: 500;

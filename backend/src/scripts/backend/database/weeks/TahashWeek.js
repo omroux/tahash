@@ -53,6 +53,7 @@ export class TahashWeek {
     // returns array of user ids
     getCompetitorList() {
         // TODO: getCompetitorList method
+        // (using sorted array and use binary search to search + insert?)
     }
 
     // get the results of an event by its event id

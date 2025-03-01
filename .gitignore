@@ -141,3 +141,6 @@ config.local.json
 # env
 **/.env
 cmds.txt
+
+# server deploy folder
+server_deploy
