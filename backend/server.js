@@ -1,3 +1,11 @@
+import path from "path";
+import fs from "fs";
+import express from "express";
+import cookieParser from "cookie-parser";
+import { config } from "dotenv";
+import { MongoClient, ObjectId } from "mongodb";
+import ms from "ms";
+import cron from "node-cron"
 import {
     fetchToken,
     fetchRefreshToken,
@@ -23,15 +31,8 @@ import {
     loadDatabase
 } from "./serverUtils.js";
 import { errorObject } from "./src/scripts/backend/globalUtils.js";
-import path from "path";
-import fs from "fs";
-import express from "express";
-import cookieParser from "cookie-parser";
-import {config} from "dotenv";
-import { MongoClient, ObjectId } from "mongodb";
-import ms from "ms";
-import {WeekManager} from "./src/scripts/backend/database/weeks/WeekManager.js";
-import {UserManager} from "./src/scripts/backend/database/users/UserManager.js";
+import { WeekManager } from "./src/scripts/backend/database/weeks/WeekManager.js";
+import { UserManager } from "./src/scripts/backend/database/users/UserManager.js";
 
 
 // general setup
@@ -52,6 +53,9 @@ console.log("Connected to MongoDB!");
 const weekManager = new WeekManager(tahashDb.collection(weeksCollectionName));
 const userManager = new UserManager(tahashDb.collection(usersCollectionName));
 
+// initialize weekManager
+await weekManager.validateLastWeek();
+
 
 // use EJS as the view engine
 app.set("view engine", "ejs");
@@ -63,7 +67,7 @@ app.set("views", path.join(__dirname, "src/views/"));
 app.use(cookieParser());
 
 
-// region page routing
+// #region page routing
 
 // "/" => redirect to home page
 app.get("/", (req, res) => {
@@ -175,10 +179,10 @@ app.get("/scrambles", (req, res) => {
             "https://cdn.cubing.net/v0/css/@cubing/icons/css" ]);   // event icons cdn link
 });
 
-// endregion
+// #endregion
 
 
-// region other request handling
+// #region other request handling
 
 // use the requester's authToken cookie to fetch and send their "WCA-Me" information.
 // if an error occurs - clears the cookie, and:
@@ -216,7 +220,7 @@ app.get("/src/*", (req, res) => {
     res.sendFile(filePath);
 });
 
-// endregion
+// #endregion
 
 
 // Start receiving HTTP requests
@@ -225,3 +229,14 @@ app.listen(getConfigData().port, async () => {
         `Listening on ${getHostname()} (port ${getConfigData().port})${getConfigData().local ? ", locally" : ""}`,
     );
 });
+
+
+// #region new tahash week schedule
+
+// Every Monday at 20:01
+cron.schedule('1 20 * * 1', () => {
+    weekManager.validateLastWeek();
+}, { scheduled: true, timezone: "Israel" })/*.start()*/;
+// TODO: uncomment .start() to make cron actually schedule the job
+
+// #endregion
