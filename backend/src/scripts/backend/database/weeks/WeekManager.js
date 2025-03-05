@@ -74,6 +74,7 @@ function weekDataToDocData(weekData) {
     const docData = [];
 
     // replace CompEvent with just id
+    weekData ??= [];
     for (let i = 0; i < weekData.length; i++) {
         docData.push({
             eventId: weekData[i].event.eventId,
@@ -90,6 +91,7 @@ function docDataToWeekData(docData) {
     const weekData = [];
 
     // replace id with event
+    docData ??= [];
     for (let i = 0; i < docData.length; i++) {
         weekData.push({
             event: getEventById(docData[i].eventId),
