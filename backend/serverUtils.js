@@ -260,6 +260,9 @@ export async function initDatabase() {
     _weekManager = new WeekManager(_tahashDb.collection(weeksCollectionName));
     _userManager = new UserManager(_tahashDb.collection(usersCollectionName));
 
+    // validate last week
+    await _weekManager.validateLastWeek();
+
     return _tahashDb;
 }
 
