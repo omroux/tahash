@@ -127,7 +127,7 @@ app.get("/auth-callback", async (req, res) => {
 app.get("/scrambles", async (req, res) => {
     // event icons cdn link
     const eventIconsSrc = "https://cdn.cubing.net/v0/css/@cubing/icons/css";
-    const lastWeek = await weekManager.getLastWeek();
+    const lastWeek = await weekManager().getLastWeek();
     
     // build events array
     const events = [];
