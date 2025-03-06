@@ -76,6 +76,17 @@ export class TahashWeek {
     getEventResults(eventId) {
         // TODO: implement getEventData method
     }
+
+    // returns CompEvent[] of the events of this week
+    getEvents() {
+        const result = [];
+
+        for (let i = 0; i < this.data.length; i++) {
+            result.push(this.data[i].event);
+        }
+
+        return result;
+    }
 }
 
 // get the src object for a new week (starting on the current date)

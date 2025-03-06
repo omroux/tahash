@@ -136,45 +136,23 @@ app.get("/auth-callback", async (req, res) => {
     res.redirect("/profile");
 });
 
-app.get("/scrambles", (req, res) => {
-    const events =[
-        {
-            eventId: "333",
-            scrType: "333",
-            eventTitle: "3x3x3",
-            iconName: "event-333"
-        },
-        {
-            eventId: "222",
-            scrType: "222so",
-            eventTitle: "2x2x2",
-            iconName: "event-222"
-        },
-        {
-            eventId: "444",
-            eventTitle: "4x4x4",
-            scrType: "444wca",
-            iconName: "event-444"
-        },
-        {
-            eventId: "444",
-            scrType: "555wca",
-            eventTitle: "5x5x5",
-            iconName: "event-555"
-        },
-        {
-            eventId: "666",
-            scrType: "666wca",
-            eventTitle: "6x6",
-            iconName: "event-666"
-        }
-    ];
+app.get("/scrambles", async (req, res) => {
+    // build events array
+    const events = [];
+    const weekEvents = (await weekManager.getLastWeek()).getEvents();
+    for (let i = 0; i < weekEvents.length; i++) {
+        events.push({
+            eventId: weekEvents[i].eventId,
+            iconName: weekEvents[i].iconName,
+            eventTitle: weekEvents[i].eventTitle
+        });
+    }
 
     renderPage(req,
         res,
         "/scrambles.ejs",
         { title: "Scrambles" },
-        { events },
+        { events: events },
         [ "src/stylesheets/pages/scrambles.css",
             "https://cdn.cubing.net/v0/css/@cubing/icons/css" ]);   // event icons cdn link
 });
@@ -224,7 +202,7 @@ app.get("/src/*", (req, res) => {
 
 
 // Start receiving HTTP requests
-app.listen(getConfigData().port, async () => {
+app.listen(getConfigData().port, () => {
     console.log(
         `Listening on ${getHostname()} (port ${getConfigData().port})${getConfigData().local ? ", locally" : ""}`,
     );
