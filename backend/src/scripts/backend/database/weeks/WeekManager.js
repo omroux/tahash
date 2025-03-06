@@ -45,6 +45,10 @@ export class WeekManager {
         return await this.getTahashWeek(this.#_lastWeekNumber);
     }
 
+    getLastWeekNumber() {
+        return this.#_lastWeekNumber;
+    }
+
     // validate the last week - if the last week isn't active, create a new week
     // returns the new week's TahashWeek object.
     // extraEvents - an array of Events

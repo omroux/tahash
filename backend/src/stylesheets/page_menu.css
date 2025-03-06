@@ -5,7 +5,7 @@
     --item-idle-color: white;
     --current-page-color: rgb(150, 150, 150);
     --item-hover-color: rgb(190, 190, 190);
-    --item-hover-scale: 1.1;
+    --item-hover-scale: 1.08;
 }
 
 .Page-Menu {
@@ -44,14 +44,14 @@
 
     /* Not Current Page */
     &:not(.Current-Page) {
-        transition: font-weight 0.1s, transform 0.15s, background-color 0.2s;
-        transition-timing-function: ease-in;
+        transition: font-weight 0.05s, transform 0.12s, background-color 0.1s;
+        transition-timing-function: ease-out;
         transform: scale(1);
         font-weight: normal;
 
         /* Hover */
         &:hover {
-            transition-timing-function: ease-out;
+            transition-timing-function: ease-in;
             transform: scale(var(--item-hover-scale));
 
             background-color: var(--item-hover-color);
@@ -60,6 +60,11 @@
     }
 }
 
+.Week-Number-Header {
+    text-align: center;
+    margin-top: 0.8rem;
+    margin-bottom: 0;
+}
 
 @keyframes current-page-item-load {
     from { transform: scale(var(--item-hover-scale)); }

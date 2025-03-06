@@ -36,9 +36,10 @@ body {
     text-align: center;
     font-weight: bolder;
     font-size: 225%;
-    padding: 1% 0;
-    height: 4%;
-    box-sizing: border-box;
+    height: 2rem;
+    margin: 0 0;
+
+    padding-top: 1rem;
 }
 
 .Title {

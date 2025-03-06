@@ -4,9 +4,11 @@ import path from 'path';
 import ms from 'ms';
 import { fetchRefreshToken, getUserData } from "./src/scripts/backend/apiUtils.js";
 import {MongoClient} from "mongodb";
+import { WeekManager } from './src/scripts/backend/database/weeks/WeekManager.js';
+import { UserManager } from './src/scripts/backend/database/users/UserManager.js';
 
 
-// -- Global constants/properties
+// -- General constants/properties
 export const authTokenCookie = "authToken";
 export const refreshTokenCookie = "refreshToken";
 export const __dirname = path.dirname(new URL(import.meta.url).pathname);
@@ -46,6 +48,9 @@ export function renderPage(req, res, filePath, layoutOptions = {}, pageOptions =
         // first try to get the auth token cookie. if it exists, the user is logged in.
         layoutOptions.loggedIn = await isLoggedIn(req, res);
 
+        // week number in header
+        layoutOptions.weekNumber = weekManager().getLastWeekNumber();
+
         res.render("layout.ejs", layoutOptions);
     });
 }
@@ -61,7 +66,7 @@ export function renderError(req, res, error = null) {
 }
 
 
-// region Cookie Management
+// #region Cookie Management
 
 // save a cookie
 // cookieData is a JSON object or a string. (automatically stringifies)
@@ -118,7 +123,7 @@ export function tryGetCookie(req, cookieName, isJson = true) {
     catch { return null; }
 }
 
-// endregion
+// #endregion
 
 
 // read the config file (default/local)
@@ -213,7 +218,27 @@ export const isLoggedIn = async (req, res) => (tryGetCookie(req, authTokenCookie
             : ((await retrieveWCAMe(req, res)) != null));
 
 
-export async function loadDatabase(dbName) {
+// #region Database Management
+
+// database variables
+const tahashDbName = "tahash";
+const weeksCollectionName = "weeks";
+const usersCollectionName = "users";
+
+let _tahashDb = null;
+let _weekManager = null;
+let _userManager = null;
+export const tahashDB = () => _tahashDb;
+export const weekManager = () => _weekManager;
+export const userManager = () => _userManager;
+
+// initialize MongoDB and load tahash database
+export async function initDatabase() {
+    if (_tahashDb != null) {
+        console.warn("database is already initialized.");
+        return _tahashDb;
+    }
+
     // retrieve mongodb host url
     const mongoUsername = process.env.MONGO_INITDB_ROOT_USERNAME;
     const mongoPassword = process.env.MONGO_INITDB_ROOT_PASSWORD;
@@ -224,10 +249,18 @@ export async function loadDatabase(dbName) {
     const mongoUrlPrefix = hasCredentials ? `${mongoUsername}:${mongoPassword}@` : "";
     const mongoUrlParams = hasCredentials ? "?authSource=admin" : "";
 
-
     // build mongo connection string
     const connectionString = `mongodb://${mongoUrlPrefix}${host}:27017/tahash${mongoUrlParams}`;
 
+    // connect to Mongo and retrieve database
     const mongoClient = await MongoClient.connect(connectionString, { connectTimeoutMS: 5000 });
-    return mongoClient.db(dbName);
+    _tahashDb = mongoClient.db(tahashDbName);
+
+    // get weeks and users collections
+    _weekManager = new WeekManager(_tahashDb.collection(weeksCollectionName));
+    _userManager = new UserManager(_tahashDb.collection(usersCollectionName));
+
+    return _tahashDb;
 }
+
+// #endregion

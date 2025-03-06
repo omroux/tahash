@@ -108,3 +108,10 @@
     opacity: 0;
 }
 
+.Week-Number-Title {
+    text-align: center;
+    margin-top: 0;
+    position: relative;
+    top: -10px;
+}
+

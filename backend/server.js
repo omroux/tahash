@@ -28,11 +28,10 @@ import {
     envConfigOptions,
     getConfigData,
     getHostname,
-    loadDatabase
+    initDatabase,
+    weekManager
 } from "./serverUtils.js";
 import { errorObject } from "./src/scripts/backend/globalUtils.js";
-import { WeekManager } from "./src/scripts/backend/database/weeks/WeekManager.js";
-import { UserManager } from "./src/scripts/backend/database/users/UserManager.js";
 
 
 // general setup
@@ -40,21 +39,10 @@ const app = express();  // express app
 config(envConfigOptions); // configure .env file
 
 
-// -- Database
-// database constants
-const tahashDbName = "tahash";
-const weeksCollectionName = "weeks";
-const usersCollectionName = "users";
-
 // MongoDB
 console.log("Connecting to MongoDB...", getConfigData());
-const tahashDb = await loadDatabase(tahashDbName);
+await initDatabase();
 console.log("Connected to MongoDB!");
-const weekManager = new WeekManager(tahashDb.collection(weeksCollectionName));
-const userManager = new UserManager(tahashDb.collection(usersCollectionName));
-
-// initialize weekManager
-await weekManager.validateLastWeek();
 
 
 // use EJS as the view engine
@@ -137,9 +125,13 @@ app.get("/auth-callback", async (req, res) => {
 });
 
 app.get("/scrambles", async (req, res) => {
+    // event icons cdn link
+    const eventIconsSrc = "https://cdn.cubing.net/v0/css/@cubing/icons/css";
+    const lastWeek = await weekManager.getLastWeek();
+    
     // build events array
     const events = [];
-    const weekEvents = (await weekManager.getLastWeek()).getEvents();
+    const weekEvents = lastWeek.getEvents();
     for (let i = 0; i < weekEvents.length; i++) {
         events.push({
             eventId: weekEvents[i].eventId,
@@ -152,9 +144,12 @@ app.get("/scrambles", async (req, res) => {
         res,
         "/scrambles.ejs",
         { title: "Scrambles" },
-        { events: events },
+        {
+            weekNumber: lastWeek.weekNumber,
+            events: events
+        },
         [ "src/stylesheets/pages/scrambles.css",
-            "https://cdn.cubing.net/v0/css/@cubing/icons/css" ]);   // event icons cdn link
+            eventIconsSrc ]);
 });
 
 // #endregion
