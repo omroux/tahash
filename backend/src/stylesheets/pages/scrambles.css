@@ -1,6 +1,8 @@
 :root {
     --font-size: 0;
     --event-box-rot: 3deg;
+    --box-click-color: rgba(90, 90, 90, 0.3);
+    --box-hover-color: rgba(100, 100, 100, 0.2);
 }
 
 /* container of event boxes */
@@ -49,7 +51,7 @@
         transition-timing-function: ease-out;
         transition-delay: 0s;
         scale: 1.17;
-        background-color: rgba(100, 100, 100, 0.2);
+        background-color: var(--box-hover-color);
         rotate: var(--event-box-rot);
 
         & .Cubing-Icon {
@@ -62,6 +64,12 @@
             transition: opacity 0.1s ease-out;
             opacity: 1;
         }
+    }
+
+    /* on click */
+    &:active {
+        transition: background-color 0.1s;
+        background-color: var(--box-click-color);
     }
 }
 
