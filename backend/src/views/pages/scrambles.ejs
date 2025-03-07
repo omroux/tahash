@@ -11,41 +11,11 @@
 
         <!-- Control Event Box Sizing -->
         <script>
-            const eventBoxes = document.querySelectorAll(`[id^="event-select"]`);
-
-            function resize2fit(el) {
-                // if (!el.parentElement) return;
-                el.style.setProperty("--font-size", "1em");
-                const {width: max_width, height: max_height} = el.getBoundingClientRect();
-
-                const title = el.querySelector(".Event-Name-Title");
-                const {width, height} = title.getBoundingClientRect();
-
-                let size = Math.min(max_width/width, max_height/height);
-                if (size < 0.7) {
-                    size = 0.7;
-                    title.style.textWrap = "wrap";
-                }
-                else if (size > 1.25) {
-                    size = 1.25;
-                }
-
-                size = Math.ceil(size*10)/10;
-                title.style.setProperty("--font-size", size + "em");
-            }
-
-            function resizeEventBoxes() {
-                for (let i = 0; i < eventBoxes.length; i++) {
-                    resize2fit(eventBoxes[i]);
-                }
-            }
-
-            window.addEventListener("resize", function(e) {
-                resizeEventBoxes();
-            });
-
-            resizeEventBoxes();
+            
         </script>
+
+
+    <script src="src/scripts/pages/scrambles.js"></script>
     </div>
 <% } else { %>
     <div class="No-Events-Container">
