@@ -1,6 +1,10 @@
-<% if (event) { %>
+<% if (eventData) { %>
     <div class="Compete-Container">
-        <h1 class="Title"><%- event.eventTitle %></h1>
+        <h1 class="Title"><%- eventData.event.eventTitle %></h1>
+        <% eventData.scrambles.forEach(s => { %>
+            <p class="Paragraph" style="direction: ltr;"></5-><%- s %></p>
+            <br>
+        <% }) %>
     </div>
 <% } else { %>
     <div class="Not-Found-Container">

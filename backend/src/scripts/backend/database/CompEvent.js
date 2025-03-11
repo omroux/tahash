@@ -1,10 +1,12 @@
+import csTimer from "cstimer_module";
+
 // Competition event structure
 class CompEvent {
     eventTitle;     // the event's display name
     eventId;        // the event's id
     scrType;        // csTimer scramble type
     iconName;       // name of the event's icon in the icon "database"
-    format;         // the format of the event (e.g. ao5, bo3, ...)
+    timeFormat;         // the format of the event (e.g. ao5, bo3, ...)
     scrLenExp;      // scramble length expectancy
     scrLenRadius;   // scramble length variance (radius)
 
@@ -14,7 +16,7 @@ class CompEvent {
         this.eventId =      eventId;
         this.scrType =      scrType;
         this.iconName =     iconName;
-        this.format =       resultFormat;
+        this.timeFormat =       resultFormat;
         this.scrLenExp =    scrLenExp;
         this.scrLenRadius = Math.abs(scrLenExp, scrLenRadius);
     }
@@ -28,30 +30,60 @@ class CompEvent {
                     // generate an non-negative integer in [scrLenExp-scrLenRadius, scrLenExp+scrLenRadius]
                     : Math.abs(Math.floor(Math.random() * (2 * this.scrLenRadius)) + (this.scrLenExp - this.scrLenRadius));
     }
+
+    // returns a string[] with scrambles for this event
+    generateScrambles() {
+        const num = getNumScrambles(this.timeFormat);
+        let result = [];
+
+        for (let i = 0; i < num; i++) {
+            result.push(csTimer.getScramble(this.scrType, this.getScrambleLength()));
+        }
+
+        return result;
+    }
 }
+
+
+export const TimeFormat = Object.freeze({
+    ao5: "ao5",
+    mo3: "mo3",
+    bo3: "bo3",
+    multi: "multi"
+});
+
+const numScrambles = Object.freeze({
+    ao5: 5,
+    mo3: 3,
+    bo3: 3,
+    multi: 20
+});
+
+// get the number of scrambles for a TimeFormat
+export const getNumScrambles = timeFormat => numScrambles[timeFormat];
 
 
 // official WCA events (CompEvent[])
 export const WCAEvents = [
     // -- WCA Events --
-    //              Title       Id          ScrType     Icon            Format      [scrLenExp]
-    new CompEvent(  "3x3x3",    "333",      "333",      "event-333",    "ao5"),
-    new CompEvent(  "2x2x2",    "222",      "222so",    "event-222",    "ao5"),
-    new CompEvent(  "4x4x4",    "444",      "444wca",   "event-444",    "ao5"),
-    new CompEvent(  "5x5x5",    "555",      "555wca",   "event-555",    "ao5",      60),
-    new CompEvent(  "6x6x6",    "666",      "666wca",   "event-666",    "mo3",      80),
-    new CompEvent(  "7x7x7",    "777",      "777wca",   "event-777",    "mo3",      100),
-    new CompEvent(  "3x3 BLD",  "3bld",     "333ni",    "event-333bf",  "bo3"),
-    new CompEvent(  "FMC",      "fmc",      "333fm",    "event-333fm",  "bo3"),
-    new CompEvent(  "3x3 OH",   "oh",       "333",      "event-333oh",  "ao5"),
-    new CompEvent(  "Clock",    "clock",    "clkwca",   "event-clock",  "ao5"),
-    new CompEvent(  "Megaminx", "megaminx", "mgmp",     "event-minx",   "ao5",      70),
-    new CompEvent(  "Pyraminx", "pyraminx", "pyrso",    "event-pyram",  "ao5",      10),
-    new CompEvent(  "Skewb",    "skewb",    "skbso",    "event-skewb",  "ao5"),
-    new CompEvent(  "Square-1", "square-1", "sqrs",     "event-sq1",    "ao5"),
-    new CompEvent(  "4x4 BLD",  "4bld",     "444bld",   "event-444bf",  "bo3",      40),
-    new CompEvent(  "5x5 BLD",  "5bld",     "555bld",   "event-555bf",  "bo3",      60),
-    new CompEvent(  "3x3 MBLD", "mbld",     "r3ni",     "event-333mbf", "multi",    5)
+    //              Title       Id          ScrType     Icon            Format              [scrLenExp]
+    new CompEvent(  "3x3x3",    "333",      "333",      "event-333",    TimeFormat.ao5),
+    new CompEvent(  "2x2x2",    "222",      "222so",    "event-222",    TimeFormat.ao5),
+    new CompEvent(  "4x4x4",    "444",      "444wca",   "event-444",    TimeFormat.ao5),
+    new CompEvent(  "5x5x5",    "555",      "555wca",   "event-555",    TimeFormat.ao5,     60),
+    new CompEvent(  "6x6x6",    "666",      "666wca",   "event-666",    TimeFormat.mo3,     80),
+    new CompEvent(  "7x7x7",    "777",      "777wca",   "event-777",    TimeFormat.mo3,     100),
+    new CompEvent(  "3x3 BLD",  "3bld",     "333ni",    "event-333bf",  TimeFormat.bo3),
+    new CompEvent(  "FMC",      "fmc",      "333fm",    "event-333fm",  TimeFormat.bo3),
+    new CompEvent(  "3x3 OH",   "oh",       "333",      "event-333oh",  TimeFormat.ao5),
+    new CompEvent(  "Clock",    "clock",    "clkwca",   "event-clock",  TimeFormat.ao5),
+    new CompEvent(  "Megaminx", "megaminx", "mgmp",     "event-minx",   TimeFormat.ao5,     70),
+    new CompEvent(  "Pyraminx", "pyraminx", "pyrso",    "event-pyram",  TimeFormat.ao5,     10),
+    new CompEvent(  "Skewb",    "skewb",    "skbso",    "event-skewb",  TimeFormat.ao5),
+    new CompEvent(  "Square-1", "square-1", "sqrs",     "event-sq1",    TimeFormat.ao5),
+    new CompEvent(  "4x4 BLD",  "4bld",     "444bld",   "event-444bf",  TimeFormat.bo3,     40),
+    new CompEvent(  "5x5 BLD",  "5bld",     "555bld",   "event-555bf",  TimeFormat.bo3,     60),
+    new CompEvent(  "3x3 MBLD", "mbld",     "r3ni",     "event-333mbf", TimeFormat.multi,   5)
 ];
 Object.freeze(WCAEvents);
 

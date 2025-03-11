@@ -50,8 +50,3 @@ function chooseEvent(eventBoxEl) {
     console.log(`Picked event ${getEventId(eventBoxEl)}`);
     window.location = `/compete/${getEventId(eventBoxEl)}`;
 }
-
-window.onload = () => {
-    // check if the user is logged in
-    // if ()
-};

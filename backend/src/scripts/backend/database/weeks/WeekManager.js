@@ -63,6 +63,7 @@ export class WeekManager {
 
         // create a new week and save it to the database
         const newWeek = new TahashWeek(this, src);
+        newWeek.initScrambles();
         await newWeek.saveToDB();
         this.#_currentWeekNumber += 1;
     }

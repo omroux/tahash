@@ -36,7 +36,7 @@ export class TahashWeek {
     ]
     */
 
-
+    // construct a TahashWeek from a given source
     // src - a source object to build the TahashWeek from: {weekNumber, startDate, endDate, data}
     constructor(weekManager, src) {
         this.#manager = weekManager;
@@ -99,6 +99,16 @@ export class TahashWeek {
     getEvent(eventId) {
         const evData = this.data.find(d => d.event.eventId == eventId);
         return evData ? Object.assign({}, evData.event) : null;
+    }
+
+    // initialize scrambles for all events that don't have scrambles
+    
+    initScrambles() {
+        for (let i = 0; i < this.data.length; i++) {
+            if (this.data[i].scrambles.length != 0)
+                continue;
+            this.data[i].scrambles = this.data[i].event.generateScrambles();
+        }
     }
 }
 
