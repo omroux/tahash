@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="src/stylesheets/page_menu.css"/>
-    <link rel="stylesheet" href="src/stylesheets/main_style.css"/>
+    <link rel="stylesheet" href="/src/stylesheets/page_menu.css"/>
+    <link rel="stylesheet" href="/src/stylesheets/main_style.css"/>
 
     <!-- link extra stylesheets -->
     <% stylesheets.forEach(cssFile => { %>
@@ -39,7 +39,7 @@
         </div>
 
         <div id="content_container" <% if (locals.loading) { %> hidden <% } %> >
-            <script src="src/scripts/pages/master_page.js"></script>
+            <script src="/src/scripts/pages/master_page.js"></script>
             <%- content %>
         </div>
     </div>

@@ -48,8 +48,8 @@ console.log("Connected to MongoDB!");
 // use EJS as the view engine
 app.set("view engine", "ejs");
 
-// set the default views directory to src/views
-app.set("views", path.join(__dirname, "src/views/"));
+// set the default views directory to /src/views
+app.set("views", path.join(__dirname, "/src/views/"));
 
 // middleware to parse cookies
 app.use(cookieParser());
@@ -81,7 +81,7 @@ app.get("/login", async (req, res) => {
         "login.ejs",
         { title: "Login" },
         { auth_path: "/redirect-to-auth" },
-        [ "src/stylesheets/pages/login.css" ],
+        [ "/src/stylesheets/pages/login.css" ],
     );
 });
 
@@ -93,7 +93,7 @@ app.get("/profile", async (req, res) => {
         "profile.ejs",
         {title: "Profile", loading: true},
         {},
-        ["src/stylesheets/pages/profile.css"]);
+        ["/src/stylesheets/pages/profile.css"]);
 });
 
 // Automatically redirect to authentication
@@ -124,14 +124,15 @@ app.get("/auth-callback", async (req, res) => {
     res.redirect("/profile");
 });
 
+// Route for scrambles page
 app.get("/scrambles", async (req, res) => {
     // event icons cdn link
     const eventIconsSrc = "https://cdn.cubing.net/v0/css/@cubing/icons/css";
-    const lastWeek = await weekManager().getLastWeek();
+    const currentWeek = await weekManager().getCurrentWeek();
     
     // build events array
     const events = [];
-    const weekEvents = lastWeek.getEvents();
+    const weekEvents = currentWeek.getAllEvents();
     for (let i = 0; i < weekEvents.length; i++) {
         events.push({
             eventId: weekEvents[i].eventId,
@@ -145,11 +146,37 @@ app.get("/scrambles", async (req, res) => {
         "/scrambles.ejs",
         { title: "Scrambles" },
         {
-            weekNumber: lastWeek.weekNumber,
+            weekNumber: currentWeek.weekNumber,
             events: events
         },
-        [ "src/stylesheets/pages/scrambles.css",
+        [ "/src/stylesheets/pages/scrambles.css",
             eventIconsSrc ]);
+});
+
+// Route for competing in events
+app.get("/compete/:eventId", async (req, res) => {
+    const currentWeek = await weekManager().getCurrentWeek();
+    const loggedIn = await isLoggedIn(req, res);
+
+    // not logged in -> login
+    if (!loggedIn) {
+        res.redirect("/login");
+        return;
+    }
+
+    const pageOptions = {};
+    // const compEvent = currentWeek.getEvent(req.params.eventId);
+    // console.log(compEvent);
+    // if (compEvent)
+    //     pageOptions.event = compEvent;
+
+    pageOptions.event = currentWeek.getEvent(req.params.eventId);
+    renderPage(req,
+        res,
+        "/compete.ejs",
+        { title: "מדידת זמן" },
+        pageOptions,
+        [ "/src/stylesheets/pages/compete.css" ]);
 });
 
 // #endregion
@@ -208,7 +235,7 @@ app.listen(getConfigData().port, () => {
 
 // Every Monday at 20:01
 cron.schedule('1 20 * * 1', () => {
-    weekManager.validateLastWeek();
+    weekManager.validateCurrentWeek();
 }, { scheduled: true, timezone: "Israel" })/*.start()*/;
 // TODO: uncomment .start() to make cron actually schedule the job
 

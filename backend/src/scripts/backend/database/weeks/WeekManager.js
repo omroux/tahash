@@ -4,7 +4,7 @@ import {getNewWeekSrc, TahashWeek} from "./TahashWeek.js";
 // Manages the "weeks" collection
 export class WeekManager {
     #collection;
-    #_lastWeekNumber = -1;
+    #_currentWeekNumber = -1;
 
     // Construct a WeekManager
     constructor(weeksCollection) {
@@ -38,33 +38,33 @@ export class WeekManager {
             { upsert: true }).acknowledged;
     }
 
-    // get the last week in the database (by highest week number)
-    async getLastWeek() {
-        if (this.#_lastWeekNumber < 0)
-            this.#_lastWeekNumber = (await this.#collection.find({}, { _id: 0 }).sort({ weekNumber: -1 }).limit(1).toArray())[0].weekNumber;
-        return await this.getTahashWeek(this.#_lastWeekNumber);
+    // get the current week in the database (by highest week number)
+    async getCurrentWeek() {
+        if (this.#_currentWeekNumber < 0)
+            this.#_currentWeekNumber = (await this.#collection.find({}, { _id: 0 }).sort({ weekNumber: -1 }).limit(1).toArray())[0].weekNumber;
+        return await this.getTahashWeek(this.#_currentWeekNumber);
     }
 
-    getLastWeekNumber() {
-        return this.#_lastWeekNumber;
+    getCurrentWeekNumber() {
+        return this.#_currentWeekNumber;
     }
 
-    // validate the last week - if the last week isn't active, create a new week
+    // validate the current week - if the current week isn't active, create a new week
     // returns the new week's TahashWeek object.
     // extraEvents - an array of Events
-    async validateLastWeek(extraEvents = null, endDate = null) {
-        const lastWeek = await this.getLastWeek();
+    async validateCurrentWeek(extraEvents = null, endDate = null) {
+        const currentWeek = await this.getCurrentWeek();
 
-        // check if the last week is still active
-        if (lastWeek.isActive()) return;
+        // check if the current week is still active
+        if (currentWeek.isActive()) return;
         
         // create the new week's source object
-        const src = getNewWeekSrc(lastWeek.weekNumber + 1, extraEvents, null, endDate);
+        const src = getNewWeekSrc(currentWeek.weekNumber + 1, extraEvents, null, endDate);
 
         // create a new week and save it to the database
         const newWeek = new TahashWeek(this, src);
         await newWeek.saveToDB();
-        this.#_lastWeekNumber += 1;
+        this.#_currentWeekNumber += 1;
     }
 
     // an array of all the saved weeks in the database

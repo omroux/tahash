@@ -1,0 +1,11 @@
+<% if (event) { %>
+    <div class="Compete-Container">
+        <h1 class="Title"><%- event.eventTitle %></h1>
+    </div>
+<% } else { %>
+    <div class="Not-Found-Container">
+        <h1 class="Title">מקצה לא קיים</h1>
+        <a href="/scrambles"><button class="Back-To-Scrambles-Button">חזור לערבובים</button>
+        </a>
+    </div>
+<% } %>

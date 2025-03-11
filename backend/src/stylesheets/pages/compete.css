@@ -1,0 +1,27 @@
+:root {
+    --back-button-bg: rgb(173, 216, 230);
+    --back-button-hover-bg: rgb(160, 200, 210);
+}
+
+.Back-To-Scrambles-Button {
+    transition: scale 0.075s, background-color 0.1s;
+    transition-timing-function: ease-in;
+
+    background-color: var(--back-button-bg);
+
+    border: 2px solid black;
+    border-radius: 10px;
+    padding: 2% 2%;
+
+
+    margin: auto;
+
+    cursor: pointer;
+
+    &:hover {
+        transition-timing-function: ease-out;
+        background-color: var(--back-button-hover-bg);
+
+        scale: 1.04;
+    }
+}

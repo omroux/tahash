@@ -52,12 +52,10 @@ export class TahashWeek {
         this.endDate?.setHours(0, 0, 0, 0);
     }
 
-
     // save this TahashWeek using the linked WeekManager
     async saveToDB() {
         return await this.#manager.saveWeek(this);
     }
-
 
     // is this week currently active as the current Tahash week?
     isActive() {
@@ -67,18 +65,18 @@ export class TahashWeek {
     }
 
     // returns array of user ids
+    // TODO: getCompetitorList method
+    // (using sorted array and use binary search to search + insert?)
     getCompetitorList() {
-        // TODO: getCompetitorList method
-        // (using sorted array and use binary search to search + insert?)
     }
 
     // get the results of an event by its event id
-    getEventResults(eventId) {
-        // TODO: implement getEventData method
+    // TODO: implement getEventData method
+    getEventResults(eventId) {        
     }
 
     // returns CompEvent[] of the events of this week
-    getEvents() {
+    getAllEvents() {
         const result = [];
 
         for (let i = 0; i < this.data.length; i++) {
@@ -86,6 +84,21 @@ export class TahashWeek {
         }
 
         return result;
+    }
+
+    // returns a copy of the data for a specific event object of an event from this week by its eventId.
+    // if the week does not contain an event with this id, returns null.
+    getEventDataById(eventId) {
+        const evData = this.data.find(d => d.event.eventId == eventId);
+        return evData ? Object.assign({}, evData) : null;
+    }
+
+    // check whether this week contains an event with a specific id.
+    // if it does, returns a copy of the CompEvent object.
+    // otherwise, returns null.
+    getEvent(eventId) {
+        const evData = this.data.find(d => d.event.eventId == eventId);
+        return evData ? Object.assign({}, evData.event) : null;
     }
 }
 

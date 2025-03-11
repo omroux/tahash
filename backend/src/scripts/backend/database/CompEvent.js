@@ -33,8 +33,8 @@ class CompEvent {
 
 // official WCA events (CompEvent[])
 export const WCAEvents = [
-    //              Title       Id          ScrType     Icon            Format      [scrLenExp]
     // -- WCA Events --
+    //              Title       Id          ScrType     Icon            Format      [scrLenExp]
     new CompEvent(  "3x3x3",    "333",      "333",      "event-333",    "ao5"),
     new CompEvent(  "2x2x2",    "222",      "222so",    "event-222",    "ao5"),
     new CompEvent(  "4x4x4",    "444",      "444wca",   "event-444",    "ao5"),
@@ -42,7 +42,7 @@ export const WCAEvents = [
     new CompEvent(  "6x6x6",    "666",      "666wca",   "event-666",    "mo3",      80),
     new CompEvent(  "7x7x7",    "777",      "777wca",   "event-777",    "mo3",      100),
     new CompEvent(  "3x3 BLD",  "3bld",     "333ni",    "event-333bf",  "bo3"),
-    new CompEvent(  "3x3 FMC",  "fmc",      "333fm",    "event-333fm",  "bo3"),
+    new CompEvent(  "FMC",      "fmc",      "333fm",    "event-333fm",  "bo3"),
     new CompEvent(  "3x3 OH",   "oh",       "333",      "event-333oh",  "ao5"),
     new CompEvent(  "Clock",    "clock",    "clkwca",   "event-clock",  "ao5"),
     new CompEvent(  "Megaminx", "megaminx", "mgmp",     "event-minx",   "ao5",      70),
@@ -58,6 +58,6 @@ Object.freeze(WCAEvents);
 // all possible events in Tahash
 const allEvents = WCAEvents.concat({});
 
-// get event by its id (undefined if it doesn't exist)
+// get event by its id (null if it doesn't exist)
 export const getEventById = (eventId)=>
-        allEvents.find(e => e.eventId === eventId);
+        allEvents.find(e => e.eventId === eventId) ?? null;

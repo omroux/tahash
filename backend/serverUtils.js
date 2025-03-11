@@ -49,7 +49,7 @@ export function renderPage(req, res, filePath, layoutOptions = {}, pageOptions =
         layoutOptions.loggedIn = await isLoggedIn(req, res);
 
         // week number in header
-        layoutOptions.weekNumber = weekManager().getLastWeekNumber();
+        layoutOptions.weekNumber = weekManager().getCurrentWeekNumber();
 
         res.render("layout.ejs", layoutOptions);
     });
@@ -260,8 +260,8 @@ export async function initDatabase() {
     _weekManager = new WeekManager(_tahashDb.collection(weeksCollectionName));
     _userManager = new UserManager(_tahashDb.collection(usersCollectionName));
 
-    // validate last week
-    await _weekManager.validateLastWeek();
+    // validate current week
+    await _weekManager.validateCurrentWeek();
 
     return _tahashDb;
 }
