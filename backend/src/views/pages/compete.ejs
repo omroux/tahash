@@ -1,10 +1,11 @@
 <% if (eventData) { %>
     <div class="Compete-Container">
         <h1 class="Title"><%- eventData.event.eventTitle %></h1>
-        <% eventData.scrambles.forEach(s => { %>
-            <p class="Paragraph" style="direction: ltr;"></5-><%- s %></p>
+        <h2 class="Sub-Title">ערבובים:</h2>
+        <% for (let i = 0; i < eventData.scrambles.length; i++) { %>
+            <p class="Scramble" style="direction: ltr; white-space: pre-line; text-align: center;"><%- i+1 %>) <%- eventData.scrambles[i] %></p>
             <br>
-        <% }) %>
+        <% } %>
     </div>
 <% } else { %>
     <div class="Not-Found-Container">

@@ -165,12 +165,14 @@ app.get("/compete/:eventId", async (req, res) => {
     }
 
     const pageOptions = {};
-    // const compEvent = currentWeek.getEvent(req.params.eventId);
-    // console.log(compEvent);
-    // if (compEvent)
-    //     pageOptions.event = compEvent;
+    const eventData = currentWeek.getEventDataById(req.params.eventId);
+    if (eventData) {
+        pageOptions.eventData = {
+            event: eventData.event,
+            scrambles: eventData.scrambles
+        };
+    }
 
-    pageOptions.eventData = currentWeek.getEventDataById(req.params.eventId);
     renderPage(req,
         res,
         "/compete.ejs",
