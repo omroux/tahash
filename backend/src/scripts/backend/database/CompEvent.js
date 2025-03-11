@@ -16,9 +16,9 @@ class CompEvent {
         this.eventId =      eventId;
         this.scrType =      scrType;
         this.iconName =     iconName;
-        this.timeFormat =       resultFormat;
+        this.timeFormat =   resultFormat;
         this.scrLenExp =    scrLenExp;
-        this.scrLenRadius = Math.abs(scrLenExp, scrLenRadius);
+        this.scrLenRadius = Math.abs(scrLenRadius);
     }
 
     // get the length of the scramble
@@ -35,9 +35,12 @@ class CompEvent {
     generateScrambles() {
         const num = getNumScrambles(this.timeFormat);
         let result = [];
+        let lens = [];
 
         for (let i = 0; i < num; i++) {
-            result.push(csTimer.getScramble(this.scrType, this.getScrambleLength()));
+            const len = this.getScrambleLength();
+            lens.push(len);
+            result.push(csTimer.getScramble(this.scrType, len));
         }
 
         return result;

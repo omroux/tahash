@@ -144,3 +144,6 @@ cmds.txt
 
 # server deploy folder
 server_deploy
+
+# vscode
+launch.json
