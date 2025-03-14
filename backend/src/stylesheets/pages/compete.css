@@ -26,6 +26,10 @@
     }
 }
 
+.Scramble-Number-Title {
+    font-size: 120%; text-align: center;
+}
+
 /* TODO: FONT!!! */
 .Scramble-Text {
     font-weight: 600;
