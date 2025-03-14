@@ -32,6 +32,7 @@ import {
     weekManager
 } from "./serverUtils.js";
 import { errorObject } from "./src/scripts/backend/globalUtils.js";
+import cstimer from "cstimer_module";
 
 
 // general setup
@@ -166,11 +167,19 @@ app.get("/compete/:eventId", async (req, res) => {
     const pageOptions = {};
     const eventData = currentWeek.getEventDataById(req.params.eventId);
     if (eventData) {
+        const scrImages = [];
+        // images
+        for (let i = 0; i < eventData.scrambles.length; i++)
+            scrImages.push(cstimer.getImage(eventData.scrambles[i], eventData.event.scrType));
+
         pageOptions.eventData = {
             event: eventData.event,
-            scrambles: eventData.scrambles
+            scrambles: eventData.scrambles,
+            scrImages: scrImages
         };
+
     }
+
 
     renderPage(req,
         res,

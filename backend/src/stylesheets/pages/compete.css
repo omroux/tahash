@@ -25,3 +25,14 @@
         scale: 1.04;
     }
 }
+
+/* TODO: FONT!!! */
+.Scramble-Text {
+    font-weight: 600;
+    font-size: 150%;
+    letter-spacing: 1.2;
+}
+
+.Scramble-Img {
+    text-align: center;
+}
