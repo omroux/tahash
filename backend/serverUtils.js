@@ -49,7 +49,7 @@ export function renderPage(req, res, filePath, layoutOptions = {}, pageOptions =
         layoutOptions.loggedIn = await isLoggedIn(req, res);
 
         // week number in header
-        layoutOptions.weekNumber = weekManager().getCurrentWeekNumber();
+        layoutOptions.compNumber = weekManager().getCurrentCompNumber();
 
         res.render("layout.ejs", layoutOptions);
     });

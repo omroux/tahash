@@ -4,7 +4,7 @@ import {getNewWeekSrc, TahashWeek} from "./TahashWeek.js";
 // Manages the "weeks" collection
 export class WeekManager {
     #collection;
-    #_currentWeekNumber = -1;
+    #_currCompNum = -1;
 
     // Construct a WeekManager
     constructor(weeksCollection) {
@@ -12,13 +12,13 @@ export class WeekManager {
     }
 
     // get a TahashWeek object from the database by its week number
-    async getTahashWeek(weekNumber) {
+    async getTahashWeek(compNumber) {
         // find the week in the database
-        const weekDoc = await this.#collection.findOne({ weekNumber: weekNumber });
+        const weekDoc = await this.#collection.findOne({ compNumber: compNumber });
 
         // create and return the week object
         return weekDoc ? new TahashWeek(this, {
-            weekNumber: weekDoc.weekNumber,
+            compNumber: weekDoc.compNumber,
             startDate: weekDoc.startDate,
             endDate: weekDoc.endDate,
             data: docDataToWeekData(weekDoc.data)
@@ -28,9 +28,9 @@ export class WeekManager {
     // save a TahashWeek to the database by its week number (if it already exists, just update its values).
     // returns whether the update has been acknowledged (usually true).
     async saveWeek(tahashWeek) {
-        return await this.#collection.updateOne({ weekNumber: tahashWeek.weekNumber },
+        return await this.#collection.updateOne({ compNumber: tahashWeek.compNumber },
             { $set: {
-                weekNumber: tahashWeek.weekNumber,
+                compNumber: tahashWeek.compNumber,
                 startDate: tahashWeek.startDate,
                 endDate:  tahashWeek.endDate,
                 data:  weekDataToDocData(tahashWeek.data)
@@ -39,33 +39,36 @@ export class WeekManager {
     }
 
     // get the current week in the database (by highest week number)
-    async getCurrentWeek() {
-        if (this.#_currentWeekNumber < 0)
-            this.#_currentWeekNumber = (await this.#collection.find({}, { _id: 0 }).sort({ weekNumber: -1 }).limit(1).toArray())[0].weekNumber;
-        return await this.getTahashWeek(this.#_currentWeekNumber);
+    // force - whether to force accessing the database and comparing the comp number
+    async getCurrentWeek(force = false) {
+        if (force || this.#_currCompNum < 0)
+            this.#_currCompNum = (await this.#collection.find({}, { _id: 0 }).sort({ compNumber: -1 }).limit(1).toArray())[0].compNumber;
+        return await this.getTahashWeek(this.#_currCompNum);
     }
 
-    getCurrentWeekNumber() {
-        return this.#_currentWeekNumber;
+    getCurrentCompNumber() {
+        return this.#_currCompNum;
     }
 
     // validate the current week - if the current week isn't active, create a new week
     // returns the new week's TahashWeek object.
     // extraEvents - an array of Events
-    async validateCurrentWeek(extraEvents = null, endDate = null) {
+    // force - whether to force creation of a new week
+    async validateCurrentWeek(extraEvents = null, endDate = null, force = false) {
         const currentWeek = await this.getCurrentWeek();
 
         // check if the current week is still active
-        if (currentWeek.isActive()) return;
+        if (!force && currentWeek.isActive())
+            return;
         
         // create the new week's source object
-        const src = getNewWeekSrc(currentWeek.weekNumber + 1, extraEvents, null, endDate);
+        const src = getNewWeekSrc(currentWeek.compNumber + 1, extraEvents, null, endDate);
 
         // create a new week and save it to the database
         const newWeek = new TahashWeek(this, src);
         newWeek.initScrambles();
         await newWeek.saveToDB();
-        this.#_currentWeekNumber += 1;
+        this.#_currCompNum += 1;
     }
 
     // an array of all the saved weeks in the database

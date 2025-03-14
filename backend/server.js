@@ -128,11 +128,11 @@ app.get("/auth-callback", async (req, res) => {
 app.get("/scrambles", async (req, res) => {
     // event icons cdn link
     const eventIconsSrc = "https://cdn.cubing.net/v0/css/@cubing/icons/css";
-    const currentWeek = await weekManager().getCurrentWeek();
+    const currWeek = await weekManager().getCurrentWeek();
     
     // build events array
     const events = [];
-    const weekEvents = currentWeek.getAllEvents();
+    const weekEvents = currWeek.getAllEvents();
     for (let i = 0; i < weekEvents.length; i++) {
         events.push({
             eventId: weekEvents[i].eventId,
@@ -146,7 +146,7 @@ app.get("/scrambles", async (req, res) => {
         "/scrambles.ejs",
         { title: "Scrambles" },
         {
-            weekNumber: currentWeek.weekNumber,
+            compNumber: currWeek.compNumber,
             events: events
         },
         [ "/src/stylesheets/pages/scrambles.css",
@@ -220,6 +220,14 @@ app.get("/src/*", (req, res) => {
     }
 
     res.sendFile(filePath);
+});
+
+// TODO: remove before publishing
+// dev commands
+app.get("/newweek", async (req, res) => {
+    // validate (create a new one - the last one is not active anymore)
+    await weekManager().validateCurrentWeek(null, null, true);
+    res.redirect("/");
 });
 
 // #endregion

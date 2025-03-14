@@ -6,7 +6,7 @@ export class TahashUser {
     user data structure:
     data: [
         {
-            weekNumber: uint,
+            compNumber: uint,
             results: [
                 {
                     eventId: str,
