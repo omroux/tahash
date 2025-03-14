@@ -102,13 +102,29 @@ export class TahashWeek {
     }
 
     // initialize scrambles for all events that don't have scrambles
-    
     initScrambles() {
         for (let i = 0; i < this.data.length; i++) {
             if (this.data[i].scrambles.length != 0)
                 continue;
             this.data[i].scrambles = this.data[i].event.generateScrambles();
         }
+    }
+
+    // get the information about events of this Tahash Week
+    // returns an array: [ { eventId, iconName, eventTitle } ]
+    getEventsInfo() {
+        const events = [];
+        const weekEvents = this.getAllEvents();
+
+        for (let i = 0; i < weekEvents.length; i++) {
+            events.push({
+                eventId: weekEvents[i].eventId,
+                iconName: weekEvents[i].iconName,
+                eventTitle: weekEvents[i].eventTitle
+            });
+        }
+
+        return events;
     }
 }
 

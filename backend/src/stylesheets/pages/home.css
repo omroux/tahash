@@ -1,0 +1,25 @@
+.Attributes-Container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    margin: 15px 0;
+}
+
+.Comp-Attribute {
+    display: flex;
+    gap: 15px;
+    font-size: 150%;
+    margin: 0;
+
+    & .Attr-Name {
+        text-decoration: underline;
+        margin: 0;
+    }
+
+    & .Attr-Value {
+        font-weight: bold; direction: ltr;
+        text-wrap: balance;
+        margin: 0;
+    }
+}

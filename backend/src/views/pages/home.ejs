@@ -1,3 +1,29 @@
 <h1 class="Title">בית</h1>
-<h2 class="Sub-Title">תחרות שבועית:</h2>
-<p class="Paragraph">הייי</p>
+<h2 class="Sub-Title">מידע על התחרות הנוכחית:</h2>
+<br/>
+<div class="Attributes-Container">
+    <div class="Comp-Attribute">
+        <p class="Attr-Name"> מספר תחרות:</p>
+        <p class="Attr-Value"> <%- compInfo.compNumber %> </p>
+    </div>
+
+    <div class="Comp-Attribute">
+        <p class="Attr-Name">התחלה:</p>
+        <p class="Attr-Value"> <%- compInfo.startDate.toDateString() %></p>
+    </div>
+
+    <div class="Comp-Attribute">
+        <p class="Attr-Name">סיום:</p>
+        <p class="Attr-Value"> <%- compInfo.endDate.toDateString() %> </p>
+    </div>
+
+    <div class="Comp-Attribute">
+        <p class="Attr-Name">מקצים:</p>
+        <br/>
+        <p class="Attr-Value"> 
+        <% for (let i = 0; i < compInfo.events.length; i++) { %>
+            <%- compInfo.events[i].eventTitle %><% if (i < compInfo.events.length - 1) { %>,<% } %>
+        <% } %>
+        </p>
+    </div>
+</div>

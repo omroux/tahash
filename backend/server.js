@@ -63,8 +63,18 @@ app.get("/", (req, res) => {
 });
 
 // Route for home
-app.get("/home", (req, res) => {
-    renderPage(req, res, "home.ejs", { title: "Home" });
+app.get("/home", async (req, res) => {
+    const currWeek = await weekManager().getCurrentWeek();
+
+    renderPage(req, res, "home.ejs", { title: "Home" }, 
+        { compInfo: {
+            compNumber: currWeek.compNumber,
+            startDate: currWeek.startDate,
+            endDate: currWeek.endDate,
+            events: currWeek.getEventsInfo()
+         } },
+         [ "src/stylesheets/pages/home.css" ]
+    );
 });
 
 // Route for login page
@@ -130,24 +140,13 @@ app.get("/scrambles", async (req, res) => {
     const eventIconsSrc = "https://cdn.cubing.net/v0/css/@cubing/icons/css";
     const currWeek = await weekManager().getCurrentWeek();
     
-    // build events array
-    const events = [];
-    const weekEvents = currWeek.getAllEvents();
-    for (let i = 0; i < weekEvents.length; i++) {
-        events.push({
-            eventId: weekEvents[i].eventId,
-            iconName: weekEvents[i].iconName,
-            eventTitle: weekEvents[i].eventTitle
-        });
-    }
-
     renderPage(req,
         res,
         "/scrambles.ejs",
         { title: "Scrambles" },
         {
             compNumber: currWeek.compNumber,
-            events: events
+            events: currWeek.getEventsInfo()
         },
         [ "/src/stylesheets/pages/scrambles.css",
             eventIconsSrc ]);
