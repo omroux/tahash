@@ -1,19 +1,23 @@
 <% if (eventData) { %>
     <div class="Compete-Container">
         <h1 class="Title"><%- eventData.event.eventTitle %></h1>
-        <button id="nextScrBtn">Next</button>
-        <button id="prevScrBtn">Previous</button>
-        <p id="scrNumberTitle" class="Scramble-Number-Title"></p>
-        <!-- <p style="font-size: 120%; text-align: center;"><a%- i+1 %>/<%- eventData.scrambles.length %></p> -->
-        <!-- <h2 class="Sub-Title">ערבובים:</h2> -->
-        <% for (let i = 0; i < eventData.scrambles.length; i++) { %>
-            <div class="Scramble-Container" id="scrContainer<%- i %>">
-                <p class="Scramble-Text" style="direction: ltr; white-space: pre-line; text-align: center;"> <%- eventData.scrambles[i] %></p>
-                <div class="Scramble-Img" id="scrImg<%- i %>">
-                    <%- eventData.scrImages[i] %>
-                </div>
+        <a href="/scrambles"><button class="Back-To-Scrambles-Button">חזור לערבובים</button></a><br/>
+
+        <div class="Scramble-Container">
+            <div class="Scramble-Manage-Container">
+            <button id="prevScrBtn" class="Prev-Scr-Btn">הקודם</button>
+            <p id="scrNumberTitle" class="Scramble-Number-Title"></p>
+            <button id="nextScrBtn" class="Next-Scr-Btn">הבא</button>
             </div>
-        <% } %>
+            <% for (let i = 0; i < eventData.scrambles.length; i++) { %>
+                <div class="Scramble-Text-Container" id="scrContainer<%- i %>">
+                    <p class="Scramble-Text" style="direction: ltr; white-space: pre-line; text-align: center;"> <%- eventData.scrambles[i] %></p>
+                    <div class="Scramble-Img" id="scrImg<%- i %>">
+                        <%- eventData.scrImages[i] %>
+                    </div>
+                </div>
+            <% } %>
+        </div>
 
         <script>
             const scrambles = `<%- eventData.scrambles %>`.split(',');
@@ -25,7 +29,5 @@
 <% } else { %>
     <div class="Not-Found-Container">
         <h1 class="Title">מקצה לא קיים</h1>
-        <a href="/scrambles"><button class="Back-To-Scrambles-Button">חזור לערבובים</button>
-        </a>
     </div>
 <% } %>

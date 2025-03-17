@@ -1,42 +1,81 @@
 :root {
-    --back-button-bg: rgb(173, 216, 230);
-    --back-button-hover-bg: rgb(160, 200, 210);
+    --button-bg: rgb(173, 216, 230);
+    --button-hover-bg: rgb(160, 200, 210);
+    --button-disabled-bg: rgb(160, 190, 210);
 }
 
-.Back-To-Scrambles-Button {
+.Back-To-Scrambles-Button, .Next-Scr-Btn, .Prev-Scr-Btn {
     transition: scale 0.075s, background-color 0.1s;
     transition-timing-function: ease-in;
 
-    background-color: var(--back-button-bg);
+    background-color: var(--button-bg);
 
     border: 2px solid black;
     border-radius: 10px;
-    padding: 2% 2%;
 
+    font-size: 160%;
 
     margin: auto;
 
-    cursor: pointer;
+    &:not(:disabled) {
+        cursor: pointer;
+    }
+
+    &:hover:not(:disabled) {
+        transition-timing-function: ease-out;
+        background-color: var(--button-hover-bg);
+    }
+}
+
+.Back-To-Scrambles-Button {
+    position: absolute;
+    scale: 0.8;
+    padding: 1% 1%;
 
     &:hover {
-        transition-timing-function: ease-out;
-        background-color: var(--back-button-hover-bg);
+        scale: 0.84;
+    }
+}
 
+.Next-Scr-Btn, .Prev-Scr-Btn {
+    padding: auto 3%;
+    text-align: center;
+    min-width: 90px;
+    box-sizing: border-box;
+    padding: 1% 2%;
+
+    &:disabled {
+        opacity: 60%;
+        background-color: var(--button-disabled-bg);
+    }
+
+    &:hover:not(:disabled) {
         scale: 1.04;
     }
 }
 
 .Scramble-Number-Title {
-    font-size: 120%; text-align: center;
+    font-size: 165%; text-align: center;
 }
 
 /* TODO: FONT!!! */
 .Scramble-Text {
     font-weight: 600;
-    font-size: 150%;
+    font-size: 175%;
     letter-spacing: 1.2;
 }
 
 .Scramble-Img {
     text-align: center;
+}
+
+.Scramble-Manage-Container {
+    display: flex;
+    justify-content: space-between;
+    width: 65%;
+    margin: auto;
+}
+
+.Compete-Container {
+    padding-bottom: 100px;
 }

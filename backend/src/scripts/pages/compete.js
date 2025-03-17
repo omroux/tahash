@@ -24,16 +24,25 @@ window.onload = () => {
         scrContainers[i].hidden = true;
 
     activeScr = 0;
+    prevScrBtn.disabled = true;
     updateActiveScr();
 };
 
 nextScrBtn.onclick = () => {
     activeScr += 1;
     updateActiveScr();
+
+    if (activeScr == numScr - 1)
+        nextScrBtn.disabled = true;
+    prevScrBtn.disabled = false;
 };
 
 prevScrBtn.onclick = () => {
     activeScr -= 1;
     updateActiveScr();
+
+    if (activeScr == 0)
+        prevScrBtn.disabled = true;
+    nextScrBtn.disabled = false;
 };
 
