@@ -10,12 +10,12 @@ export class TahashUser {
             results: [
                 {
                     eventId: str,
-                    result: str
+                    times: str[]
                 }
             ]
         }
     ]
-     */
+    */
 
     constructor(userManager, src) {
         this.#manager = userManager;

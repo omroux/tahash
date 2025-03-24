@@ -28,9 +28,9 @@
 }
 
 .Back-To-Scrambles-Button {
-    position: absolute;
     scale: 0.8;
     padding: 1% 1%;
+    margin-bottom: 5px;
 
     &:hover {
         scale: 0.84;
@@ -62,18 +62,24 @@
 .Scramble-Text {
     font-weight: 600;
     font-size: 175%;
-    letter-spacing: 1.2;
+    letter-spacing: 1.05;
 }
 
 .Scramble-Img {
     text-align: center;
+    transition: scale 0.1s ease-out;
+    scale: 0.95;
 }
 
-.Scramble-Manage-Container {
+.Scramble-Control-Container {
     display: flex;
     justify-content: space-between;
     width: 65%;
     margin: auto;
+}
+
+.Scramble-Container {
+    margin-bottom: 20px;
 }
 
 .Compete-Container {

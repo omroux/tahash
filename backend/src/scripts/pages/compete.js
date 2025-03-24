@@ -19,10 +19,6 @@ function updateActiveScr() {
 }
 
 window.onload = () => {
-    // hide all containers
-    for (let i = 0; i < scrContainers.length; i++)
-        scrContainers[i].hidden = true;
-
     activeScr = 0;
     prevScrBtn.disabled = true;
     updateActiveScr();
@@ -45,4 +41,5 @@ prevScrBtn.onclick = () => {
         prevScrBtn.disabled = true;
     nextScrBtn.disabled = false;
 };
+
 

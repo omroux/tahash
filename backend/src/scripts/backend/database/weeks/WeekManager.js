@@ -12,6 +12,7 @@ export class WeekManager {
     }
 
     // get a TahashWeek object from the database by its week number
+    // returns null if a week wasn't found
     async getTahashWeek(compNumber) {
         // find the week in the database
         const weekDoc = await this.#collection.findOne({ compNumber: compNumber });
