@@ -39,9 +39,10 @@ function updateActiveScr() {
 let scramblesDone = [];
 let vbInit = [];
 
-const widthModifier = 25;
-// let lowerBound, upperBound, textEl, newHeight;
-const timeout = 1;
+const widthModifier = eventId == "megaminx" ? 35
+                    : eventId == "666" ? 30
+                    : 25;
+const timeout = 0;
 const lowerMin = 5;
 const upperMax = 45;
 function normalizeSizes() {
@@ -49,7 +50,6 @@ function normalizeSizes() {
     for (let i = 0; i < scrContainers.length; i++) {
         if (scrContainers[i].hidden || scramblesDone[i]) continue;
         scramblesDone[i] = true;
-        console.log("doing", i);
 
         const c = scrContainers[i];
         const svgEl = c.getElementsByTagName("svg")[0];
@@ -72,7 +72,6 @@ function normalizeSizes() {
             textEl.style.fontSize = lowerMin;
             // let boundsObj = {lowerBound: 0, upperBound: 0};
             let { lowerBound, upperBound } = await findFontSizeBounds(textEl, lowerMin, newHeight);
-            console.log(lowerBound, "a", upperBound);
             await optimizeFontSize(textEl, lowerBound, upperBound, newHeight);
         }, timeout);
     }

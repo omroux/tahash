@@ -1,5 +1,5 @@
 <% if (eventData) { %>
-    <h1 class="Title"><%- eventData.event.eventTitle %></h1>
+    <h1 style="font-size: 300%" class="Title"><%- eventData.event.eventTitle %></h1>
     <div class="Compete-Container">
         <!-- <a href="/scrambles"><button class="Back-To-Scrambles-Button">חזור לערבובים</button></a><br/> -->
         
@@ -35,6 +35,8 @@
             const scrambles = `<%- eventData.scrambles %>`.split(',');
             for (let i = 0; i < scrambles.length; i++)
                 scrambles[i] = scrambles[i].trim();
+
+            const eventId = `<%- eventData.event.eventId %>`;
         </script>
     </div>
 
