@@ -14,7 +14,7 @@
     border: 2px solid black;
     border-radius: 10px;
 
-    font-size: 160%;
+    font-size: 180%;
 
     margin: auto;
 
@@ -61,18 +61,38 @@
 
 /* TODO: FONT!!! */
 .Scramble-Text {
+    text-align: center;
     font-weight: 600;
-    font-size: 200%;
+    font-size: 1.2em;
     letter-spacing: 1.05;
+    margin: auto;
 }
 
 .Scramble-Img {
-    text-align: center;
-    /* margin: auto; */
-    /* height: 50%; */
+    text-align: right;
+    display: flex;
+    place-content: center;
+    place-items: center;
+    margin-right: auto;
     
     & > svg {
-        border: 5px solid red;        
+        /* border: 5px solid black; */
+    }
+}
+
+.Scramble-Text-Container {
+    display: flex;
+    flex-direction: row-reverse;
+
+    margin: auto;
+    gap: 4%;
+    
+    padding-bottom: 1%;
+
+    border-bottom: 2px solid black;
+
+    &[hidden] {
+        display: none;
     }
 }
 
@@ -83,44 +103,68 @@
     margin: auto;
 }
 
-.Scramble-Container {
+.Scrambles-Container {
     margin-bottom: 20px;
+    
 }
 
 .Compete-Container {
-    padding-bottom: 100px;
+    background-color: rgba(153, 153, 153, 0.25);
+    border-radius: 20px;
+    padding: 2%;
 }
 
 .Time-Input-Container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row-reverse;
     justify-content: center;
 
-    margin-top: 30px;
+    gap: 2%;
+
+    margin-top: 2%;
+}
+
+.Input-And-Penalty-Container {
+    display: flex;
+    flex-direction: column;
+
+    margin-left: 25%;
 
     & > input {
         text-align: center;
         direction: ltr;
-        width: 50%;
+        width: 100%;
         font-size: 350%;
         margin: auto;
-    }
+        border-radius: 10px;
+        border: none;
 
-    & > .Time-Preview-Lbl {
-        transition: scale 0.1s ease-out, opacity 0.2s ease-out;
-
-        font-size: 350%;
-        padding: 20px;
-        text-align: center;
-        direction: ltr;
-
-        opacity: 0.7;
-        scale: 0.9;
-
-        &[showPreview] {
-            scale: 1;
-            opacity: 1;
+        &:focus {
+            outline: none;
         }
+    }
+}
+
+.Preview-And-Submit-Container {
+    display: flex;
+    flex-direction: column;
+    width: 40%;
+    margin-right: 20%;
+}
+
+.Time-Preview-Lbl {
+    transition: scale 0.1s ease-out, opacity 0.2s ease-out;
+
+    font-size: 350%;
+    text-align: center;
+    direction: ltr;
+
+    opacity: 0.7;
+    scale: 0.9;
+
+    &[showPreview] {
+        scale: 1;
+        opacity: 1;
     }
 }
 

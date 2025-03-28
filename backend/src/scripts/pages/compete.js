@@ -24,32 +24,135 @@ function updateActiveScr() {
     activeScr = Math.min(Math.max(activeScr, 0), numScr - 1);
 
     if (lastActive >= 0)
-        scrContainers[lastActive].hidden = true;
+        scrContainers[lastActive].setAttribute("hidden", true);
+
     lastActive = activeScr;
-    scrContainers[activeScr].hidden = false;
+
+    scrContainers[activeScr].removeAttribute("hidden");
+
+    if (!scramblesDone[activeScr])
+        normalizeSizes();
 
     scrNumTitle.innerText = `${activeScr+1}/${numScr}`;
 }
 
-const widthModifier = 30;
-function normalizeSizes(initViewBox = false) {
+let scramblesDone = [];
+let vbInit = [];
+
+const widthModifier = 25;
+// let lowerBound, upperBound, textEl, newHeight;
+const timeout = 1;
+const lowerMin = 5;
+const upperMax = 45;
+function normalizeSizes() {
+    const threshold = 25;
     for (let i = 0; i < scrContainers.length; i++) {
+        if (scrContainers[i].hidden || scramblesDone[i]) continue;
+        scramblesDone[i] = true;
+        console.log("doing", i);
+
         const c = scrContainers[i];
         const svgEl = c.getElementsByTagName("svg")[0];
         
         const currWidth = svgEl.getAttribute("width");
         const currHeight = svgEl.getAttribute("height");
-        if (initViewBox)
+        if (!vbInit[i]) {
             svgEl.setAttribute("viewBox", `0 0 ${currWidth} ${currHeight}`);
+            vbInit[i] = true;
+        }
         
-        const newWidth = document.body.clientWidth * (widthModifier / 100);
+        const newWidth = scrContainers[i].clientWidth * (widthModifier / 100);
         svgEl.setAttribute("width", newWidth);
         const newHeight = currHeight * newWidth / currWidth;
         svgEl.setAttribute("height", newHeight);
+        
+        textEl = c.getElementsByTagName("p")[0];
+        
+        setTimeout(async () => {
+            textEl.style.fontSize = lowerMin;
+            // let boundsObj = {lowerBound: 0, upperBound: 0};
+            let { lowerBound, upperBound } = await findFontSizeBounds(textEl, lowerMin, newHeight);
+            console.log(lowerBound, "a", upperBound);
+            await optimizeFontSize(textEl, lowerBound, upperBound, newHeight);
+        }, timeout);
+    }
+
+    async function optimizeFontSize(textEl, lowerBound, upperBound, maxHeight, k = 0) {
+        const maxIter = 50;
+        if (k >= maxIter || Math.abs(maxHeight - textEl.clientHeight) <= threshold)
+            return;
+
+        const mid = (lowerBound + upperBound) / 2;
+        textEl.style.fontSize = mid;
+
+        await new Promise(r => setTimeout(r, timeout));
+
+        if (maxHeight > textEl.clientHeight) lowerBound = mid;
+        else    upperBound = mid;
+
+        await optimizeFontSize(textEl, lowerBound, upperBound, maxHeight, k+1);
+    }
+
+    async function findFontSizeBounds(textEl, currFontSize, maxHeight) {
+        const delta = 10;
+
+        if (currFontSize > upperMax)
+            return { lowerBound: upperMax - delta, upperBound: upperMax };
+
+        if (textEl.clientHeight > maxHeight) {
+            if (currFontSize - delta < lowerMin)
+                return { lowerBound: lowerMin, upperBound: lowerMin + delta };
+
+            return { lowerBound: currFontSize - delta, upperBound: currFontSize };
+        }
+
+        textEl.style.fontSize = (currFontSize + delta) + "px";
+
+        await new Promise(r => setTimeout(r, timeout));
+        return await findFontSizeBounds(textEl, currFontSize + delta, maxHeight);
+    }
+
+    function getStyle(el) {
+        return window.getComputedStyle(el);
+    }
+
+    function getFontSize(textEl) {
+        return parseFloat(window.getComputedStyle(textEl).fontSize.replace("px", ""));
+    }
+
+    function nextLoop() {
+        if (Math.abs(textEl.clientHeight - newHeight) <= threshold) return;
+        
+        const mid = (lowerBound + upperBound) / 2;
+        console.log("nextLoop: lowerBound", lowerBound, "upperBound", upperBound, "mid", mid);
+        textEl.style.fontSize = mid;
+        if (newHeight > textEl.clientHeight) lowerBound = mid;
+        else    upperBound = mid;
+
+        setTimeout(nextLoop, timeout);
+    }
+
+    function findUpperBound() {
+        console.log("finding upper");
+        if (textEl.clientHeight > newHeight) {
+            upperBound = getFontSize(textEl);
+            console.log("textEl.clientHeight", textEl.clientHeight, "newHeight", newHeight, "upperBound", upperBound);
+            nextLoop();
+            return;
+        }
+
+        textEl.style.fontSize = `${getFontSize(textEl) + 10}px`;
+
+        setTimeout(findUpperBound, timeout);
     }
 }
 
 window.onload = () => {
+    for (let i = 0; i < scrContainers.length; i++) {
+        scramblesDone.push(false);
+        vbInit.push(false);
+    }
+
     normalizeSizes(true);
 
     activeScr = 0;
@@ -58,7 +161,9 @@ window.onload = () => {
 };
 
 window.onresize = () => {
-    // normalizeSizes(false);
+    for (let i = 0; i < scrContainers.length; i++)
+        scramblesDone[i] = false;
+    normalizeSizes(false);
 };
 
 nextScrBtn.onclick = () => {
