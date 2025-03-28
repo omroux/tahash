@@ -63,7 +63,7 @@
 .Scramble-Text {
     text-align: center;
     font-weight: 550;
-    font-size: 1.2em;
+    font-size: 1em;
     letter-spacing: 1.05;
     margin: auto;
 }
@@ -83,6 +83,7 @@
 .Scramble-Text-Container {
     display: flex;
     flex-direction: row-reverse;
+    justify-content: space-between;
 
     margin: auto;
     gap: 4%;

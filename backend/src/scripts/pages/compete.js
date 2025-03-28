@@ -39,7 +39,7 @@ function updateActiveScr() {
 let scramblesDone = [];
 let vbInit = [];
 
-const widthModifier = eventId == "megaminx" ? 35
+const widthModifier = eventId == "megaminx" || eventId == "777" ? 35
                     : eventId == "666" ? 30
                     : 25;
 const timeout = 0;
