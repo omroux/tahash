@@ -1,8 +1,8 @@
 <% if (eventData) { %>
     <div class="Compete-Container">
         <h1 class="Title"><%- eventData.event.eventTitle %></h1>
-        <a href="/scrambles"><button class="Back-To-Scrambles-Button">חזור לערבובים</button></a><br/>
-
+        <!-- <a href="/scrambles"><button class="Back-To-Scrambles-Button">חזור לערבובים</button></a><br/> -->
+        
         <div class="Scramble-Container">
             <% for (let i = 0; i < eventData.scrambles.length; i++) { %>
                 <div class="Scramble-Text-Container" id="scrContainer<%- i %>" hidden>

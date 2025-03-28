@@ -62,14 +62,18 @@
 /* TODO: FONT!!! */
 .Scramble-Text {
     font-weight: 600;
-    font-size: 175%;
+    font-size: 200%;
     letter-spacing: 1.05;
 }
 
 .Scramble-Img {
     text-align: center;
-    transition: scale 0.1s ease-out;
-    scale: 0.95;
+    /* margin: auto; */
+    /* height: 50%; */
+    
+    & > svg {
+        border: 5px solid red;        
+    }
 }
 
 .Scramble-Control-Container {

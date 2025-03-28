@@ -11,6 +11,8 @@ const maxHours = 2;
 const maxMinutes = 60;
 const maxSeconds = 60;
 const maxMillis = 100;
+const maxLen = (maxHours-1).toString().length + (maxMinutes-1).toString().length + (maxSeconds-1).toString().length + (maxMillis-1).toString().length;
+//              = 1 + 2 + 2 + 2 = 7
 
 const showPreviewAttribute = "showPreview";
 
@@ -29,10 +31,34 @@ function updateActiveScr() {
     scrNumTitle.innerText = `${activeScr+1}/${numScr}`;
 }
 
+const widthModifier = 30;
+function normalizeSizes(initViewBox = false) {
+    for (let i = 0; i < scrContainers.length; i++) {
+        const c = scrContainers[i];
+        const svgEl = c.getElementsByTagName("svg")[0];
+        
+        const currWidth = svgEl.getAttribute("width");
+        const currHeight = svgEl.getAttribute("height");
+        if (initViewBox)
+            svgEl.setAttribute("viewBox", `0 0 ${currWidth} ${currHeight}`);
+        
+        const newWidth = document.body.clientWidth * (widthModifier / 100);
+        svgEl.setAttribute("width", newWidth);
+        const newHeight = currHeight * newWidth / currWidth;
+        svgEl.setAttribute("height", newHeight);
+    }
+}
+
 window.onload = () => {
+    normalizeSizes(true);
+
     activeScr = 0;
     prevScrBtn.disabled = true;
     updateActiveScr();
+};
+
+window.onresize = () => {
+    // normalizeSizes(false);
 };
 
 nextScrBtn.onclick = () => {
@@ -85,14 +111,14 @@ function tryAnalyzeTimes(timeStr) {
     }
     else { // seconds.millis OR millis
         const dotSplit = timeInput.value.split('.');
-        if (dotSplit.length > 2) { // invalid
-            hidePreview();
-            return;
-        }
+        if (dotSplit.length > 2) // invalid
+            return null;
         else if (dotSplit.length == 2) // seconds.millis
             splitMinutesAndMillis(timeInput.value);
         else { // [hours][minutes][seconds][millis] - HMMSSMM
-            const maxLen = 1 + 2 + 2 + 2; // =7
+            if (timeInput.value.length > maxLen)
+                return null;
+
             const paddedStr = timeInput.value.padStart(maxLen, "0");
 
             hoursStr =      paddedStr[0];
@@ -145,7 +171,10 @@ function tryAnalyzeTimes(timeStr) {
     }
 }
 
-function displayTimes(timesObj) {
+function getDisplayTime(timesObj) {
+    if (timesObj == null)
+        return "-";
+
     const { numHours, numMinutes, numSeconds, numMillis } = timesObj;
 
     const hoursText = numHours > 0 ? numHours + ":" : "";
@@ -153,8 +182,7 @@ function displayTimes(timesObj) {
     const secondsText = numSeconds > 0 ? (minutesText != "" ? formatNumToString(numSeconds) : numSeconds) : (minutesText != "" ? "00" : "0");
     const millisText = formatNumToString(numMillis);
 
-    const displayTime = `${hoursText}${minutesText}${secondsText}.${millisText}`;
-    timePreviewLbl.innerText = displayTime;
+    return `${hoursText}${minutesText}${secondsText}.${millisText}`;
 
     function formatNumToString(num) {
         return num.toString().padStart(2, "0");
@@ -162,7 +190,6 @@ function displayTimes(timesObj) {
 }
 
 timeInput.oninput = () => {
-    // timeInput.value = timeInput.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');
     const timesObj = tryAnalyzeTimes(timeInput.value);
 
     if (timesObj == null) {
@@ -170,7 +197,7 @@ timeInput.oninput = () => {
         return;
     }
 
-    displayTimes(timesObj);
+    timePreviewLbl.innerText = getDisplayTime(timesObj);
     showPreview();
     
     function hidePreview() {
