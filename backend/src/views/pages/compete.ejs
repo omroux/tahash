@@ -6,7 +6,7 @@
         <div class="Scrambles-Container">
             <% for (let i = 0; i < eventData.scrambles.length; i++) { %>
                 <div class="Scramble-Text-Container" id="scrContainer<%- i %>" <% if (i != 0) { %> hidden <% } %> >
-                    <p class="Scramble-Text" style="direction: ltr; white-space: pre-wrap;"> <%- eventData.scrambles[i].replaceAll(' ', '  ') %></p>
+                    <p class="Scramble-Text" style="direction: ltr; white-space: pre-wrap;"> <%- eventData.scrambles[i].replaceAll(' ', '  ').trim() %></p>
                     <div class="Scramble-Img" id="scrImg<%- i %>">
                         <%- eventData.scrImages[i] %>
                     </div>
@@ -26,7 +26,6 @@
 
             <div class="Preview-And-Submit-Container">
                 <label class="Time-Preview-Lbl" id="timePreviewLbl">-</label>
-
                 <button class="Submit-Time-Btn" id="submitTimeBtn">הגש תוצאה</button>
             </div>
         </div>

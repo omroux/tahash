@@ -1,16 +1,20 @@
 <h1 class="Title">ערבובים</h1>
 <h4 class="Week-Number-Title">תחרות מספר <%- compNumber %></h4>
 <% if (locals.events) { %>
-    <div class="Event-Select-Container">
-        <% for (let i = 0; i < events.length; i++) { %>
-            <div class="Event-Select-Box" id=<%- `event-select-${events[i].eventId}` %> >
-                <span class="Cubing-Icon <%- events[i].iconName %>"></span>
-                <p class="Event-Name-Title"><%- events[i].eventTitle %></p>
+    <% if (locals.loggedIn) { %>
+        <div class="Event-Select-Container">
+            <% for (let i = 0; i < events.length; i++) { %>
+                <div class="Event-Select-Box" id=<%- `event-select-${events[i].eventId}` %> >
+                    <span class="Cubing-Icon <%- events[i].iconName %>"></span>
+                    <p class="Event-Name-Title"><%- events[i].eventTitle %></p>
+                </div>
+                <% } %>
             </div>
-        <% } %>
-
+    <% } else { %>
+        <h1 class="Sub-Title" style="text-align: center; font-size: 200%;" >יש להתחבר על מנת לראות את הערבובים</h1>
+        <button style="font-size: 40px; text-align: center; padding: 1%; border-radius: 10px; cursor: pointer;" onclick="window.location.href = '/login'">התחברות</button>
+    <% } %>
     <script src="/src/scripts/pages/scrambles.js"></script>
-    </div>
 <% } else { %>
     <div class="No-Events-Container">
         <h1 class="Sub-Title" style="text-align: center">לא נמצאו מקצים</h1>

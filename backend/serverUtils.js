@@ -35,24 +35,27 @@ export function renderPage(req, res, filePath, layoutOptions = {}, pageOptions =
     }
 
     // render the file
-    ejs.renderFile(path.join(__dirname, "src/views/pages/", filePath), pageOptions ?? {}, async (err, str) => {
-        if (err) {
-            console.error(`Error occurred receiving ${filePath} page.\nDetails:`, err);
-            res.status(404).send(err);
-            return;
-        }
-        layoutOptions = layoutOptions ?? {};
-        layoutOptions.content = str;
-        layoutOptions.stylesheets = stylesheets ?? [];
-
-        // first try to get the auth token cookie. if it exists, the user is logged in.
-        layoutOptions.loggedIn = await isLoggedIn(req, res);
-
-        // week number in header
-        layoutOptions.compNumber = weekManager().getCurrentCompNumber();
-
-        res.render("layout.ejs", layoutOptions);
-    });
+    (async () => {
+        pageOptions.loggedIn = await isLoggedIn(req, res);
+        ejs.renderFile(path.join(__dirname, "src/views/pages/", filePath), pageOptions ?? {}, async (err, str) => {
+            if (err) {
+                console.error(`Error occurred receiving ${filePath} page.\nDetails:`, err);
+                res.status(404).send(err);
+                return;
+            }
+            layoutOptions = layoutOptions ?? {};
+            layoutOptions.content = str;
+            layoutOptions.stylesheets = stylesheets ?? [];
+    
+            // first try to get the auth token cookie. if it exists, the user is logged in.
+            layoutOptions.loggedIn = pageOptions.loggedIn;
+    
+            // week number in header
+            layoutOptions.compNumber = weekManager().getCurrentCompNumber();
+    
+            res.render("layout.ejs", layoutOptions);
+        });
+    })();
 }
 
 

@@ -4,6 +4,9 @@ const nextScrBtn = document.getElementById("nextScrBtn");
 const prevScrBtn = document.getElementById("prevScrBtn");
 const timeInput = document.getElementById("timeInput");
 const timePreviewLbl = document.getElementById("timePreviewLbl");
+const plus2Btn = document.getElementById("plus2Btn");
+const dnfBtn = document.getElementById("dnfBtn");
+const submitTimeBtn = document.getElementById("submitTimeBtn");
 const root = document.querySelector(":root");
 
 // max = can't be
@@ -38,6 +41,7 @@ function updateActiveScr() {
 
 let scramblesDone = [];
 let vbInit = [];
+let timesAndPenalties = []; // [ { time: str, penalty: 0|1|2 } ] (penalty: 0=nothing, 1=+2, 2=dnf)
 
 const widthModifier = eventId == "megaminx" || eventId == "777" ? 35
                     : eventId == "666" ? 30
@@ -157,12 +161,12 @@ window.onload = () => {
     activeScr = 0;
     prevScrBtn.disabled = true;
     updateActiveScr();
+    hidePreview();
 };
 
 window.onresize = () => {
     for (let i = 0; i < scrContainers.length; i++)
         scramblesDone[i] = false;
-    normalizeSizes(false);
 };
 
 nextScrBtn.onclick = () => {
@@ -294,21 +298,73 @@ function getDisplayTime(timesObj) {
 }
 
 timeInput.oninput = () => {
+    setDnfState(false);
+    setPlus2State(false);
+    updatePreviewLabel();
+}
+
+function updatePreviewLabel() {
     const timesObj = tryAnalyzeTimes(timeInput.value);
 
     if (timesObj == null) {
         hidePreview();
         return;
     }
+ 
+    if (dnfState) {
+        timePreviewLbl.innerText = "DNF";
+    }
+    else {
+        if (plus2State) {
+            timesObj.numSeconds += 2;
+            timesObj.numMinutes += Math.floor(timesObj.numSeconds / maxSeconds);
+            timesObj.numSeconds %= maxSeconds;
+            timesObj.numHours += Math.floor(timesObj.numMinutes / maxMinutes);
+            timesObj.numMinutes %= maxMinutes;
+            if (timesObj.numHours >= maxHours) {
+                hidePreview(false);
+                return;
+            }
+        }
 
-    timePreviewLbl.innerText = getDisplayTime(timesObj);
+        timePreviewLbl.innerText = getDisplayTime(timesObj) + (plus2State ? "+" : "");
+    }
+
     showPreview();
-    
-    function hidePreview() {
-        timePreviewLbl.removeAttribute("showPreview");
-    }
+}
 
-    function showPreview() {
-        timePreviewLbl.setAttribute("showPreview", true);
-    }
-};
+function hidePreview(hidePlus2 = true) {
+    timePreviewLbl.removeAttribute("showPreview");
+    submitTimeBtn.disabled = true;
+    dnfBtn.disabled = true;
+    dnfState = false;
+
+    if (!hidePlus2) return;
+    plus2Btn.disabled = true;
+    plus2State = false;
+}
+
+function showPreview() {
+    timePreviewLbl.setAttribute("showPreview", true);
+    submitTimeBtn.disabled = false;
+    dnfBtn.disabled = false;
+    plus2Btn.disabled = dnfState;
+}
+
+let dnfState = false, plus2State = false;
+function setDnfState(newState) {
+    dnfState = newState;
+    dnfBtn.setAttribute("selected", newState.toString());
+
+    if (dnfState) setPlus2State(false);
+    else updatePreviewLabel();
+}
+
+function setPlus2State(newState) {
+    plus2State = newState;
+    plus2Btn.setAttribute("selected", newState.toString());
+    updatePreviewLabel();
+}
+
+dnfBtn.onclick = () => setDnfState(!dnfState);
+plus2Btn.onclick = () => setPlus2State(!plus2State);
