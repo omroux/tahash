@@ -187,14 +187,14 @@ prevScrBtn.onclick = () => {
     nextScrBtn.disabled = false;
 };
 
-
 function tryAnalyzeTimes(timeStr) {
-    const newTimeStr = timeStr.replaceAll(":", "");
+    timeStr = timeStr.trim();
+    const noColons = timeStr.replaceAll(":", "");
 
-    if (newTimeStr == "" || isNaN(newTimeStr))
+    if (noColons == "" || isNaN(noColons))
         return null;
 
-    const colonParts = timeInput.value.split(":");
+    const colonParts = timeStr.split(":");
     if (colonParts.length > 3)
         return null;
 
@@ -218,16 +218,16 @@ function tryAnalyzeTimes(timeStr) {
         splitMinutesAndMillis(colonParts[1])
     }
     else { // seconds.millis OR millis
-        const dotSplit = timeInput.value.split('.');
+        const dotSplit = timeStr.split('.');
         if (dotSplit.length > 2) // invalid
             return null;
         else if (dotSplit.length == 2) // seconds.millis
-            splitMinutesAndMillis(timeInput.value);
+            splitMinutesAndMillis(timeStr);
         else { // [hours][minutes][seconds][millis] - HMMSSMM
-            if (timeInput.value.length > maxLen)
+            if (timeStr.length > maxLen)
                 return null;
 
-            const paddedStr = timeInput.value.padStart(maxLen, "0");
+            const paddedStr = timeStr.padStart(maxLen, "0");
 
             hoursStr =      paddedStr[0];
             minutesStr =    paddedStr[1] + paddedStr[2];
@@ -311,24 +311,19 @@ function updatePreviewLabel() {
         return;
     }
  
-    if (dnfState) {
-        timePreviewLbl.innerText = "DNF";
-    }
-    else {
-        if (plus2State) {
-            timesObj.numSeconds += 2;
-            timesObj.numMinutes += Math.floor(timesObj.numSeconds / maxSeconds);
-            timesObj.numSeconds %= maxSeconds;
-            timesObj.numHours += Math.floor(timesObj.numMinutes / maxMinutes);
-            timesObj.numMinutes %= maxMinutes;
-            if (timesObj.numHours >= maxHours) {
-                hidePreview(false);
-                return;
-            }
+    if (plus2State) {
+        timesObj.numSeconds += 2;
+        timesObj.numMinutes += Math.floor(timesObj.numSeconds / maxSeconds);
+        timesObj.numSeconds %= maxSeconds;
+        timesObj.numHours += Math.floor(timesObj.numMinutes / maxMinutes);
+        timesObj.numMinutes %= maxMinutes;
+        if (timesObj.numHours >= maxHours) {
+            hidePreview(false);
+            return;
         }
-
-        timePreviewLbl.innerText = getDisplayTime(timesObj) + (plus2State ? "+" : "");
     }
+
+    timePreviewLbl.innerText = dnfState ? "DNF" : (getDisplayTime(timesObj) + (plus2State ? "+" : ""));
 
     showPreview();
 }
