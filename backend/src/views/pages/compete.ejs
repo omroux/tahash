@@ -1,8 +1,17 @@
 <% if (eventData) { %>
-    <h1 style="font-size: 300%" class="Title"><%- eventData.event.eventTitle %></h1>
+    <h1 style="font-size: 300%; margin: 0;" class="Title"><%- eventData.event.eventTitle %></h1>
+
+    <div class="Scrambles-Menu-Container">
+        <% for (let i = 0; i < eventData.scrambles.length; i++) { %>
+            <div class="Scramble-Menu-Item" id="scrMenuItemContainer<%- i %>">
+                <span class="Scramble-Menu-Item-Text" id="scrMenuItemTxt"><%- (i+1) %>.</span>
+            </div>
+        <% } %>
+    </div>
+
     <div class="Compete-Container">
         <!-- <a href="/scrambles"><button class="Back-To-Scrambles-Button">חזור לערבובים</button></a><br/> -->
-        
+
         <div class="Scrambles-Container">
             <% for (let i = 0; i < eventData.scrambles.length; i++) { %>
                 <div class="Scramble-Text-Container" id="scrContainer<%- i %>" <% if (i != 0) { %> hidden <% } %> >
@@ -40,9 +49,9 @@
     </div>
 
     <div class="Scramble-Control-Container">
-        <button id="prevScrBtn" class="Prev-Scr-Btn">הקודם</button>
-        <p id="scrNumberTitle" class="Scramble-Number-Title"></p>
-        <button id="nextScrBtn" class="Next-Scr-Btn">הבא</button>
+        <button id="prevScrBtn" class="Prev-Scr-Btn" hidden>הקודם</button>
+        <p id="scrNumberTitle" class="Scramble-Number-Title" hidden></p>
+        <button id="nextScrBtn" class="Next-Scr-Btn" hidden>הבא</button>
     </div>
     <script src="/src/scripts/pages/compete.js"></script>
 <% } else { %>

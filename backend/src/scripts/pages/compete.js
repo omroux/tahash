@@ -1,4 +1,5 @@
 const scrContainers = document.querySelectorAll("[id^='scrContainer'");
+const scrMenuItems = document.querySelectorAll("[id^='scrMenuItemContainer'");
 const scrNumTitle = document.getElementById("scrNumberTitle");
 const nextScrBtn = document.getElementById("nextScrBtn");
 const prevScrBtn = document.getElementById("prevScrBtn");
@@ -26,12 +27,15 @@ let lastActive = -1;
 function updateActiveScr() {
     activeScr = Math.min(Math.max(activeScr, 0), numScr - 1);
 
-    if (lastActive >= 0)
+    if (lastActive >= 0) {
         scrContainers[lastActive].setAttribute("hidden", true);
+        scrMenuItems[lastActive].removeAttribute("active");
+    }
 
     lastActive = activeScr;
 
     scrContainers[activeScr].removeAttribute("hidden");
+    scrMenuItems[activeScr].setAttribute("active", true);
 
     if (!scramblesDone[activeScr])
         normalizeSizes();
@@ -162,6 +166,14 @@ window.onload = () => {
     prevScrBtn.disabled = true;
     updateActiveScr();
     hidePreview();
+
+    // scramble menu
+    for (let i = 0; i < scrMenuItems.length; i++) {
+        scrMenuItems[i].onclick = () => {
+            activeScr = i;
+            updateActiveScr();
+        };
+    }
 };
 
 window.onresize = () => {

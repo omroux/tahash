@@ -4,6 +4,10 @@
     --button-disabled-bg: rgb(160, 190, 210);
     --button-selected-bg: rgb(134, 116, 227);
     --preview-hidden-color: rgb(46, 45, 45);
+    --panel-bg: rgba(153, 153, 153, 0.25);
+    --idle-scramble-bg: rgba(140, 140, 140, 0.25);
+    --hover-scramble-bg: rgba(140, 140, 140, 0.45);
+    --active-scramble-bg: rgba(140, 140, 140, 0.8);
 }
 
 .Back-To-Scrambles-Button, .Next-Scr-Btn, .Prev-Scr-Btn, .Plus-2-Btn, .DNF-Btn, .Submit-Time-Btn {
@@ -111,7 +115,7 @@
 }
 
 .Compete-Container {
-    background-color: rgba(153, 153, 153, 0.25);
+    background-color: var(--panel-bg);
     border-radius: 20px;
     padding: 2%;
 }
@@ -201,5 +205,38 @@
         opacity: 100%;
         background-color: var(--button-selected-bg);
         scale: 0.95;
+    }
+}
+
+.Scrambles-Menu-Container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    margin-bottom: 1%;
+    gap: 1vw;
+}
+
+.Scramble-Menu-Item {
+    width: 40%;
+    font-size: 130%;
+    padding: 1% 0.5%;
+    margin-bottom: auto;
+    border-radius: 10px;
+
+    background-color: var(--idle-scramble-bg);
+
+    cursor: pointer;
+
+    &[active="true"] {
+        background-color: var(--active-scramble-bg);
+    }
+
+    & > .Scramble-Menu-Item-Text {
+        padding: 6%;
+    }
+
+    &:not([active="true"]):hover {
+        background-color: var(--hover-scramble-bg);
     }
 }
