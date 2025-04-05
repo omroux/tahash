@@ -3,9 +3,10 @@
 
     <div class="Scrambles-Menu-Container">
         <% for (let i = 0; i < eventData.scrambles.length; i++) { %>
-            <div class="Scramble-Menu-Item" id="scrMenuItemContainer<%- i %>">
-                <span class="Scramble-Menu-Item-Text" id="scrMenuItemTxt"><%- (i+1) %>.</span>
-            </div>
+            <button class="Scramble-Menu-Item" id="scrMenuItemContainer<%- i %>">
+                <p class="Scramble-Menu-Item-Number" id="scrMenuItemNum"><%- (i+1) %>.</p>
+                <p class="Scramble-Menu-Item-Time" id="scrMenuItemTime">-</p>
+            </button>
         <% } %>
     </div>
 
@@ -35,7 +36,7 @@
 
             <div class="Preview-And-Submit-Container">
                 <label class="Time-Preview-Lbl" id="timePreviewLbl">-</label>
-                <button class="Submit-Time-Btn" id="submitTimeBtn">הגש תוצאה</button>
+                <button class="Submit-Time-Btn" id="submitTimeBtn">הבא</button>
             </div>
         </div>
 

@@ -1,5 +1,6 @@
 const scrContainers = document.querySelectorAll("[id^='scrContainer'");
-const scrMenuItems = document.querySelectorAll("[id^='scrMenuItemContainer'");
+const scrMenuItemContainers = document.querySelectorAll("[id^='scrMenuItemContainer'");
+const scrMenuItemTimes = document.querySelectorAll("[id^='scrMenuItemTime'");
 const scrNumTitle = document.getElementById("scrNumberTitle");
 const nextScrBtn = document.getElementById("nextScrBtn");
 const prevScrBtn = document.getElementById("prevScrBtn");
@@ -23,29 +24,47 @@ const showPreviewAttribute = "showPreview";
 let activeScr = 0;
 const numScr = scrContainers.length;
 
+const Penalties = Object.freeze({
+    None: 0,
+    Plus2: 1,
+    DNF: 2
+});
+
 let lastActive = -1;
 function updateActiveScr() {
     activeScr = Math.min(Math.max(activeScr, 0), numScr - 1);
+    if (activeScr == lastActive) return;
 
     if (lastActive >= 0) {
         scrContainers[lastActive].setAttribute("hidden", true);
-        scrMenuItems[lastActive].removeAttribute("active");
+        scrMenuItemContainers[lastActive].removeAttribute("active");
     }
 
     lastActive = activeScr;
 
     scrContainers[activeScr].removeAttribute("hidden");
-    scrMenuItems[activeScr].setAttribute("active", true);
+    scrMenuItemContainers[activeScr].setAttribute("active", true);
+    timeInput.value = allTimes[activeScr].timeStr;
+    timePreviewLbl.innerText = allTimes[activeScr].previewStr;
+    // load penalty
+    if (allTimes[activeScr].penalty == Penalties.DNF) setDnfState(true);
+    else {
+        setDnfState(false);
+        if (allTimes[activeScr].penalty == Penalties.Plus2) setPlus2State(true);
+        else {
+            setPlus2State(false);
+        }
+    }
 
-    if (!scramblesDone[activeScr])
+    if (!scramblesSized[activeScr])
         normalizeSizes();
 
     scrNumTitle.innerText = `${activeScr+1}/${numScr}`;
+    submitTimeBtn.innerText = activeScr >= numScr - 1 ? "הגש מקצה" : "הבא";
 }
 
-let scramblesDone = [];
+let scramblesSized = [];
 let vbInit = [];
-let timesAndPenalties = []; // [ { time: str, penalty: 0|1|2 } ] (penalty: 0=nothing, 1=+2, 2=dnf)
 
 const widthModifier = eventId == "megaminx" || eventId == "777" ? 35
                     : eventId == "666" ? 30
@@ -56,8 +75,8 @@ const upperMax = 45;
 function normalizeSizes() {
     const threshold = 25;
     for (let i = 0; i < scrContainers.length; i++) {
-        if (scrContainers[i].hidden || scramblesDone[i]) continue;
-        scramblesDone[i] = true;
+        if (scrContainers[i].hidden || scramblesSized[i]) continue;
+        scramblesSized[i] = true;
 
         const c = scrContainers[i];
         const svgEl = c.getElementsByTagName("svg")[0];
@@ -154,10 +173,21 @@ function normalizeSizes() {
     }
 }
 
+// time structure: { previewStr: str, timeStr: str, timeObj: [timeObj], penalty: 0|1|2 }  (penalty: 0=nothing, 1=+2, 2=dnf)
+let allTimes = [];
 window.onload = () => {
     for (let i = 0; i < scrContainers.length; i++) {
-        scramblesDone.push(false);
+        scramblesSized.push(false);
         vbInit.push(false);
+        allTimes.push({ previewStr: "-", timeStr: "", timeObj: null, penalty: 0 });
+
+        // scramble menu
+        scrMenuItemContainers[i].onclick = () => {
+            activeScr = i;
+            updateActiveScr();
+        };
+        if (i != 0)
+            scrMenuItemContainers[i].setAttribute("disabled", "true");
     }
 
     normalizeSizes(true);
@@ -166,19 +196,11 @@ window.onload = () => {
     prevScrBtn.disabled = true;
     updateActiveScr();
     hidePreview();
-
-    // scramble menu
-    for (let i = 0; i < scrMenuItems.length; i++) {
-        scrMenuItems[i].onclick = () => {
-            activeScr = i;
-            updateActiveScr();
-        };
-    }
 };
 
 window.onresize = () => {
     for (let i = 0; i < scrContainers.length; i++)
-        scramblesDone[i] = false;
+        scramblesSized[i] = false;
 };
 
 nextScrBtn.onclick = () => {
@@ -309,38 +331,49 @@ function getDisplayTime(timesObj) {
     }
 }
 
+// getTimesObjStr: convert a valid times obj (with an optional penalty) to the respective str
+function getTimesObjStr(timesObj, penalty = Penalties.None) {
+    if (!timesObj) return "-";
+
+    let dispTimeObj = Object.assign({}, timesObj);
+    if (penalty == Penalties.Plus2) {
+        dispTimeObj.numSeconds += 2;
+        dispTimeObj.numMinutes += Math.floor(dispTimeObj.numSeconds / maxSeconds);
+        dispTimeObj.numSeconds %= maxSeconds;
+        dispTimeObj.numHours += Math.floor(dispTimeObj.numMinutes / maxMinutes);
+        dispTimeObj.numMinutes %= maxMinutes;
+        if (dispTimeObj.numHours >= maxHours) {
+            hidePreview(false);
+            return;
+        }
+    }
+
+    return (penalty == Penalties.DNF) ? "DNF" : (getDisplayTime(dispTimeObj) + (penalty == Penalties.Plus2 ? "+" : ""));
+}
+
 timeInput.oninput = () => {
     setDnfState(false);
     setPlus2State(false);
     updatePreviewLabel();
 }
 
+let currTimesObj = null;
+let validTime = false;
 function updatePreviewLabel() {
-    const timesObj = tryAnalyzeTimes(timeInput.value);
+    currTimesObj = tryAnalyzeTimes(timeInput.value);
 
-    if (timesObj == null) {
+    if (currTimesObj == null) {
         hidePreview();
         return;
     }
- 
-    if (plus2State) {
-        timesObj.numSeconds += 2;
-        timesObj.numMinutes += Math.floor(timesObj.numSeconds / maxSeconds);
-        timesObj.numSeconds %= maxSeconds;
-        timesObj.numHours += Math.floor(timesObj.numMinutes / maxMinutes);
-        timesObj.numMinutes %= maxMinutes;
-        if (timesObj.numHours >= maxHours) {
-            hidePreview(false);
-            return;
-        }
-    }
 
-    timePreviewLbl.innerText = dnfState ? "DNF" : (getDisplayTime(timesObj) + (plus2State ? "+" : ""));
+    timePreviewLbl.innerText = getTimesObjStr(currTimesObj, dnfState ? Penalties.DNF : (plus2State ? Penalties.Plus2 : Penalties.None));
 
     showPreview();
 }
 
 function hidePreview(hidePlus2 = true) {
+    validTime = false;
     timePreviewLbl.removeAttribute("showPreview");
     submitTimeBtn.disabled = true;
     dnfBtn.disabled = true;
@@ -352,6 +385,7 @@ function hidePreview(hidePlus2 = true) {
 }
 
 function showPreview() {
+    validTime = true;
     timePreviewLbl.setAttribute("showPreview", true);
     submitTimeBtn.disabled = false;
     dnfBtn.disabled = false;
@@ -375,3 +409,26 @@ function setPlus2State(newState) {
 
 dnfBtn.onclick = () => setDnfState(!dnfState);
 plus2Btn.onclick = () => setPlus2State(!plus2State);
+submitTimeBtn.onclick = () => {
+    if (!validTime) return false;
+
+    updateTimeInMenu(activeScr, timePreviewLbl.innerText, timeInput.value, currTimesObj, dnfState ? Penalties.DNF : (plus2State ? Penalties.Plus2 : Penalties.None)); 
+    
+    if (activeScr >= numScr - 1)
+        window.location = "/scrambles";
+    
+    scrMenuItemContainers[activeScr].setAttribute("done", true);
+    
+    activeScr += 1;
+    updateActiveScr();
+    scrMenuItemContainers[activeScr].removeAttribute("disabled");
+};
+
+function updateTimeInMenu(index, previewStr, timeStr, timesObj, penalty) {
+    allTimes[index].previewStr = previewStr;
+    allTimes[index].timeStr = timeStr;
+    allTimes[index].timesObj = timesObj;
+    allTimes[index].penalty = penalty;
+
+    scrMenuItemTimes[activeScr].innerText = previewStr;
+}
