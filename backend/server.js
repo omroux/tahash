@@ -179,6 +179,7 @@ app.get("/wca-me", async (req, res) => {
 
 app.get("/authenticateWithCode", async (req, res) => {
     const authCodeHeader = "auth-code";
+    console.log("Req headers received: ", req.headers);
     const authCode = req.headers[authCodeHeader];
     if (!authCode) {
         res.json(errorObject("No code received."));
