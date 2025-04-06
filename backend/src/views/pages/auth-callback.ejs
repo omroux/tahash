@@ -9,7 +9,7 @@
         postLog("Error: could not retrieve auth code from url. url: " + url.href);
     }
     else {
-        sendRequest("/authenticateWithCode", { headers: { auth_code: codeValue } }).then(res => {
+        sendRequest("/authenticateWithCode", { headers: { "auth-code": codeValue } }).then(res => {
         if (res.error) {
             postLog("Error in authentication: \"" + res.error + "\". Redirecting...");
             setTimeout(() => { window.location = "/login" }, 10000);
