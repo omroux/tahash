@@ -7,19 +7,20 @@
         const url = new URL(window.location.href);
         const codeValue = url.searchParams.get("code");
         if (!codeValue) {
-            postLog("Error: could not retrieve auth code from url");
+            postLog("Error: could not retrieve auth code from url. url: " + url.href);
             return;
         }
 
         sendRequest("/authenticateWithCode", { headers: { auth_code: codeValue } }).then(res => {
             if (res.error) {
-                postLog("Error in authentication: " + res.error);
-                setTimeout(() => { window.location = "/login" }, 3000);
+                postLog("Error in authentication: \"" + res.error + "\". Redirecting...");
+                setTimeout(() => { window.location = "/login" }, 10000);
                 return;
             }
 
             storeLoginData(res);
-            window.location = "/profile";
+            postLog("Login successful! redirecting...");
+            setTimeout(() => {window.location = "/profile"}, 10000);
         })
     }
 
