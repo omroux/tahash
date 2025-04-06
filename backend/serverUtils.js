@@ -103,8 +103,8 @@ export function storeTokenCookies(res, tokenData) {
 
     // store the refresh token for 7 days until the user will be required to generate a new token.
     storeCookie(res, refreshTokenCookie, { refresh_token:  tokenData.refresh_token }, ms('7d'));
-    res.setHeader("accessToken", tokenData.accessToken ?? null);
-    res.setHeader("refreshToken", tokenData.refreshToken ?? null);
+    // res.setHeader("accessToken", tokenData.accessToken ?? null);
+    // res.setHeader("refreshToken", tokenData.refreshToken ?? null);
 }
 
 
@@ -176,7 +176,7 @@ export function readConfigFile() {
 }
 
 
-const fromClientHeader = "from_client";
+const fromClientHeader = "from-client";
 // check if a request was sent from a client
 export const sentFromClient = (req) => (req.headers[fromClientHeader] === "true");
 
@@ -218,7 +218,7 @@ export const sentFromClient = (req) => (req.headers[fromClientHeader] === "true"
 }*/
 
 export async function retrieveWCAMe(req) {
-    const accessTokenHeader = "access_token";
+    const accessTokenHeader = "access-token";
     const accessToken = req.headers[accessTokenHeader];
     if (!accessToken)
         return null;

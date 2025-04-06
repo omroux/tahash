@@ -178,8 +178,7 @@ app.get("/wca-me", async (req, res) => {
 });
 
 app.get("/authenticateWithCode", async (req, res) => {
-    const authCodeHeader = "auth_code";
-    console.log("Req headers received: ", req.headers);
+    const authCodeHeader = "auth-code";
     const authCode = req.headers[authCodeHeader];
     if (!authCode) {
         res.json(errorObject("No code received."));
@@ -205,7 +204,7 @@ app.get("/authenticateWithCode", async (req, res) => {
 });
 
 app.get("/authenticateRefreshToken", async (req, res) => {
-    const refreshTokenHeader = "refresh_token";
+    const refreshTokenHeader = "refresh-token";
     const refreshToken = req.headers[refreshTokenHeader];
     if (!refreshToken) {
         res.json(errorObject("No refresh token received."));

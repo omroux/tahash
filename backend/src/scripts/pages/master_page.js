@@ -82,9 +82,9 @@ const loggedInCookie = "loggedIn";
 //          to tell the server this request was sent from a client (and not from a browser)
 // returns: the response from the server *as a JSON object*.
 async function sendRequest(path, options = {}) {
-    const fromClientHeader = "from_client";
-    const accessTokenHeader = "access_token";
-    const refreshTokenHeader = "refresh_token";
+    const fromClientHeader = "from-client";
+    const accessTokenHeader = "access-token";
+    const refreshTokenHeader = "refresh-token";
 
     options.method = options.method ?? "GET";
     options.headers = options.headers ?? {};
