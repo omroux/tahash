@@ -2,27 +2,23 @@
 <h1 class="Title" id="loading_txt">טוען...</h1>
 
 <script>
-    function doAuthCallback() {
-        // get code from url
-        const url = new URL(window.location.href);
-        const codeValue = url.searchParams.get("code");
-        if (!codeValue) {
-            postLog("Error: could not retrieve auth code from url. url: " + url.href);
+    // get code from url
+    const url = new URL(window.location.href);
+    const codeValue = url.searchParams.get("code");
+    if (!codeValue) {
+        postLog("Error: could not retrieve auth code from url. url: " + url.href);
+        return;
+    }
+
+    sendRequest("/authenticateWithCode", { headers: { auth_code: codeValue } }).then(res => {
+        if (res.error) {
+            postLog("Error in authentication: \"" + res.error + "\". Redirecting...");
+            setTimeout(() => { window.location = "/login" }, 10000);
             return;
         }
 
-        sendRequest("/authenticateWithCode", { headers: { auth_code: codeValue } }).then(res => {
-            if (res.error) {
-                postLog("Error in authentication: \"" + res.error + "\". Redirecting...");
-                setTimeout(() => { window.location = "/login" }, 10000);
-                return;
-            }
-
-            storeLoginData(res);
-            postLog("Login successful! redirecting...");
-            setTimeout(() => {window.location = "/profile"}, 10000);
-        })
-    }
-
-    doAuthCallback();
+        storeLoginData(res);
+        postLog("Login successful! redirecting...");
+        setTimeout(() => {window.location = "/profile"}, 10000);
+    })
 </script>
