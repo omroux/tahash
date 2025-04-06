@@ -7,10 +7,9 @@
     const codeValue = url.searchParams.get("code");
     if (!codeValue) {
         postLog("Error: could not retrieve auth code from url. url: " + url.href);
-        return;
     }
-
-    sendRequest("/authenticateWithCode", { headers: { auth_code: codeValue } }).then(res => {
+    else {
+        sendRequest("/authenticateWithCode", { headers: { auth_code: codeValue } }).then(res => {
         if (res.error) {
             postLog("Error in authentication: \"" + res.error + "\". Redirecting...");
             setTimeout(() => { window.location = "/login" }, 10000);
@@ -21,4 +20,5 @@
         postLog("Login successful! redirecting...");
         setTimeout(() => {window.location = "/profile"}, 10000);
     })
+    }
 </script>
