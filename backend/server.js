@@ -80,12 +80,6 @@ app.get("/home", async (req, res) => {
 
 // Route for login page
 app.get("/login", async (req, res) => {
-    // has token cookie, meaning the user is logged in
-    if (await isLoggedIn(req, res)) {
-        res.redirect("/profile");
-        return;
-    }
-
     renderPage(
         req,
         res,
@@ -102,7 +96,7 @@ app.get("/profile", async (req, res) => {
     renderPage(req,
         res,
         "profile.ejs",
-        {title: "Profile", loading: true},
+        { title: "Profile", loading: true },
         {},
         ["/src/stylesheets/pages/profile.css"]);
 });
@@ -114,25 +108,7 @@ app.get("/redirect-to-auth", (req, res) => {
 
 // Route for auth-callback
 app.get("/auth-callback", async (req, res) => {
-    // if we didn't receive a code, redirect to home
-    const auth_code = req.query.code;
-    if (!auth_code) {
-        res.redirect("/");
-        return;
-    }
-
-    // fetch token in callback
-    const tokenData = await fetchToken(auth_code);
-    if (tokenData.error) {
-        renderError(req, res, tokenData.error ?? "שגיאה בתהליך ההתחברות.");
-        return;
-    }
-
-    // set authToken cookie
-    storeTokenCookies(res, tokenData);
-
-    // redirect to profile page
-    res.redirect("/profile");
+    renderPage(req, res, "auth-callback.ejs", { title: "Auth Callback", loading: false });
 });
 
 // Route for scrambles page
@@ -156,7 +132,7 @@ app.get("/scrambles", async (req, res) => {
 // Route for competing in events
 app.get("/compete/:eventId", async (req, res) => {
     const currentWeek = await weekManager().getCurrentWeek();
-    const loggedIn = await isLoggedIn(req, res);
+    const loggedIn = isLoggedIn(req);
 
     // not logged in -> login
     if (!loggedIn) {
@@ -180,7 +156,6 @@ app.get("/compete/:eventId", async (req, res) => {
 
     }
 
-
     renderPage(req,
         res,
         "/compete.ejs",
@@ -194,16 +169,60 @@ app.get("/compete/:eventId", async (req, res) => {
 
 // #region other request handling
 
-// use the requester's authToken cookie to fetch and send their "WCA-Me" information.
-// if an error occurs - clears the cookie, and:
-//          - if the request was received from a client, sends an error object
-//          - otherwise, redirect to login
-//
+// the user requests
 app.get("/wca-me", async (req, res) => {
-    const userData = await retrieveWCAMe(req, res);
+    const userData = await retrieveWCAMe(req);
     if (userData)                   res.json(userData);
     else if (sentFromClient(req))   res.json(errorObject("error occurred", { redirectTo: "/login" }));
     else                            res.redirect("/login");
+});
+
+app.get("/authenticateWithCode", async (req, res) => {
+    const authCodeHeader = "auth_code";
+    const authCode = req.headers[authCodeHeader];
+    if (!authCode) {
+        res.json(errorObject("No code received."));
+        // if (sentFromClient(req))    res.json(errorObject("No code received."));
+        // else                        res.redirect("/");
+        return;
+    }
+
+    // fetch token in callback
+    const tokenData = await fetchToken(authCode);
+    if (tokenData.error) {
+        res.json(errorObject("Authentication error."));
+        // if (sentFromClient(req))    res.json(errorObject("Authentication Error."));
+        // else                        res.redirect("/");
+        return;
+    }
+
+    // set authToken cookie
+    storeTokenCookies(res, tokenData);
+
+    // send back the new token data
+    res.json(tokenData);
+});
+
+app.get("/authenticateRefreshToken", async (req, res) => {
+    const refreshTokenHeader = "refresh_token";
+    const refreshToken = req.headers[refreshTokenHeader];
+    if (!refreshToken) {
+        res.json(errorObject("No refresh token received."));
+        // if (sentFromClient(req))    res.json(errorObject("No refresh token received."));
+        // else                        res.redirect("/");
+        return;
+    }
+
+    const tokenData = await fetchRefreshToken(refreshToken);
+    if (tokenData.error) {
+        res.json(errorObject("Refresh token error"));
+        // if (sentFromClient(req))    res.json(errorObject("Refresh token error"));
+        // else                        res.redirect("/");
+        return;
+    }
+
+    // send back the new token data
+    res.json(tokenData);
 });
 
 // if the request was made by a client, clear the authToken cookie.

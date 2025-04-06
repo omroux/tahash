@@ -11,6 +11,7 @@ import { UserManager } from './src/scripts/backend/database/users/UserManager.js
 // -- General constants/properties
 export const authTokenCookie = "authToken";
 export const refreshTokenCookie = "refreshToken";
+export const loggedInCookie = "loggedIn";
 export const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 // config data property
@@ -36,7 +37,7 @@ export function renderPage(req, res, filePath, layoutOptions = {}, pageOptions =
 
     // render the file
     (async () => {
-        pageOptions.loggedIn = await isLoggedIn(req, res);
+        pageOptions.loggedIn = isLoggedIn(req);
         ejs.renderFile(path.join(__dirname, "src/views/pages/", filePath), pageOptions ?? {}, async (err, str) => {
             if (err) {
                 console.error(`Error occurred receiving ${filePath} page.\nDetails:`, err);
@@ -94,13 +95,16 @@ export function storeCookie(res, cookieName, cookieData, maxAge = null, options 
 
 // store auth token cookies
 // tokenData is the full json response from the WCA API (assuming there wasn't an error)
+// TODO: remove this and all other cookie management functions (and remove references) (EXCEPT TRYGETCOOKIE)
 export function storeTokenCookies(res, tokenData) {
     storeCookie(res, authTokenCookie, {
         access_token:   tokenData.access_token
-    }, tokenData.expires_in * 60);  // convert to milliseconds
+    }, ms(tokenData.expires_in + "s"));  // convert to milliseconds
 
     // store the refresh token for 7 days until the user will be required to generate a new token.
     storeCookie(res, refreshTokenCookie, { refresh_token:  tokenData.refresh_token }, ms('7d'));
+    res.setHeader("accessToken", tokenData.accessToken ?? null);
+    res.setHeader("refreshToken", tokenData.refreshToken ?? null);
 }
 
 
@@ -172,7 +176,7 @@ export function readConfigFile() {
 }
 
 
-const fromClientHeader = "from-client";
+const fromClientHeader = "from_client";
 // check if a request was sent from a client
 export const sentFromClient = (req) => (req.headers[fromClientHeader] === "true");
 
@@ -182,7 +186,7 @@ export const sentFromClient = (req) => (req.headers[fromClientHeader] === "true"
 // returns:
 //      - if the user was logged in, returns the WCA-Me json object of the user
 //      - if the user wasn't logged in, returns null
-export async function retrieveWCAMe(req, res) {
+/*export async function retrieveWCAMe(req, res) {
     // no cookie -> redirect to /login
     let authToken = tryGetCookie(req, authTokenCookie);
     if (!authToken)
@@ -211,14 +215,57 @@ export async function retrieveWCAMe(req, res) {
     // note: we're not reloading the page in order to avoid an infinite loop of refreshing the page
     let userData = await getUserData(tokenData.access_token);
     return userData ? userData.me : null; // automatically null if it doesn't exist
+}*/
+
+export async function retrieveWCAMe(req) {
+    const accessTokenHeader = "access_token";
+    const accessToken = req.headers[accessTokenHeader];
+    if (!accessToken)
+        return null;
+
+    const userData = await getUserData(accessToken);
+    return userData.me ? userData.me : null;
+
+    // // no cookie -> redirect to /login
+    // let accessToken = req.headers["accessToken"];
+    // if (!accessToken) {
+    //     // res.clearCookie(authTokenCookie);
+    //     return null;
+    // }
+    // else {
+    //     // get the user's data using the access token
+    //     let userData = await getUserData(accessToken);
+
+    //     // data received successfully
+    //     if (userData.me)
+    //         return userData.me;
+    // }
+
+    // // generate a new token (with refresh token)
+    // const refreshToken = req.headers["refreshToken"];
+    // if (!refreshToken) {
+    //     // clearTokenCookies(res);
+    //     return null;
+    // }
+
+    // const tokenData = await fetchRefreshToken(refreshToken);
+    // if (tokenData.error) {
+    //     clearTokenCookies(res);
+    //     return null;
+    // }
+
+    // // store the cookies with the new token
+    // storeTokenCookies(res, tokenData);
+
+    // // try to use the new refresh token
+    // // note: we're not reloading the page in order to avoid an infinite loop of refreshing the page
+    // let userData = await getUserData(tokenData.access_token);
+    // return userData ? userData.me : null; // automatically null if it doesn't exist
 }
 
 
 // optimized function to check whether the user is logged in.
-// needs both request and response in order to update the user's cookies. does not send or alter the response.
-export const isLoggedIn = async (req, res) => (tryGetCookie(req, authTokenCookie)
-            ? true
-            : ((await retrieveWCAMe(req, res)) != null));
+export const isLoggedIn = (req) => tryGetCookie(req, loggedInCookie, false) != null;
 
 
 // #region Database Management

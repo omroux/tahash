@@ -14,19 +14,26 @@ function updateWcaData() {
     wcaProfileLink.href = wcaMeData.url;
 }
 
-window.onload = async () => {
-    wcaMeData = await sendRequest("/wca-me");
-    if (wcaMeData.error) {
-        window.location = wcaMeData.redirectTo;
+onPageLoad(async () => {
+    if (!isLoggedIn()) {
+        window.location = "/login";
+        return;
     }
 
-    updateWcaData();
-    setLoadingState(false);
-};
+    wcaMeData = await sendRequest("/wca-me");
+    if (wcaMeData.error) {
+        localStorage.clear();
+        window.location = wcaMeData.redirectTo;
+        return;
+    }
 
-logoutBtn.onclick = async () => {
+    setLoadingState(false);
+    updateWcaData();
+});
+
+logoutBtn.onclick = () => {
     // TODO: request for server /logout. if the request was not made by a client, redirect to /profile. if it was made by a client, clear the cookie.
     logoutBtn.disabled = true;
-    await sendRequest("/logout");
+    clearLoginData();
     window.location = "/login";
 };

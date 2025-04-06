@@ -175,7 +175,7 @@ function normalizeSizes() {
 
 // time structure: { previewStr: str, timeStr: str, timeObj: [timeObj], penalty: 0|1|2 }  (penalty: 0=nothing, 1=+2, 2=dnf)
 let allTimes = [];
-window.onload = () => {
+onPageLoad(() => {
     for (let i = 0; i < scrContainers.length; i++) {
         scramblesSized.push(false);
         vbInit.push(false);
@@ -196,7 +196,7 @@ window.onload = () => {
     prevScrBtn.disabled = true;
     updateActiveScr();
     hidePreview();
-};
+});
 
 window.onresize = () => {
     for (let i = 0; i < scrContainers.length; i++)

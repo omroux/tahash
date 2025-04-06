@@ -7,6 +7,13 @@
 
 <!-- login btn onclick -->
 <script>
+    onPageLoad(() => {
+        if (isLoggedIn()) {
+            window.location = "/profile";
+            return;
+        }
+    });
+
     const loginBtn = document.querySelector("#login-btn");
     loginBtn.onclick = () => {
         loginBtn.disabled = true;

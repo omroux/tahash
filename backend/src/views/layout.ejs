@@ -19,6 +19,9 @@
         <h4 class="Week-Number-Header">תחרות מספר <%- compNumber %></h4>
         <div class="Page-Menu-Container">
             <ul class="Page-Menu">
+                <script>
+                    const finishSetupLoadingState = <%- locals.loading ? true : false %>;
+                </script>
                 <li id="home-menu-item"><a href="/home">בית</a></li>
                 <% if (locals.loggedIn != null && loggedIn) { %>
                     <li id="profile-menu-item"><a href="/profile">פרופיל</a></li>
@@ -32,6 +35,8 @@
             <script>document.querySelector(`.Page-Menu li a[href='${window.location.pathname.toLowerCase()}']`)?.parentElement.classList.add("Current-Page");</script>
         </div>
     </div>
+
+    <div class="Logs-Container" id="logsContainer" style="display: flex; flex-direction: column; gap: 10px;"></div>
 
     <div class="Content-Container">
         <div id="loading_container" <% if (!locals.loading) { %> hidden <% } %> >

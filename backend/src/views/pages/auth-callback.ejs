@@ -1,2 +1,27 @@
 <script src="/src/scripts/pages/auth-callback.js"></script>
 <h1 class="Title" id="loading_txt">טוען...</h1>
+
+<script>
+    function doAuthCallback() {
+        // get code from url
+        const url = new URL(window.location.href);
+        const codeValue = url.searchParams.get("code");
+        if (!codeValue) {
+            postLog("Error: could not retrieve auth code from url");
+            return;
+        }
+
+        sendRequest("/authenticateWithCode", { headers: { auth_code: codeValue } }).then(res => {
+            if (res.error) {
+                postLog("Error in authentication: " + res.error);
+                setTimeout(() => { window.location = "/login" }, 3000);
+                return;
+            }
+
+            storeLoginData(res);
+            window.location = "/profile";
+        })
+    }
+
+    doAuthCallback();
+</script>
