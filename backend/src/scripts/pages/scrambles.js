@@ -50,3 +50,15 @@ function chooseEvent(eventBoxEl) {
     console.log(`Picked event ${getEventId(eventBoxEl)}`);
     window.location = `/compete/${getEventId(eventBoxEl)}`;
 }
+
+onPageLoad(async () => {
+    if (hasStoredWcaMeData())
+        return;
+    
+    setLoadingState(true);
+    const wcaMeData = await getWcaMe();
+    if (!wcaMeData)
+        clearLoginData();
+
+    setLoadingState(false);
+});

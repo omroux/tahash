@@ -65,13 +65,43 @@ function clearLoginData() {
     localStorage.removeItem(accessTokenStorage);
     localStorage.removeItem(tokenExpireStorage);
     localStorage.removeItem(refreshTokenStorage);
+    sessionStorage.removeItem(wcaMeStorage);
     deleteCookie(loggedInCookie);
 }
+// #endregion
+
+// #region WCA me
+
+function hasStoredWcaMeData() {
+    return sessionStorage.getItem(wcaMeStorage) != null;
+}
+
+// automatically disconnects in case of an error
+async function getWcaMe() {
+    if (!isLoggedIn())
+        return null;
+
+    let wcaMeData = sessionStorage.getItem(wcaMeStorage);
+    if (wcaMeData)
+        return JSON.parse(wcaMeData);
+
+    wcaMeData = await sendRequest("/wca-me");
+    if (wcaMeData.error) {
+        clearLoginData();
+        return null;
+    }
+
+    sessionStorage.setItem(wcaMeStorage, JSON.stringify(wcaMeData));
+    
+    return wcaMeData;
+}
+
 // #endregion
 
 const accessTokenStorage = "accessToken";
 const refreshTokenStorage = "refreshToken";
 const tokenExpireStorage = "tokenExpire";
+const wcaMeStorage = "wcaMe";
 const loggedInCookie = "loggedIn";
 
 // send a fetch request, specifically to the server
@@ -92,7 +122,14 @@ async function sendRequest(path, options = {}) {
     options.headers[accessTokenHeader] = window.localStorage.getItem(accessTokenStorage);
     options.headers[refreshTokenHeader] = window.localStorage.getItem(refreshTokenStorage);
 
-    return await (await fetch(path, options)).json();
+    try {
+        const res = await fetch(path, options);
+        return await res.json();
+    }
+    catch (e) {
+        return await Promise.reject(e);
+    }
+
 }
 // TODO: setLoadingText(text="טוען...") possibly?
 
@@ -134,9 +171,8 @@ else if (localStorage.getItem(refreshTokenStorage)) {
         }
 
         storeLoginData(res);
-        setLoadingState(finishSetupLoadingState);
-        setLoggedInState(true);
-        _invokePageLoad();
+        window.location = window.location; // reload the page, so the website will reload with the new cookie
+        return;
     });
 }
 else {

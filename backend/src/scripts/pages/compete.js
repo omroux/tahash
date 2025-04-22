@@ -176,6 +176,11 @@ function normalizeSizes() {
 // time structure: { previewStr: str, timeStr: str, timeObj: [timeObj], penalty: 0|1|2 }  (penalty: 0=nothing, 1=+2, 2=dnf)
 let allTimes = [];
 onPageLoad(() => {
+    if (!isLoggedIn()) {
+        window.location = "/login";
+        return;
+    }
+
     for (let i = 0; i < scrContainers.length; i++) {
         scramblesSized.push(false);
         vbInit.push(false);
@@ -191,6 +196,13 @@ onPageLoad(() => {
     }
 
     normalizeSizes(true);
+
+    // TODO: do this for blind events - make a "hideImage" things
+    // if (eventId == "3bld") {
+    //     // console.log(scrContainers[i].getElementsByClassName("Scramble-Img")[0]);
+    //     scrContainers[0].getElementsByTagName("svg")[0].setAttribute("width", "0");
+    //     scrContainers[0].getElementsByTagName("svg")[0].setAttribute("height", "0");
+    // }
 
     activeScr = 0;
     prevScrBtn.disabled = true;
@@ -407,23 +419,6 @@ function setPlus2State(newState) {
     updatePreviewLabel();
 }
 
-dnfBtn.onclick = () => setDnfState(!dnfState);
-plus2Btn.onclick = () => setPlus2State(!plus2State);
-submitTimeBtn.onclick = () => {
-    if (!validTime) return false;
-
-    updateTimeInMenu(activeScr, timePreviewLbl.innerText, timeInput.value, currTimesObj, dnfState ? Penalties.DNF : (plus2State ? Penalties.Plus2 : Penalties.None)); 
-    
-    if (activeScr >= numScr - 1)
-        window.location = "/scrambles";
-    
-    scrMenuItemContainers[activeScr].setAttribute("done", true);
-    
-    activeScr += 1;
-    updateActiveScr();
-    scrMenuItemContainers[activeScr].removeAttribute("disabled");
-};
-
 function updateTimeInMenu(index, previewStr, timeStr, timesObj, penalty) {
     allTimes[index].previewStr = previewStr;
     allTimes[index].timeStr = timeStr;
@@ -432,3 +427,46 @@ function updateTimeInMenu(index, previewStr, timeStr, timesObj, penalty) {
 
     scrMenuItemTimes[activeScr].innerText = previewStr;
 }
+
+dnfBtn.onclick = () => setDnfState(!dnfState);
+plus2Btn.onclick = () => setPlus2State(!plus2State);
+submitTimeBtn.onclick = () => {
+    if (!validTime) return;
+
+    updateTimeInMenu(activeScr, timePreviewLbl.innerText, timeInput.value, currTimesObj, dnfState ? Penalties.DNF : (plus2State ? Penalties.Plus2 : Penalties.None)); 
+    
+    if (activeScr >= numScr - 1) {
+        setLoadingState(true);
+        (async () => {
+            const wcaMeData = await getWcaMe();
+            if (!wcaMeData) {
+                window.location = "/error";
+                return;
+            }
+
+            setLoadingState(false);
+            const res = await sendRequest("/updateTimes", { userId: wcaMeData.id, eventId: eventId, allTimes: allTimes });
+            if (res.error) {
+                window.location = "/error";
+                return;
+            }
+
+            window.location = "/scrambles";
+        })();
+        return;
+    }
+    
+    scrMenuItemContainers[activeScr].setAttribute("done", true);
+    
+    activeScr += 1;
+    updateActiveScr();
+    scrMenuItemContainers[activeScr].removeAttribute("disabled");
+};
+
+// Submit using keyboard key
+window.onkeydown = (event) => {
+    const submitKeyCode = 13; // enter
+
+    if (event.keyCode == submitKeyCode)
+        submitTimeBtn.click()
+};

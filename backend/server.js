@@ -18,11 +18,9 @@ import {
     storeCookie,
     tryGetCookie,
     authTokenCookie,
-    storeTokenCookies,
     readConfigFile,
     __dirname,
     sentFromClient,
-    clearTokenCookies,
     retrieveWCAMe,
     isLoggedIn,
     envConfigOptions,
@@ -96,7 +94,7 @@ app.get("/profile", async (req, res) => {
     renderPage(req,
         res,
         "profile.ejs",
-        { title: "Profile", loading: true },
+        { title: "Profile" },
         {},
         ["/src/stylesheets/pages/profile.css"]);
 });
@@ -129,6 +127,10 @@ app.get("/scrambles", async (req, res) => {
             eventIconsSrc ]);
 });
 
+app.get("/error", async (req, res) => {
+    renderError(req, res, errorObject("שגיאה"));
+});
+
 // Route for competing in events
 app.get("/compete/:eventId", async (req, res) => {
     const currentWeek = await weekManager().getCurrentWeek();
@@ -159,9 +161,24 @@ app.get("/compete/:eventId", async (req, res) => {
     renderPage(req,
         res,
         "/compete.ejs",
-        { title: "מדידת זמן" },
+        { title: "מדידת זמן " + eventData.event.eventTitle },
         pageOptions,
         [ "/src/stylesheets/pages/compete.css" ]);
+});
+
+const userIdHeader = "user-id";
+const eventIdHeader = "event-id";
+app.get("/updateTimes", async (req, res) => {
+    if (!sentFromClient(req)) {
+        res.redirect("/");
+        return;
+    }
+
+    const userId = req.headers[userIdHeader];
+    const eventId = req.headers[eventIdHeader];
+
+    const currWeek = weekManager().getCurrentWeek();
+    
 });
 
 // #endregion
@@ -173,32 +190,26 @@ app.get("/compete/:eventId", async (req, res) => {
 app.get("/wca-me", async (req, res) => {
     const userData = await retrieveWCAMe(req);
     if (userData)                   res.json(userData);
-    else if (sentFromClient(req))   res.json(errorObject("error occurred", { redirectTo: "/login" }));
+    else if (sentFromClient(req))   res.json(errorObject("error occurred"));
     else                            res.redirect("/login");
 });
 
 app.get("/authenticateWithCode", async (req, res) => {
     const authCodeHeader = "auth-code";
-    console.log("Req headers received: ", req.headers);
     const authCode = req.headers[authCodeHeader];
     if (!authCode) {
-        res.json(errorObject("No code received."));
-        // if (sentFromClient(req))    res.json(errorObject("No code received."));
-        // else                        res.redirect("/");
+        if (sentFromClient(req))    res.json(errorObject("No code received."));
+        else                        res.redirect("/");
         return;
     }
 
     // fetch token in callback
     const tokenData = await fetchToken(authCode);
     if (tokenData.error) {
-        res.json(errorObject("Authentication error."));
-        // if (sentFromClient(req))    res.json(errorObject("Authentication Error."));
-        // else                        res.redirect("/");
+        if (sentFromClient(req))    res.json(errorObject("Authentication Error."));
+        else                        res.redirect("/");
         return;
     }
-
-    // set authToken cookie
-    storeTokenCookies(res, tokenData);
 
     // send back the new token data
     res.json(tokenData);
@@ -208,17 +219,15 @@ app.get("/authenticateRefreshToken", async (req, res) => {
     const refreshTokenHeader = "refresh-token";
     const refreshToken = req.headers[refreshTokenHeader];
     if (!refreshToken) {
-        res.json(errorObject("No refresh token received."));
-        // if (sentFromClient(req))    res.json(errorObject("No refresh token received."));
-        // else                        res.redirect("/");
+        if (sentFromClient(req))    res.json(errorObject("No refresh token received."));
+        else                        res.redirect("/");
         return;
     }
 
     const tokenData = await fetchRefreshToken(refreshToken);
     if (tokenData.error) {
-        res.json(errorObject("Refresh token error"));
-        // if (sentFromClient(req))    res.json(errorObject("Refresh token error"));
-        // else                        res.redirect("/");
+        if (sentFromClient(req))    res.json(errorObject("Refresh token error"));
+        else                        res.redirect("/");
         return;
     }
 
@@ -226,16 +235,6 @@ app.get("/authenticateRefreshToken", async (req, res) => {
     res.json(tokenData);
 });
 
-// if the request was made by a client, clear the authToken cookie.
-// otherwise, redirect to /profile
-app.get("/logout", (req, res) => {
-    if (sentFromClient(req)) {
-        clearTokenCookies(res);
-        res.json({ response: "Success" });
-    }
-    else
-        res.redirect("/profile");
-});
 
 // get a source file
 app.get("/src/*", (req, res) => {

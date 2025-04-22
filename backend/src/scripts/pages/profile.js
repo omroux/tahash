@@ -20,12 +20,17 @@ onPageLoad(async () => {
         return;
     }
 
-    wcaMeData = await sendRequest("/wca-me");
-    if (wcaMeData.error) {
-        localStorage.clear();
-        window.location = wcaMeData.redirectTo;
-        return;
+    if (!hasStoredWcaMeData()) {
+        setLoadingState(true);
+
+        wcaMeData = await getWcaMe();
+        if (!wcaMeData) {
+            window.location = "/login";
+            return;
+        }
     }
+    else
+        wcaMeData = await getWcaMe();
 
     setLoadingState(false);
     updateWcaData();
