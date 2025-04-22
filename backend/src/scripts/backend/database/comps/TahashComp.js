@@ -1,13 +1,13 @@
 import { WCAEvents } from "../CompEvent.js";
 
-export class TahashWeek {
+export class TahashComp {
     #manager;
     compNumber = -1;
     startDate = null;
     endDate = null;
     data = [];
     /*
-    week data structure IN DATABASE:
+    comp data structure IN DATABASE:
     data: [
         {
             eventId: str
@@ -21,7 +21,7 @@ export class TahashWeek {
         }
     ]
 
-    week data structure IN CODE:
+    comp data structure IN CODE:
     data: [
         {
             event: CompEvent
@@ -36,10 +36,10 @@ export class TahashWeek {
     ]
     */
 
-    // construct a TahashWeek from a given source
-    // src - a source object to build the TahashWeek from: {compNumber, startDate, endDate, data}
-    constructor(weekManager, src) {
-        this.#manager = weekManager;
+    // construct a TahashComp from a given source
+    // src - a source object to build the TahashComp from: {compNumber, startDate, endDate, data}
+    constructor(compManager, src) {
+        this.#manager = compManager;
 
         src = src || {};
         this.compNumber =   src.compNumber  ?? -1;
@@ -52,12 +52,12 @@ export class TahashWeek {
         this.endDate?.setHours(0, 0, 0, 0);
     }
 
-    // save this TahashWeek using the linked WeekManager
+    // save this TahashComp using the linked CompManager
     async saveToDB() {
-        return await this.#manager.saveWeek(this);
+        return await this.#manager.saveComp(this);
     }
 
-    // is this week currently active as the current Tahash week?
+    // is this comp currently active as the current Tahash comp?
     isActive() {
         const now = new Date();
         now.setHours(0, 0, 0, 0);
@@ -75,7 +75,7 @@ export class TahashWeek {
     getEventResults(eventId) {        
     }
 
-    // returns CompEvent[] of the events of this week
+    // returns CompEvent[] of the events of this comp
     getAllEvents() {
         const result = [];
 
@@ -86,14 +86,14 @@ export class TahashWeek {
         return result;
     }
 
-    // returns a copy of the data for a specific event object of an event from this week by its eventId.
-    // if the week does not contain an event with this id, returns null.
+    // returns a copy of the data for a specific event object of an event from this comp by its eventId.
+    // if the comp does not contain an event with this id, returns null.
     getEventDataById(eventId) {
         const evData = this.data.find(d => d.event.eventId == eventId);
         return evData ? Object.assign({}, evData) : null;
     }
 
-    // check whether this week contains an event with a specific id.
+    // check whether this comp contains an event with a specific id.
     // if it does, returns a copy of the CompEvent object.
     // otherwise, returns null.
     getEvent(eventId) {
@@ -110,17 +110,17 @@ export class TahashWeek {
         }
     }
 
-    // get the information about events of this Tahash Week
+    // get the information about events of this Tahash comp
     // returns an array: [ { eventId, iconName, eventTitle } ]
     getEventsInfo() {
         const events = [];
-        const weekEvents = this.getAllEvents();
+        const compEvents = this.getAllEvents();
 
-        for (let i = 0; i < weekEvents.length; i++) {
+        for (let i = 0; i < compEvents.length; i++) {
             events.push({
-                eventId: weekEvents[i].eventId,
-                iconName: weekEvents[i].iconName,
-                eventTitle: weekEvents[i].eventTitle
+                eventId: compEvents[i].eventId,
+                iconName: compEvents[i].iconName,
+                eventTitle: compEvents[i].eventTitle
             });
         }
 
@@ -128,11 +128,11 @@ export class TahashWeek {
     }
 }
 
-// get the src object for a new week (starting on the current date)
+// get the src object for a new comp (starting on the current date)
 // extraEvents - array of CompEvent
 // startDate - the start date of the competition. if null, the start date will be today.
-// endDate - the date to end the competition. if null, the end date will be set to a week from now.
-export function getNewWeekSrc(compNumber, extraEvents = null, startDate = null, endDate = null) {
+// endDate - the date to end the competition. if null, the end date will be set to a comp from now.
+export function getNewCompSrc(compNumber, extraEvents = null, startDate = null, endDate = null) {
     // add start date
     if (!startDate) {
         startDate = new Date();

@@ -2,9 +2,9 @@ import fs from 'fs';
 import ejs from 'ejs';
 import path from 'path';
 import ms from 'ms';
-import { fetchRefreshToken, getUserData } from "./src/scripts/backend/apiUtils.js";
+import { fetchRefreshToken, getUserData } from "./src/scripts/backend/utils/apiUtils.js";
 import {MongoClient} from "mongodb";
-import { WeekManager } from './src/scripts/backend/database/weeks/WeekManager.js';
+import { CompManager } from './src/scripts/backend/database/comps/CompManager.js';
 import { UserManager } from './src/scripts/backend/database/users/UserManager.js';
 
 
@@ -51,8 +51,8 @@ export function renderPage(req, res, filePath, layoutOptions = {}, pageOptions =
             // first try to get the auth token cookie. if it exists, the user is logged in.
             layoutOptions.loggedIn = pageOptions.loggedIn;
     
-            // week number in header
-            layoutOptions.compNumber = weekManager().getCurrentCompNumber();
+            // comp number in header
+            layoutOptions.compNumber = compManager().getCurrentCompNumber();
     
             res.render("layout.ejs", layoutOptions);
         });
@@ -225,42 +225,6 @@ export async function retrieveWCAMe(req) {
 
     const userData = await getUserData(accessToken);
     return userData.me ? userData.me : null;
-
-    // // no cookie -> redirect to /login
-    // let accessToken = req.headers["accessToken"];
-    // if (!accessToken) {
-    //     // res.clearCookie(authTokenCookie);
-    //     return null;
-    // }
-    // else {
-    //     // get the user's data using the access token
-    //     let userData = await getUserData(accessToken);
-
-    //     // data received successfully
-    //     if (userData.me)
-    //         return userData.me;
-    // }
-
-    // // generate a new token (with refresh token)
-    // const refreshToken = req.headers["refreshToken"];
-    // if (!refreshToken) {
-    //     // clearTokenCookies(res);
-    //     return null;
-    // }
-
-    // const tokenData = await fetchRefreshToken(refreshToken);
-    // if (tokenData.error) {
-    //     clearTokenCookies(res);
-    //     return null;
-    // }
-
-    // // store the cookies with the new token
-    // storeTokenCookies(res, tokenData);
-
-    // // try to use the new refresh token
-    // // note: we're not reloading the page in order to avoid an infinite loop of refreshing the page
-    // let userData = await getUserData(tokenData.access_token);
-    // return userData ? userData.me : null; // automatically null if it doesn't exist
 }
 
 
@@ -272,14 +236,14 @@ export const isLoggedIn = (req) => tryGetCookie(req, loggedInCookie, false) != n
 
 // database variables
 const tahashDbName = "tahash";
-const weeksCollectionName = "weeks";
+const compsCollectionName = "comps";
 const usersCollectionName = "users";
 
 let _tahashDb = null;
-let _weekManager = null;
+let _compManager = null;
 let _userManager = null;
 export const tahashDB = () => _tahashDb;
-export const weekManager = () => _weekManager;
+export const compManager = () => _compManager;
 export const userManager = () => _userManager;
 
 // initialize MongoDB and load tahash database
@@ -306,12 +270,12 @@ export async function initDatabase() {
     const mongoClient = await MongoClient.connect(connectionString, { connectTimeoutMS: 5000 });
     _tahashDb = mongoClient.db(tahashDbName);
 
-    // get weeks and users collections
-    _weekManager = new WeekManager(_tahashDb.collection(weeksCollectionName));
+    // get comps and users collections
+    _compManager = new CompManager(_tahashDb.collection(compsCollectionName));
     _userManager = new UserManager(_tahashDb.collection(usersCollectionName));
 
-    // validate current week
-    await _weekManager.validateCurrentWeek();
+    // validate current comp
+    await _compManager.validateCurrentComp();
 
     return _tahashDb;
 }

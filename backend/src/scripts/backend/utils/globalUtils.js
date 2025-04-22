@@ -5,3 +5,10 @@ export const errorObject = (err, obj = {}) => {
     obj.error = err;
     return obj;
 }
+
+// result penalties
+export const Penalties = Object.freeze({
+    None: 0,
+    Plus2: 1,
+    DNF: 2
+});

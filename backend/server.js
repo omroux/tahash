@@ -11,7 +11,7 @@ import {
     fetchRefreshToken,
     getUserData,
     WCA_AUTH_URL
-} from "./src/scripts/backend/apiUtils.js";
+} from "./src/scripts/backend/utils/apiUtils.js";
 import {
     renderPage,
     renderError,
@@ -27,10 +27,12 @@ import {
     getConfigData,
     getHostname,
     initDatabase,
-    weekManager
+    compManager,
+    userManager
 } from "./serverUtils.js";
-import { errorObject } from "./src/scripts/backend/globalUtils.js";
+import { errorObject } from "./src/scripts/backend/utils/globalUtils.js";
 import cstimer from "cstimer_module";
+import { tryAnalyzeTimes, getDisplayTime, getTimesObjStr, packTimes, unpackTimes } from "./src/scripts/backend/utils/timesUtils.js"
 
 
 // general setup
@@ -63,14 +65,14 @@ app.get("/", (req, res) => {
 
 // Route for home
 app.get("/home", async (req, res) => {
-    const currWeek = await weekManager().getCurrentWeek();
+    const currComp = await compManager().getCurrentComp();
 
     renderPage(req, res, "home.ejs", { title: "Home" }, 
         { compInfo: {
-            compNumber: currWeek.compNumber,
-            startDate: currWeek.startDate,
-            endDate: currWeek.endDate,
-            events: currWeek.getEventsInfo()
+            compNumber: currComp.compNumber,
+            startDate: currComp.startDate,
+            endDate: currComp.endDate,
+            events: currComp.getEventsInfo()
          } },
          [ "src/stylesheets/pages/home.css" ]
     );
@@ -113,15 +115,15 @@ app.get("/auth-callback", async (req, res) => {
 app.get("/scrambles", async (req, res) => {
     // event icons cdn link
     const eventIconsSrc = "https://cdn.cubing.net/v0/css/@cubing/icons/css";
-    const currWeek = await weekManager().getCurrentWeek();
+    const currComp = await compManager().getCurrentComp();
     
     renderPage(req,
         res,
         "/scrambles.ejs",
         { title: "Scrambles" },
         {
-            compNumber: currWeek.compNumber,
-            events: currWeek.getEventsInfo()
+            compNumber: currComp.compNumber,
+            events: currComp.getEventsInfo()
         },
         [ "/src/stylesheets/pages/scrambles.css",
             eventIconsSrc ]);
@@ -133,7 +135,7 @@ app.get("/error", async (req, res) => {
 
 // Route for competing in events
 app.get("/compete/:eventId", async (req, res) => {
-    const currentWeek = await weekManager().getCurrentWeek();
+    const currComp = await compManager().getCurrentComp();
     const loggedIn = isLoggedIn(req);
 
     // not logged in -> login
@@ -143,7 +145,7 @@ app.get("/compete/:eventId", async (req, res) => {
     }
 
     const pageOptions = {};
-    const eventData = currentWeek.getEventDataById(req.params.eventId);
+    const eventData = currComp.getEventDataById(req.params.eventId);
     if (eventData) {
         const scrImages = [];
         // images
@@ -168,17 +170,34 @@ app.get("/compete/:eventId", async (req, res) => {
 
 const userIdHeader = "user-id";
 const eventIdHeader = "event-id";
+const timesHeader = "times";
 app.get("/updateTimes", async (req, res) => {
     if (!sentFromClient(req)) {
         res.redirect("/");
         return;
     }
 
+    // get headers
     const userId = req.headers[userIdHeader];
     const eventId = req.headers[eventIdHeader];
+    const timesStr = req.headers[timesHeader];
+    if (!userId || !eventId || !timesStr) {
+        console.log("Invalid headers for updateTimes. Request:", req);
+        res.json(errorObject("Invalid headers"));
+        return;
+    }
 
-    const currWeek = weekManager().getCurrentWeek();
-    
+    const times = JSON.parse(timesStr);
+    const currCompNumber = compManager().getCurrentCompNumber();
+    const userObj = await userManager().getUserById(userId);
+    userObj.setEventTimes(currCompNumber, eventId, times);
+    await userObj.saveToDB();
+    res.json({text: "Saved successfully!"});
+});
+
+// TODO: this now
+app.get("/retrieveTimes", async(req, res) => {
+
 });
 
 // #endregion
@@ -251,9 +270,9 @@ app.get("/src/*", (req, res) => {
 
 // TODO: remove before publishing
 // dev commands
-app.get("/newweek", async (req, res) => {
+app.get("/newcomp", async (req, res) => {
     // validate (create a new one - the last one is not active anymore)
-    await weekManager().validateCurrentWeek(null, null, true);
+    await compManager().validateCurrentComp(null, null, true);
     res.redirect("/");
 });
 
@@ -268,11 +287,11 @@ app.listen(getConfigData().port, () => {
 });
 
 
-// #region new tahash week schedule
+// #region new tahash comp schedule
 
 // Every Monday at 20:01
 cron.schedule('1 20 * * 1', () => {
-    weekManager.validateCurrentWeek();
+    compManager().validateCurrentComp();
 }, { scheduled: true, timezone: "Israel" })/*.start()*/;
 // TODO: uncomment .start() to make cron actually schedule the job
 

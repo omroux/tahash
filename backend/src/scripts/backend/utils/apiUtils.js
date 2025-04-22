@@ -1,7 +1,7 @@
 import fetch from 'node-fetch'
 import {errorObject} from "./globalUtils.js";
 import { config } from "dotenv";
-import {envConfigOptions, getHostname} from "../../../serverUtils.js";
+import {envConfigOptions, getHostname} from "../../../../serverUtils.js";
 
 config(envConfigOptions); // configure .env file
 

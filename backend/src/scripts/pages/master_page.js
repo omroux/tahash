@@ -77,13 +77,16 @@ function hasStoredWcaMeData() {
 }
 
 // automatically disconnects in case of an error
-async function getWcaMe() {
+async function getWcaMe(forceFetch = false) {
     if (!isLoggedIn())
         return null;
 
-    let wcaMeData = sessionStorage.getItem(wcaMeStorage);
-    if (wcaMeData)
-        return JSON.parse(wcaMeData);
+    let wcaMeData;
+    if (!forceFetch) {
+        wcaMeData = sessionStorage.getItem(wcaMeStorage);
+        if (wcaMeData)
+            return JSON.parse(wcaMeData);
+    }
 
     wcaMeData = await sendRequest("/wca-me");
     if (wcaMeData.error) {

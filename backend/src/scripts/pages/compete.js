@@ -173,18 +173,19 @@ function normalizeSizes() {
     }
 }
 
-// time structure: { previewStr: str, timeStr: str, timeObj: [timeObj], penalty: 0|1|2 }  (penalty: 0=nothing, 1=+2, 2=dnf)
+// time structure: { previewStr: str, timeStr: str, timesObj: [timesObj], penalty: 0|1|2 }  (penalty: 0=nothing, 1=+2, 2=dnf)
 let allTimes = [];
-onPageLoad(() => {
-    if (!isLoggedIn()) {
-        window.location = "/login";
+onPageLoad(async () => {
+    const wcaMe = await getWcaMe();
+    if (!wcaMe) {
+        window.location = "/scrambles";
         return;
     }
 
     for (let i = 0; i < scrContainers.length; i++) {
         scramblesSized.push(false);
         vbInit.push(false);
-        allTimes.push({ previewStr: "-", timeStr: "", timeObj: null, penalty: 0 });
+        allTimes.push({ previewStr: "-", timeStr: "", timesObj: null, penalty: 0 });
 
         // scramble menu
         scrMenuItemContainers[i].onclick = () => {
@@ -232,136 +233,6 @@ prevScrBtn.onclick = () => {
         prevScrBtn.disabled = true;
     nextScrBtn.disabled = false;
 };
-
-function tryAnalyzeTimes(timeStr) {
-    timeStr = timeStr.trim();
-    const noColons = timeStr.replaceAll(":", "");
-
-    if (noColons == "" || isNaN(noColons))
-        return null;
-
-    const colonParts = timeStr.split(":");
-    if (colonParts.length > 3)
-        return null;
-
-    let numMillis = 0;
-    let numSeconds = 0;
-    let numMinutes = 0;
-    let numHours = 0;
-
-    let hoursStr = "0";
-    let minutesStr = "0";
-    let secondsStr = "0";
-    let millisStr = "0";
-
-    if (colonParts.length == 3) { // hours:minutes:seconds.millis
-        hoursStr = colonParts[0];
-        minutesStr = colonParts[1] == "" ? "0" : colonParts[1];
-        splitMinutesAndMillis(colonParts[2]);
-    }
-    else if (colonParts.length == 2) { // minutes:seconds.millis
-        minutesStr = colonParts[0] == "" ? "0" : colonParts[0];
-        splitMinutesAndMillis(colonParts[1])
-    }
-    else { // seconds.millis OR millis
-        const dotSplit = timeStr.split('.');
-        if (dotSplit.length > 2) // invalid
-            return null;
-        else if (dotSplit.length == 2) // seconds.millis
-            splitMinutesAndMillis(timeStr);
-        else { // [hours][minutes][seconds][millis] - HMMSSMM
-            if (timeStr.length > maxLen)
-                return null;
-
-            const paddedStr = timeStr.padStart(maxLen, "0");
-
-            hoursStr =      paddedStr[0];
-            minutesStr =    paddedStr[1] + paddedStr[2];
-            secondsStr =    paddedStr[3] + paddedStr[4];
-            millisStr =     paddedStr[5] + paddedStr[6];
-        }
-    }
-
-    // Convert
-    if (isNaN(millisStr) || isNaN(secondsStr) || isNaN(minutesStr) || isNaN(hoursStr))
-        return null;
-    
-    numMillis = parseFloat(millisStr);
-    if (numMillis % 1 != 0) return null;
-
-    numSeconds = parseFloat(secondsStr) + Math.floor(numMillis >= maxMillis ? numMillis / maxMillis : 0);
-    if (numSeconds % 1 != 0) return null;
-
-    numMillis %= maxMillis;
-    numMinutes = parseFloat(minutesStr) + Math.floor(numSeconds >= maxSeconds ? numSeconds / maxSeconds : 0);
-    if (numMinutes % 1 != 0) return null;
-
-    numSeconds %= maxSeconds;
-    numHours = parseFloat(hoursStr) + Math.floor(numMinutes >= maxMinutes ? numMinutes / maxMinutes : 0);
-    if (numHours % 1 != 0) return null;
-
-    numMinutes %= 60;
-
-    // console.log(`hours:${numHours}, minutes:${numMinutes}, seconds:${numSeconds}, millis:${numMillis}`);
-
-    if (numHours >= maxHours
-        || (numHours == 0 && numMinutes == 0 && numSeconds == 0 && numMillis == 0)
-        || numHours < 0 || numMinutes < 0 || numSeconds < 0 || numMillis < 0) {
-        return null;
-    }
-
-    return { numHours: numHours, numMinutes: numMinutes, numSeconds: numSeconds, numMillis: numMillis };
-
-
-    function splitMinutesAndMillis(str) {
-        const dotParts = str.split(".");
-        if (dotParts.length > 2)  {
-            hidePreview();
-            return;
-        }
-        if (dotParts.length == 2)
-            millisStr = dotParts[1].substring(0, 2).padEnd(2, "0");
-        secondsStr = dotParts[0] == "" ? "0" : dotParts[0];
-    }
-}
-
-function getDisplayTime(timesObj) {
-    if (timesObj == null)
-        return "-";
-
-    const { numHours, numMinutes, numSeconds, numMillis } = timesObj;
-
-    const hoursText = numHours > 0 ? numHours + ":" : "";
-    const minutesText = numMinutes > 0 ? (hoursText != "" ? formatNumToString(numMinutes) : numMinutes) + ":" : (hoursText != "" ? "00:" : "");
-    const secondsText = numSeconds > 0 ? (minutesText != "" ? formatNumToString(numSeconds) : numSeconds) : (minutesText != "" ? "00" : "0");
-    const millisText = formatNumToString(numMillis);
-
-    return `${hoursText}${minutesText}${secondsText}.${millisText}`;
-
-    function formatNumToString(num) {
-        return num.toString().padStart(2, "0");
-    }
-}
-
-// getTimesObjStr: convert a valid times obj (with an optional penalty) to the respective str
-function getTimesObjStr(timesObj, penalty = Penalties.None) {
-    if (!timesObj) return "-";
-
-    let dispTimeObj = Object.assign({}, timesObj);
-    if (penalty == Penalties.Plus2) {
-        dispTimeObj.numSeconds += 2;
-        dispTimeObj.numMinutes += Math.floor(dispTimeObj.numSeconds / maxSeconds);
-        dispTimeObj.numSeconds %= maxSeconds;
-        dispTimeObj.numHours += Math.floor(dispTimeObj.numMinutes / maxMinutes);
-        dispTimeObj.numMinutes %= maxMinutes;
-        if (dispTimeObj.numHours >= maxHours) {
-            hidePreview(false);
-            return;
-        }
-    }
-
-    return (penalty == Penalties.DNF) ? "DNF" : (getDisplayTime(dispTimeObj) + (penalty == Penalties.Plus2 ? "+" : ""));
-}
 
 timeInput.oninput = () => {
     setDnfState(false);
@@ -428,45 +299,73 @@ function updateTimeInMenu(index, previewStr, timeStr, timesObj, penalty) {
     scrMenuItemTimes[activeScr].innerText = previewStr;
 }
 
-dnfBtn.onclick = () => setDnfState(!dnfState);
-plus2Btn.onclick = () => setPlus2State(!plus2State);
-submitTimeBtn.onclick = () => {
+// interactionState - can the user interact with the elements
+// TODO: when interaction state is false, put a low opacity gray rectangle over everything or something
+let _interactionState = true;
+function setInteractionState(value) {
+    timeInput.disabled = !value;
+    if (value) hidePreview();
+    else showPreview();
+}
+function getInteractionState() {
+    return _interactionState;   
+}
+
+const userIdHeader = "user-id";
+const eventIdHeader = "event-id";
+const timesHeader = "times";
+async function submitTime() {
     if (!validTime) return;
+    if (activeScr == numScr - 1) {
+        // TODO: Warn the user they won't be able to edit their times if they submit
+        if (!confirm("You will not be able to edit the results later if you submit now."))
+            return;
+    }
+
+    setInteractionState(false);
 
     updateTimeInMenu(activeScr, timePreviewLbl.innerText, timeInput.value, currTimesObj, dnfState ? Penalties.DNF : (plus2State ? Penalties.Plus2 : Penalties.None)); 
     
-    if (activeScr >= numScr - 1) {
-        setLoadingState(true);
-        (async () => {
-            const wcaMeData = await getWcaMe();
-            if (!wcaMeData) {
-                window.location = "/error";
-                return;
-            }
+    const wcaMeData = await getWcaMe(true);
+    if (!wcaMeData) {
+        // window.location = "/error";
+        return;
+    }
 
-            setLoadingState(false);
-            const res = await sendRequest("/updateTimes", { userId: wcaMeData.id, eventId: eventId, allTimes: allTimes });
-            if (res.error) {
-                window.location = "/error";
-                return;
-            }
+    const headers = { };
+    headers[userIdHeader] = wcaMeData.id;
+    headers[eventIdHeader] = eventId;
+    headers[timesHeader] = JSON.stringify(packTimes(allTimes));
+    const res = await sendRequest("/updateTimes", { headers: headers });
+    console.log(res);
+    if (res.error) {
+        // window.location = "/error";
+        return;
+    }
 
-            window.location = "/scrambles";
-        })();
+    if (activeScr == numScr - 1) {
+        window.location = "/scrambles";
         return;
     }
     
     scrMenuItemContainers[activeScr].setAttribute("done", true);
     
     activeScr += 1;
-    updateActiveScr();
     scrMenuItemContainers[activeScr].removeAttribute("disabled");
-};
+    setInteractionState(true);
+    updateActiveScr();
+}
+
+dnfBtn.onclick = () => setDnfState(!dnfState);
+plus2Btn.onclick = () => setPlus2State(!plus2State);
+submitTimeBtn.onclick = async () => await submitTime();
 
 // Submit using keyboard key
-window.onkeydown = (event) => {
+window.onkeydown = async (event) => {
     const submitKeyCode = 13; // enter
 
-    if (event.keyCode == submitKeyCode)
-        submitTimeBtn.click()
+    if (event.keyCode == submitKeyCode && timeInput === document.activeElement) {
+        await submitTime();
+        timeInput.focus();
+    }
 };

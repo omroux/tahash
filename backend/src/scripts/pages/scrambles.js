@@ -56,7 +56,7 @@ onPageLoad(async () => {
         return;
     
     setLoadingState(true);
-    const wcaMeData = await getWcaMe();
+    const wcaMeData = await getWcaMe(true);
     if (!wcaMeData)
         clearLoginData();
 
