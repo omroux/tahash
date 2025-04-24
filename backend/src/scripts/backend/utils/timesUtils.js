@@ -1,3 +1,17 @@
+export const Penalties = Object.freeze({
+    None: 0,
+    Plus2: 1,
+    DNF: 2
+});
+
+// max = can't be
+const maxHours = 2;
+const maxMinutes = 60;
+const maxSeconds = 60;
+const maxMillis = 100;
+const maxLen = (maxHours-1).toString().length + (maxMinutes-1).toString().length + (maxSeconds-1).toString().length + (maxMillis-1).toString().length;
+//              = 1 + 2 + 2 + 2 = 7
+
 export function tryAnalyzeTimes(timeStr) {
     timeStr = timeStr.trim();
     const noColons = timeStr.replaceAll(":", "");
@@ -182,3 +196,11 @@ export function unpackTimes(packed) {
     }
 }
 
+// check if two timesObjs are equal
+export function equalTimes(o1, o2) {
+    return (o1 == null && o2 == null) ||
+        (o1 != null && o2 != null && o1.numMillis == o2.numMillis
+        && o1.numSeconds == o2.numSeconds
+        && o1.numMinutes == o2.numMinutes
+        && o1.numHours == o2.numHours);
+}

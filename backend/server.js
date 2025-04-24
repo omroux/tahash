@@ -30,9 +30,10 @@ import {
     compManager,
     userManager
 } from "./serverUtils.js";
-import { errorObject } from "./src/scripts/backend/utils/globalUtils.js";
+import { errorObject, Penalties } from "./src/scripts/backend/utils/globalUtils.js";
 import cstimer from "cstimer_module";
 import { tryAnalyzeTimes, getDisplayTime, getTimesObjStr, packTimes, unpackTimes } from "./src/scripts/backend/utils/timesUtils.js"
+import { getEventById } from "./src/scripts/backend/database/CompEvent.js";
 
 
 // general setup
@@ -108,7 +109,7 @@ app.get("/redirect-to-auth", (req, res) => {
 
 // Route for auth-callback
 app.get("/auth-callback", async (req, res) => {
-    renderPage(req, res, "auth-callback.ejs", { title: "Auth Callback", loading: false });
+    renderPage(req, res, "auth-callback.ejs", { title: "Auth Callback", loading: true });
 });
 
 // Route for scrambles page
@@ -195,9 +196,43 @@ app.get("/updateTimes", async (req, res) => {
     res.json({text: "Saved successfully!"});
 });
 
-// TODO: this now
-app.get("/retrieveTimes", async(req, res) => {
+/*
+    /retrieveTimes:
+        - Input (headers):
+            * sent from client
+            * userId (WCA User ID)
+            * eventId (id of the event to retrieve)
+        - Output (json):
+            * if there was an error, an error object
+            * otherwise, returns an array of the requested user's times
+*/
+app.get("/retrieveTimes", async (req, res) => {
+    if (!sentFromClient(req)) {
+        res.redirect("/");
+        return;
+    }
 
+    // get headers
+    const userId = req.headers[userIdHeader];
+    const eventId = req.headers[eventIdHeader];
+
+    const currCompNumber = compManager().getCurrentCompNumber();
+    const userObj = await userManager().getUserById(userId);
+    const compEvent = getEventById(eventId);
+
+    if (!compEvent) { // event doesn't exist
+        res.json(errorObject("Invalid event."));
+    }
+
+    let times = userObj.getEventTimes(currCompNumber, eventId);
+    if (!times) {
+        const nTimes = compEvent.getNumScrambles();
+        times = [];
+        for (let i = 0; i < nTimes; i++)
+            times.push({ centis: -1, penalty: Penalties.None });
+    }
+
+    res.json(times);
 });
 
 // #endregion

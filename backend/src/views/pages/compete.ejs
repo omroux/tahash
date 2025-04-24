@@ -24,20 +24,23 @@
             <% } %>
         </div>
 
-        <div class="Time-Input-Container">
-            <div class="Input-And-Penalty-Container">
-                <input type="text" oninput="" id="timeInput" maxlength="12"/>
-
-                <div class="Penalty-Select-Container">
-                    <button class="Plus-2-Btn" id="plus2Btn" style="direction: ltr;">+2</button>
-                    <button class="DNF-Btn" id="dnfBtn">DNF</button>
+        <div>
+            <div class="Time-Input-Container">
+                <div class="Input-And-Penalty-Container" id="inputAndPenaltyContainer">
+                    <input type="text" oninput="" id="timeInput" maxlength="12"/>
+    
+                    <div class="Penalty-Select-Container">
+                        <button class="Plus-2-Btn" id="plus2Btn" style="direction: ltr;">+2</button>
+                        <button class="DNF-Btn" id="dnfBtn">DNF</button>
+                    </div>
+                </div>
+    
+                <div class="Preview-And-Submit-Container" id="previewAndSubmitContainer">
+                    <label class="Time-Preview-Lbl" id="timePreviewLbl">-</label>
+                    <button class="Submit-Time-Btn" id="submitTimeBtn">הבא</button>
                 </div>
             </div>
-
-            <div class="Preview-And-Submit-Container">
-                <label class="Time-Preview-Lbl" id="timePreviewLbl">-</label>
-                <button class="Submit-Time-Btn" id="submitTimeBtn">הבא</button>
-            </div>
+            <div class="Spinner" id="submitSpinner" hidden></div>
         </div>
 
         <script>
@@ -54,8 +57,12 @@
         <p id="scrNumberTitle" class="Scramble-Number-Title" hidden></p>
         <button id="nextScrBtn" class="Next-Scr-Btn" hidden>הבא</button>
     </div>
-    <script src="/src/scripts/backend/utils/browser/timesUtils.browser.js"></script>
-    <script src="/src/scripts/pages/compete.js"></script>
+    <!-- <script src="/src/scripts/backend/utils/browser/timesUtils.browser.js"></script> -->
+    <!-- <script type="module">
+        import { tryAnalyzeTimes, getDisplayTime, getTimesObjStr, packTimes, unpackTimes } from '/src/scripts/backend/utils/timesUtils.js'
+        console.log(tryAnalyzeTimes);
+    </script> -->
+    <script type="module" src="/src/scripts/pages/compete.js"></script>
 <% } else { %>
     <div class="Not-Found-Container">
         <h1 class="Title">מקצה לא קיים</h1>

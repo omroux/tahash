@@ -10,8 +10,7 @@ export class TahashUser {
             results: [
                 {
                     eventId: str,
-                    times: timeObj[]
-                    /-- timeObj structure: { previewStr: str, timeStr: str, timeObj: [timeObj], penalty: 0|1|2 }  (penalty: 0=nothing, 1=+2, 2=dnf) --/
+                    times: { centis: <time in centiseconds>, penalty: 0|1|2 } (penalty: 0=nothing, 1=+2, 2=dnf)
                 }
             ]
         }
@@ -61,7 +60,6 @@ export class TahashUser {
     // TODO: if times is null remove the user's submition for the event?
     setEventTimes(compNumber, eventId, times) {
         const compResults = this.getCompResults(compNumber);
-        console.log("compResults", compResults);
         if (!compResults) { // first event submitted by the user to this competition
             this.setCompResults(compNumber, [ { eventId: eventId, times: times } ]);
             return;
@@ -94,9 +92,9 @@ export class TahashUser {
 
     // check if the user finished an event (submitted a full result) in a competition
     finishedEvent(compNumber, eventId) {
-        const eventTimes = this.getEventTimes(compNumber, eventId);
-        if (!eventTimes) return false;
-        return eventTimes
+        const times = this.getEventTimes(compNumber, eventId);
+        if (!times) return false;
+        return times.find(t => t.centis <= 0) == null;
     }
 }
 

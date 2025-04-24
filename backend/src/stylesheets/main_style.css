@@ -62,6 +62,20 @@ body {
     text-decoration: underline;
 }
 
+.Spinner {
+    width: 2rem;
+    height: 2rem;
+    border: 10px solid #ccc;
+    border-top-color: #3498db;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 @keyframes fadeIn {
     to { opacity: 1; }
 }

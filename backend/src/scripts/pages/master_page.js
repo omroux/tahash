@@ -145,8 +145,8 @@ const hasTokenExpired = () => {
 };
 
 const pageLoadCallback = [];
-const onPageLoad = (callback) => { pageLoadCallback.push(callback); };
 let _invokedPageLoad = false;
+const onPageLoad = (callback) => { if (_invokedPageLoad) { callback() } else { pageLoadCallback.push(callback); } };
 const _invokePageLoad = () => {
     if(_invokedPageLoad) return;
     _invokedPageLoad = true;

@@ -1,3 +1,13 @@
+import {
+    tryAnalyzeTimes,
+    getDisplayTime,
+    getTimesObjStr,
+    packTimes,
+    unpackTimes,
+    equalTimes,
+    Penalties
+  } from '/src/scripts/backend/utils/timesUtils.js';
+
 const scrContainers = document.querySelectorAll("[id^='scrContainer'");
 const scrMenuItemContainers = document.querySelectorAll("[id^='scrMenuItemContainer'");
 const scrMenuItemTimes = document.querySelectorAll("[id^='scrMenuItemTime'");
@@ -9,26 +19,15 @@ const timePreviewLbl = document.getElementById("timePreviewLbl");
 const plus2Btn = document.getElementById("plus2Btn");
 const dnfBtn = document.getElementById("dnfBtn");
 const submitTimeBtn = document.getElementById("submitTimeBtn");
+const submitSpinner = document.getElementById("submitSpinner");
+const inputAndPenaltyContainer = document.getElementById("inputAndPenaltyContainer");
+const previewAndSubmitContainer = document.getElementById("previewAndSubmitContainer");
 const root = document.querySelector(":root");
-
-// max = can't be
-const maxHours = 2;
-const maxMinutes = 60;
-const maxSeconds = 60;
-const maxMillis = 100;
-const maxLen = (maxHours-1).toString().length + (maxMinutes-1).toString().length + (maxSeconds-1).toString().length + (maxMillis-1).toString().length;
-//              = 1 + 2 + 2 + 2 = 7
 
 const showPreviewAttribute = "showPreview";
 
 let activeScr = 0;
 const numScr = scrContainers.length;
-
-const Penalties = Object.freeze({
-    None: 0,
-    Plus2: 1,
-    DNF: 2
-});
 
 let lastActive = -1;
 function updateActiveScr() {
@@ -38,6 +37,9 @@ function updateActiveScr() {
     if (lastActive >= 0) {
         scrContainers[lastActive].setAttribute("hidden", true);
         scrMenuItemContainers[lastActive].removeAttribute("active");
+
+        if (validTime)
+            allTimes[lastActive].timeStr = timeInput.value;
     }
 
     lastActive = activeScr;
@@ -46,6 +48,7 @@ function updateActiveScr() {
     scrMenuItemContainers[activeScr].setAttribute("active", true);
     timeInput.value = allTimes[activeScr].timeStr;
     timePreviewLbl.innerText = allTimes[activeScr].previewStr;
+    currTimesObj = allTimes[activeScr].timesObj;
     // load penalty
     if (allTimes[activeScr].penalty == Penalties.DNF) setDnfState(true);
     else {
@@ -93,7 +96,7 @@ function normalizeSizes() {
         const newHeight = currHeight * newWidth / currWidth;
         svgEl.setAttribute("height", newHeight);
         
-        textEl = c.getElementsByTagName("p")[0];
+        const textEl = c.getElementsByTagName("p")[0];
         
         setTimeout(async () => {
             textEl.style.fontSize = lowerMin;
@@ -182,16 +185,36 @@ onPageLoad(async () => {
         return;
     }
 
+    const headers = { };
+    headers[userIdHeader] = wcaMe.id;
+    headers[eventIdHeader] = eventId;
+    const timesRes = await sendRequest("/retrieveTimes", { headers: headers });
+    if (timesRes.error) {
+        window.location = "/error";
+        return;
+    }
+
+    console.log("packed", timesRes);
+    allTimes = unpackTimes(timesRes);
+    console.log(allTimes);
+
+    setLoadingState(false);
+
     for (let i = 0; i < scrContainers.length; i++) {
         scramblesSized.push(false);
         vbInit.push(false);
-        allTimes.push({ previewStr: "-", timeStr: "", timesObj: null, penalty: 0 });
 
         // scramble menu
-        scrMenuItemContainers[i].onclick = () => {
+        scrMenuItemContainers[i].onclick = async () => {
+            if (activeScr == i) return;
+
+            if (validTime && (!equalTimes(allTimes[activeScr].timesObj, currTimesObj) || allTimes[activeScr].penalty != getCurrPenalty()))
+                await submitTime();
+
             activeScr = i;
             updateActiveScr();
         };
+
         if (i != 0)
             scrMenuItemContainers[i].setAttribute("disabled", "true");
     }
@@ -208,7 +231,17 @@ onPageLoad(async () => {
     activeScr = 0;
     prevScrBtn.disabled = true;
     updateActiveScr();
-    hidePreview();
+    updatePreviewLabel();
+
+    // load times
+    for (let i = 0; i < allTimes.length; i++) {
+        if (allTimes[i].timesObj == null)
+            break;
+
+        await submitTime(false);
+        nextScramble();
+        scramblesSized[i] = false;
+    }
 });
 
 window.onresize = () => {
@@ -299,13 +332,22 @@ function updateTimeInMenu(index, previewStr, timeStr, timesObj, penalty) {
     scrMenuItemTimes[activeScr].innerText = previewStr;
 }
 
+function getCurrPenalty() {
+    return dnfState ? Penalties.DNF : (plus2State ? Penalties.Plus2 : Penalties.None);
+}
+
 // interactionState - can the user interact with the elements
 // TODO: when interaction state is false, put a low opacity gray rectangle over everything or something
 let _interactionState = true;
-function setInteractionState(value) {
+function setInteractionState(value, updateSpinner = false, returnPreview = false) {
     timeInput.disabled = !value;
-    if (value) hidePreview();
-    else showPreview();
+    if (updateSpinner) {
+        const hidden = !(submitSpinner.hidden = value);
+        previewAndSubmitContainer.setAttribute("hide", hidden);
+        inputAndPenaltyContainer.setAttribute("hide", hidden);
+    }
+    if (!value) hidePreview();
+    else if (returnPreview) showPreview();
 }
 function getInteractionState() {
     return _interactionState;   
@@ -314,33 +356,34 @@ function getInteractionState() {
 const userIdHeader = "user-id";
 const eventIdHeader = "event-id";
 const timesHeader = "times";
-async function submitTime() {
-    if (!validTime) return;
+async function submitTime(uploadData = true) {
+    if (!validTime || (uploadData && equalTimes(allTimes[activeScr].timesObj, currTimesObj) && allTimes[activeScr].penalty == getCurrPenalty())) return;
     if (activeScr == numScr - 1) {
         // TODO: Warn the user they won't be able to edit their times if they submit
         if (!confirm("You will not be able to edit the results later if you submit now."))
             return;
     }
 
-    setInteractionState(false);
-
-    updateTimeInMenu(activeScr, timePreviewLbl.innerText, timeInput.value, currTimesObj, dnfState ? Penalties.DNF : (plus2State ? Penalties.Plus2 : Penalties.None)); 
+    updateTimeInMenu(activeScr, timePreviewLbl.innerText, timeInput.value, currTimesObj, getCurrPenalty()); 
+    setInteractionState(false, true);
     
-    const wcaMeData = await getWcaMe(true);
-    if (!wcaMeData) {
-        // window.location = "/error";
-        return;
-    }
-
-    const headers = { };
-    headers[userIdHeader] = wcaMeData.id;
-    headers[eventIdHeader] = eventId;
-    headers[timesHeader] = JSON.stringify(packTimes(allTimes));
-    const res = await sendRequest("/updateTimes", { headers: headers });
-    console.log(res);
-    if (res.error) {
-        // window.location = "/error";
-        return;
+    if (uploadData) {
+        const wcaMeData = await getWcaMe(true);
+        if (!wcaMeData) {
+            window.location = "/error";
+            return;
+        }
+    
+        const headers = { };
+        headers[userIdHeader] = wcaMeData.id;
+        headers[eventIdHeader] = eventId;
+        headers[timesHeader] = JSON.stringify(packTimes(allTimes));
+        const res = await sendRequest("/updateTimes", { headers: headers });
+        if (res.error) {
+            window.location = "/error";
+            return;
+        }
+        console.log(res);
     }
 
     if (activeScr == numScr - 1) {
@@ -349,23 +392,30 @@ async function submitTime() {
     }
     
     scrMenuItemContainers[activeScr].setAttribute("done", true);
-    
+    setInteractionState(true, true);
+}
+
+// go to the next scramble
+function nextScramble() {
     activeScr += 1;
-    scrMenuItemContainers[activeScr].removeAttribute("disabled");
-    setInteractionState(true);
     updateActiveScr();
+    scrMenuItemContainers[activeScr].removeAttribute("disabled");
+    timeInput.focus();
 }
 
 dnfBtn.onclick = () => setDnfState(!dnfState);
 plus2Btn.onclick = () => setPlus2State(!plus2State);
-submitTimeBtn.onclick = async () => await submitTime();
+submitTimeBtn.onclick = async () => {
+    await submitTime();
+    nextScramble();
+};
 
 // Submit using keyboard key
-window.onkeydown = async (event) => {
+window.onkeydown = (event) => {
     const submitKeyCode = 13; // enter
 
-    if (event.keyCode == submitKeyCode && timeInput === document.activeElement) {
-        await submitTime();
-        timeInput.focus();
-    }
+    if (event.keyCode == submitKeyCode && timeInput === document.activeElement)
+        submitTimeBtn.click();
 };
+
+// TODO: on leave site, save the results

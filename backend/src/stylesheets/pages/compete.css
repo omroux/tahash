@@ -121,6 +121,7 @@
     background-color: var(--panel-bg);
     border-radius: 20px;
     padding: 2%;
+    margin-bottom: 10%;
 }
 
 .Time-Input-Container {
@@ -195,6 +196,18 @@
 
     & > .Plus-2-Btn {
         margin-left: 10px;
+    }
+}
+
+.Preview-And-Submit-Container, .Input-And-Penalty-Container {
+    transition: opacity 0.15s ease-out, height 0.2s;
+    &[hide="true"] {
+        height: 0;
+        opacity: 0;
+    }
+
+    &:not([hide="true"]) {
+        opacity: 1;
     }
 }
 
@@ -285,4 +298,11 @@
             }
         }
     }
+}
+
+.Spinner {
+    position:sticky;
+    bottom: 100%;
+    width: 3.5rem;
+    height: 3.5rem;
 }

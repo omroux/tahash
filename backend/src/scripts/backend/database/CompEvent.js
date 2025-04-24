@@ -33,7 +33,7 @@ class CompEvent {
 
     // returns a string[] with scrambles for this event
     generateScrambles() {
-        const num = getNumScrambles(this.timeFormat);
+        const num = this.getNumScrambles();
         let result = [];
         let lens = [];
 
@@ -44,6 +44,11 @@ class CompEvent {
         }
 
         return result;
+    }
+
+    // get the number of scrambles for a round of the event
+    getNumScrambles() {
+        return getNumScrambles(this.timeFormat);
     }
 }
 
@@ -94,5 +99,5 @@ Object.freeze(WCAEvents);
 const allEvents = WCAEvents.concat({});
 
 // get event by its id (null if it doesn't exist)
-export const getEventById = (eventId)=>
+export const getEventById = (eventId) =>
         allEvents.find(e => e.eventId === eventId) ?? null;
