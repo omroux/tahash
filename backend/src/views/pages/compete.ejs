@@ -1,67 +1,69 @@
 <% if (eventData) { %>
     <h1 style="font-size: 300%; margin: 0;" class="Title"><%- eventData.event.eventTitle %></h1>
 
-    <div class="Scrambles-Menu-Container">
-        <% for (let i = 0; i < eventData.scrambles.length; i++) { %>
-            <button class="Scramble-Menu-Item" id="scrMenuItemContainer<%- i %>">
-                <p class="Scramble-Menu-Item-Number" id="scrMenuItemNum"><%- (i+1) %>.</p>
-                <p class="Scramble-Menu-Item-Time" id="scrMenuItemTime">-</p>
-            </button>
-        <% } %>
+    <div id="menuAndPanelSpinner">
+        <span class="Cubing-Icon <%- eventData.event.iconName %>"></span>
     </div>
 
-    <div class="Compete-Container">
-        <!-- <a href="/scrambles"><button class="Back-To-Scrambles-Button">חזור לערבובים</button></a><br/> -->
-
-        <div class="Scrambles-Container">
+    <div class="Menu-And-Panel-Container" id="menuAndPanelContainer" hide="true">
+        <div class="Scrambles-Menu-Container">
             <% for (let i = 0; i < eventData.scrambles.length; i++) { %>
-                <div class="Scramble-Text-Container" id="scrContainer<%- i %>" <% if (i != 0) { %> hidden <% } %> >
-                    <p class="Scramble-Text" style="direction: ltr; white-space: pre-wrap;"> <%- eventData.scrambles[i].replaceAll(' ', '  ').trim() %></p>
-                    <div class="Scramble-Img" id="scrImg<%- i %>">
-                        <%- eventData.scrImages[i] %>
-                    </div>
-                </div>
+                <button class="Scramble-Menu-Item" id="scrMenuItemContainer<%- i %>">
+                    <p class="Scramble-Menu-Item-Number" id="scrMenuItemNum"><%- (i+1) %>.</p>
+                    <p class="Scramble-Menu-Item-Time" id="scrMenuItemTime">-</p>
+                </button>
             <% } %>
         </div>
-
-        <div>
-            <div class="Time-Input-Container">
-                <div class="Input-And-Penalty-Container" id="inputAndPenaltyContainer">
-                    <input type="text" oninput="" id="timeInput" maxlength="12"/>
     
-                    <div class="Penalty-Select-Container">
-                        <button class="Plus-2-Btn" id="plus2Btn" style="direction: ltr;">+2</button>
-                        <button class="DNF-Btn" id="dnfBtn">DNF</button>
+        <div class="Compete-Container">
+            <!-- <a href="/scrambles"><button class="Back-To-Scrambles-Button">חזור לערבובים</button></a><br/> -->
+    
+            <div class="Scrambles-Container">
+                <% for (let i = 0; i < eventData.scrambles.length; i++) { %>
+                    <div class="Scramble-Text-Container" id="scrContainer<%- i %>" <% if (i != 0) { %> hidden <% } %> >
+                        <p class="Scramble-Text" style="direction: ltr; white-space: pre-wrap;"> <%- eventData.scrambles[i].replaceAll(' ', '  ').trim() %></p>
+                        <div class="Scramble-Img" id="scrImg<%- i %>">
+                            <%- eventData.scrImages[i] %>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+    
+            <div>
+                <div class="Time-Input-Container">
+                    <div class="Input-And-Penalty-Container" id="inputAndPenaltyContainer">
+                        <input type="text" oninput="" id="timeInput" maxlength="12"/>
+        
+                        <div class="Penalty-Select-Container">
+                            <button class="Plus-2-Btn" id="plus2Btn" style="direction: ltr;">+2</button>
+                            <button class="DNF-Btn" id="dnfBtn">DNF</button>
+                        </div>
+                    </div>
+        
+                    <div class="Preview-And-Submit-Container" id="previewAndSubmitContainer">
+                        <label class="Time-Preview-Lbl" id="timePreviewLbl">-</label>
+                        <button class="Submit-Time-Btn" id="submitTimeBtn">הבא</button>
                     </div>
                 </div>
-    
-                <div class="Preview-And-Submit-Container" id="previewAndSubmitContainer">
-                    <label class="Time-Preview-Lbl" id="timePreviewLbl">-</label>
-                    <button class="Submit-Time-Btn" id="submitTimeBtn">הבא</button>
-                </div>
+                <div class="Spinner" id="submitSpinner" hidden></div>
             </div>
-            <div class="Spinner" id="submitSpinner" hidden></div>
+    
+            <script>
+                const scrambles = `<%- eventData.scrambles %>`.split(',');
+                for (let i = 0; i < scrambles.length; i++)
+                    scrambles[i] = scrambles[i].trim();
+    
+                const eventId = `<%- eventData.event.eventId %>`;
+            </script>
         </div>
-
-        <script>
-            const scrambles = `<%- eventData.scrambles %>`.split(',');
-            for (let i = 0; i < scrambles.length; i++)
-                scrambles[i] = scrambles[i].trim();
-
-            const eventId = `<%- eventData.event.eventId %>`;
-        </script>
+        
+        <div class="Scramble-Control-Container">
+            <button id="prevScrBtn" class="Prev-Scr-Btn" hidden>הקודם</button>
+            <p id="scrNumberTitle" class="Scramble-Number-Title" hidden></p>
+            <button id="nextScrBtn" class="Next-Scr-Btn" hidden>הבא</button>
+        </div>
     </div>
 
-    <div class="Scramble-Control-Container">
-        <button id="prevScrBtn" class="Prev-Scr-Btn" hidden>הקודם</button>
-        <p id="scrNumberTitle" class="Scramble-Number-Title" hidden></p>
-        <button id="nextScrBtn" class="Next-Scr-Btn" hidden>הבא</button>
-    </div>
-    <!-- <script src="/src/scripts/backend/utils/browser/timesUtils.browser.js"></script> -->
-    <!-- <script type="module">
-        import { tryAnalyzeTimes, getDisplayTime, getTimesObjStr, packTimes, unpackTimes } from '/src/scripts/backend/utils/timesUtils.js'
-        console.log(tryAnalyzeTimes);
-    </script> -->
     <script type="module" src="/src/scripts/pages/compete.js"></script>
 <% } else { %>
     <div class="Not-Found-Container">

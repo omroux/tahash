@@ -1,10 +1,51 @@
-<h1 class="Title" style="color: red;">שגיאה</h1>
 <% if (error) { %>
-    <h2 class="Sub-Title">מידע על השגיאה:</h2>
-    <p><%= error %></p>
+    <!-- <h2 class="Sub-Title">מידע על השגיאה:</h2> -->
+    <!-- <p><%= error %></p> -->
+    <!-- <p>לא נמצא מידע על השגיאה.</p> -->
+    <!-- <script>
+        console.log("Error:", <%- JSON.stringify(error) %>);
+        const errors = localStorage.getItem(errorsStorage);
+        if (errors) {
+            localStorage.removeItem(errorsStorage);
+            postLog("מידע על השגיאה:");
+
+            for (let i = 0; i < errors.length; i++) {
+                postLog(errors[i]);
+            }
+        }
+    </script> -->
 <% } else { %>
-    <h2 class="Sub-Title">לא נמצא מידע על השגיאה.</h2>
+    <!-- <h2 class="Sub-Title">לא נמצא מידע על השגיאה.</h2> -->
 <% }%>
-<a href="/home">
+<script>
+    function logErr(txt) {
+        const logEl = postLog(txt);
+        logEl.style.color = "red";
+    }
+
+    // console.log("Error:", <%- JSON.stringify(error) %>);
+    const title = postLog("שגיאה");
+    title.classList = ["Title"];
+    title.style.color = "red";
+
+
+    const errorsTxt = localStorage.getItem(errorsStorage);
+    if (errorsTxt) {
+        const errors = JSON.parse(errorsTxt);
+        localStorage.removeItem(errorsStorage);
+        postLog("מידע על השגיאה:");
+
+        for (let i = 0; i < errors.length; i++)
+            logErr(errors[i]);
+    }
+    else {
+        let injectedError = "<%- error.error %>";
+        if (injectedError != "" && injectedError != null)
+            logErr(injectedError);   
+    }
+</script>
+<a href="/home" onclick="">
     <button>בית</button>
  </a>
+
+ 

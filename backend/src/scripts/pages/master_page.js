@@ -3,12 +3,26 @@ const contentContainer = document.querySelector("#content_container");
 const logsContainer = document.getElementById("logsContainer");
 
 
-const postLog = (txt) => {
+// post a new log at the top of the page
+// returns the log element
+const postLog = (txt, alignLeft = false) => {
     const newEl = document.createElement("h2");
     newEl.innerText = txt;
-    newEl.style.textAlign = "left";
-    newEl.style.direction = "ltr";
+    if (alignLeft) {
+        newEl.style.textAlign = "left";
+        newEl.style.direction = "ltr";
+    }
     logsContainer.appendChild(newEl);
+
+    return newEl;
+};
+
+const errorsStorage = "errorsList";
+// go to /error and display error messages
+// if the message is null, no context will be given
+function throwError(...errors) {
+    localStorage.setItem(errorsStorage, JSON.stringify(errors));
+    window.location = "/error";
 };
 
 // #region cookies

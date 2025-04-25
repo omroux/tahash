@@ -13,6 +13,10 @@
     --done-active-scramble-bg: rgba(234, 255, 43, 0.7);
 }
 
+* {
+    overflow-anchor: none;
+}
+
 .Back-To-Scrambles-Button, .Next-Scr-Btn, .Prev-Scr-Btn, .Plus-2-Btn, .DNF-Btn, .Submit-Time-Btn {
     transition: scale 0.075s, background-color 0.1s;
     transition-timing-function: ease-in;
@@ -113,8 +117,12 @@
 }
 
 .Scrambles-Container {
+    transition: opacity 0.2s ease-out;
     margin-bottom: 20px;
-    
+
+    &[hide="true"] {
+        opacity: 0;
+    }
 }
 
 .Compete-Container {
@@ -300,9 +308,50 @@
     }
 }
 
-.Spinner {
+.Menu-And-Panel-Container {
+    transition: opacity 0.15s ease-out;
+    &[hide="true"] {
+        opacity: 0;
+    }
+
+    &:not([hide="true"]) {
+        opacity: 1;
+    }
+}
+
+#menuAndPanelSpinner {
+    display: flex;
+    place-content: center;
+
+    margin: auto;
+    font-size: 625%;
+    padding: 4%;
+
+    animation: blinkInOut .5s infinite alternate;
+
+    &[hidden] {
+        display: none;
+    }
+}
+
+@keyframes blinkInOut {
+    0% {
+        opacity: 0;
+        scale: 1;
+    }
+
+    100% {
+        opacity: 1;
+        scale: 1.2;
+    }
+}
+
+#submitSpinner {
     position:sticky;
-    bottom: 100%;
-    width: 3.5rem;
-    height: 3.5rem;
+    /* bottom: 100%; */
+    width: 5vw;
+    height: 5vw;
+    border-width: 7px;
+    margin: auto;
+    box-sizing: border-box;
 }

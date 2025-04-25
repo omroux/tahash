@@ -22,6 +22,8 @@ const submitTimeBtn = document.getElementById("submitTimeBtn");
 const submitSpinner = document.getElementById("submitSpinner");
 const inputAndPenaltyContainer = document.getElementById("inputAndPenaltyContainer");
 const previewAndSubmitContainer = document.getElementById("previewAndSubmitContainer");
+const menuAndPanelContainer = document.getElementById("menuAndPanelContainer");
+const menuAndPanelSpinner = document.getElementById("menuAndPanelSpinner");
 const root = document.querySelector(":root");
 
 const showPreviewAttribute = "showPreview";
@@ -72,44 +74,68 @@ let vbInit = [];
 const widthModifier = eventId == "megaminx" || eventId == "777" ? 35
                     : eventId == "666" ? 30
                     : 25;
-const timeout = 0;
+const timeout = 5;
 const lowerMin = 5;
 const upperMax = 45;
 function normalizeSizes() {
     const threshold = 25;
-    for (let i = 0; i < scrContainers.length; i++) {
-        if (scrContainers[i].hidden || scramblesSized[i]) continue;
-        scramblesSized[i] = true;
+    // for (let i = 0; i < scrContainers.length; i++) {
+    //     if (scrContainers[i].hidden || scramblesSized[i]) continue;
 
-        const c = scrContainers[i];
-        const svgEl = c.getElementsByTagName("svg")[0];
+    //     const c = scrContainers[i];
+    //     const svgEl = c.getElementsByTagName("svg")[0];
         
-        const currWidth = svgEl.getAttribute("width");
-        const currHeight = svgEl.getAttribute("height");
-        if (!vbInit[i]) {
-            svgEl.setAttribute("viewBox", `0 0 ${currWidth} ${currHeight}`);
-            vbInit[i] = true;
-        }
+    //     const currWidth = svgEl.getAttribute("width");
+    //     const currHeight = svgEl.getAttribute("height");
+    //     if (!vbInit[i]) {
+    //         svgEl.setAttribute("viewBox", `0 0 ${currWidth} ${currHeight}`);
+    //         vbInit[i] = true;
+    //     }
         
-        const newWidth = scrContainers[i].clientWidth * (widthModifier / 100);
-        svgEl.setAttribute("width", newWidth);
-        const newHeight = currHeight * newWidth / currWidth;
-        svgEl.setAttribute("height", newHeight);
+    //     const newWidth = scrContainers[i].clientWidth * (widthModifier / 100);
+    //     svgEl.setAttribute("width", newWidth);
+    //     const newHeight = currHeight * newWidth / currWidth;
+    //     svgEl.setAttribute("height", newHeight);
         
-        const textEl = c.getElementsByTagName("p")[0];
+    //     const textEl = c.getElementsByTagName("p")[0];
         
-        setTimeout(async () => {
-            textEl.style.fontSize = lowerMin;
-            // let boundsObj = {lowerBound: 0, upperBound: 0};
-            let { lowerBound, upperBound } = await findFontSizeBounds(textEl, lowerMin, newHeight);
-            await optimizeFontSize(textEl, lowerBound, upperBound, newHeight);
-        }, timeout);
+    //     setTimeout(async () => {
+    //         textEl.style.fontSize = lowerMin;
+    //         // let boundsObj = {lowerBound: 0, upperBound: 0};
+    //         let { lowerBound, upperBound } = await findFontSizeBounds(textEl, lowerMin, newHeight);
+    //         await optimizeFontSize(textEl, lowerBound, upperBound, newHeight);
+    //     }, timeout);
+    // }
+    const c = scrContainers[activeScr];
+    const svgEl = c.getElementsByTagName("svg")[0];
+    
+    const currWidth = svgEl.getAttribute("width");
+    const currHeight = svgEl.getAttribute("height");
+    if (!vbInit[activeScr]) {
+        svgEl.setAttribute("viewBox", `0 0 ${currWidth} ${currHeight}`);
+        vbInit[activeScr] = true;
     }
+    
+    const newWidth = scrContainers[activeScr].clientWidth * (widthModifier / 100);
+    svgEl.setAttribute("width", newWidth);
+    const newHeight = currHeight * newWidth / currWidth;
+    svgEl.setAttribute("height", newHeight);
+    
+    const textEl = c.getElementsByTagName("p")[0];
+    
+    setTimeout(async () => {
+        textEl.style.fontSize = lowerMin;
+        // let boundsObj = {lowerBound: 0, upperBound: 0};
+        let { lowerBound, upperBound } = await findFontSizeBounds(textEl, lowerMin, newHeight);
+        await optimizeFontSize(textEl, lowerBound, upperBound, newHeight);
+    }, timeout);
 
     async function optimizeFontSize(textEl, lowerBound, upperBound, maxHeight, k = 0) {
         const maxIter = 50;
-        if (k >= maxIter || Math.abs(maxHeight - textEl.clientHeight) <= threshold)
+        if (k >= maxIter || Math.abs(maxHeight - textEl.clientHeight) <= threshold) {
+            scramblesSized[activeScr] = true;
             return;
+        }
 
         const mid = (lowerBound + upperBound) / 2;
         textEl.style.fontSize = mid;
@@ -176,27 +202,30 @@ function normalizeSizes() {
     }
 }
 
+const userData = { userId: -1 };
 // time structure: { previewStr: str, timeStr: str, timesObj: [timesObj], penalty: 0|1|2 }  (penalty: 0=nothing, 1=+2, 2=dnf)
 let allTimes = [];
 onPageLoad(async () => {
-    const wcaMe = await getWcaMe();
+    const wcaMe = await getWcaMe(true);
     if (!wcaMe) {
         window.location = "/scrambles";
         return;
     }
 
+    userData.userId = wcaMe.id;
+    Object.freeze(userData);  // cannot be changed
+
     const headers = { };
-    headers[userIdHeader] = wcaMe.id;
+    headers[userIdHeader] = userData.userId;
     headers[eventIdHeader] = eventId;
     const timesRes = await sendRequest("/retrieveTimes", { headers: headers });
     if (timesRes.error) {
-        window.location = "/error";
+        throwError("בעיה בטעינת זמנים מהשרת");
         return;
     }
 
     console.log("packed", timesRes);
     allTimes = unpackTimes(timesRes);
-    console.log(allTimes);
 
     setLoadingState(false);
 
@@ -219,8 +248,6 @@ onPageLoad(async () => {
             scrMenuItemContainers[i].setAttribute("disabled", "true");
     }
 
-    normalizeSizes(true);
-
     // TODO: do this for blind events - make a "hideImage" things
     // if (eventId == "3bld") {
     //     // console.log(scrContainers[i].getElementsByClassName("Scramble-Img")[0]);
@@ -233,15 +260,35 @@ onPageLoad(async () => {
     updateActiveScr();
     updatePreviewLabel();
 
-    // load times
+    // Normalize all sizes and load saved times
+    let lastSaved;
     for (let i = 0; i < allTimes.length; i++) {
+        lastSaved = i;
+        while (!scramblesSized[i])
+            await new Promise(r => setTimeout(r, 1));
+
         if (allTimes[i].timesObj == null)
             break;
-
+        
         await submitTime(false);
         nextScramble();
-        scramblesSized[i] = false;
     }
+
+    // load all scrambles
+    nextScramble(false);
+    for (let i = lastSaved+1; i < scrContainers.length; i++) {
+        while (!scramblesSized[i])
+            await new Promise(r => setTimeout(r, 1));
+        
+        if (i < scrContainers.length - 1)
+            nextScramble(false);
+    }
+    
+    activeScr = lastSaved;
+    updateActiveScr();
+    
+    menuAndPanelContainer.setAttribute("hide", false);
+    menuAndPanelSpinner.hidden = true;
 });
 
 window.onresize = () => {
@@ -370,17 +417,17 @@ async function submitTime(uploadData = true) {
     if (uploadData) {
         const wcaMeData = await getWcaMe(true);
         if (!wcaMeData) {
-            window.location = "/error";
+            throwError("WCA אינך מחובר לחשבון");
             return;
         }
     
         const headers = { };
-        headers[userIdHeader] = wcaMeData.id;
+        headers[userIdHeader] = userData.userId;
         headers[eventIdHeader] = eventId;
         headers[timesHeader] = JSON.stringify(packTimes(allTimes));
         const res = await sendRequest("/updateTimes", { headers: headers });
         if (res.error) {
-            window.location = "/error";
+            throwError("בעיה בשמירת התוצאות");
             return;
         }
         console.log(res);
@@ -396,10 +443,11 @@ async function submitTime(uploadData = true) {
 }
 
 // go to the next scramble
-function nextScramble() {
+function nextScramble(removeDisabled = true) {
     activeScr += 1;
     updateActiveScr();
-    scrMenuItemContainers[activeScr].removeAttribute("disabled");
+    if (removeDisabled)
+        scrMenuItemContainers[activeScr].removeAttribute("disabled");
     timeInput.focus();
 }
 

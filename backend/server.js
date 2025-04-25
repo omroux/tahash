@@ -131,11 +131,12 @@ app.get("/scrambles", async (req, res) => {
 });
 
 app.get("/error", async (req, res) => {
-    renderError(req, res, errorObject("שגיאה"));
+    renderError(req, res, errorObject("שגיאה."));
 });
 
 // Route for competing in events
 app.get("/compete/:eventId", async (req, res) => {
+    const eventIconsSrc = "https://cdn.cubing.net/v0/css/@cubing/icons/css";
     const currComp = await compManager().getCurrentComp();
     const loggedIn = isLoggedIn(req);
 
@@ -166,7 +167,8 @@ app.get("/compete/:eventId", async (req, res) => {
         "/compete.ejs",
         { title: "מדידת זמן " + eventData.event.eventTitle },
         pageOptions,
-        [ "/src/stylesheets/pages/compete.css" ]);
+        [ "/src/stylesheets/pages/compete.css",
+            eventIconsSrc ]);
 });
 
 const userIdHeader = "user-id";
