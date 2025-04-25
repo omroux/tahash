@@ -96,6 +96,25 @@ export class TahashUser {
         if (!times) return false;
         return times.find(t => t.centis <= 0) == null;
     }
+
+    // returns [ eventId: status ]
+    getEventStatuses(compNumber) {
+        const statuses = {};
+        const results = this.getCompResults(compNumber);
+
+        if (results) {
+            for (let i = 0; i < results.length; i++) {
+                statuses[results[i].eventId] = finishedEvent(results[i].times) ? "finished" : "unfinished";
+            }
+        }
+
+        return statuses;
+
+        // given times arr returns whether the user finished the event
+        function finishedEvent(times) {
+            return times[times.length - 1].centis > 0; // if the last time was submitted the event is finished
+        }
+    }
 }
 
 

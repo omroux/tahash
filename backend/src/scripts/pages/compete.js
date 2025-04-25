@@ -400,9 +400,6 @@ function getInteractionState() {
     return _interactionState;   
 }
 
-const userIdHeader = "user-id";
-const eventIdHeader = "event-id";
-const timesHeader = "times";
 async function submitTime(uploadData = true) {
     if (!validTime || (uploadData && equalTimes(allTimes[activeScr].timesObj, currTimesObj) && allTimes[activeScr].penalty == getCurrPenalty())) return;
     if (activeScr == numScr - 1) {

@@ -348,10 +348,8 @@
 
 #submitSpinner {
     position:sticky;
-    /* bottom: 100%; */
     width: 5vw;
     height: 5vw;
     border-width: 7px;
     margin: auto;
-    box-sizing: border-box;
 }

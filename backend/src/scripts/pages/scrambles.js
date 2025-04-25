@@ -52,13 +52,27 @@ function chooseEvent(eventBoxEl) {
 }
 
 onPageLoad(async () => {
-    if (hasStoredWcaMeData())
-        return;
-    
     setLoadingState(true);
     const wcaMeData = await getWcaMe(true);
-    if (!wcaMeData)
+    if (!wcaMeData) {
         clearLoginData();
+        window.location = "/login";
+    }
+
+    const headers = { };
+    headers[userIdHeader] = wcaMeData.id;
+    console.log(headers);
+    const res = await sendRequest("/eventStatuses", { headers: headers }); // res = [ { eventId, status } ]
+    console.log(res);
+    if (res.error) {
+        throwError(res.error);
+        return;
+    }
+
+    const statusAttribute = "status";
+    for (let i = 0; i < eventBoxes.length; i++) {
+        eventBoxes[i].setAttribute(statusAttribute, res[getEventId(eventBoxes[i])]);
+    }
 
     setLoadingState(false);
 });

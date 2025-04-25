@@ -121,6 +121,11 @@ const tokenExpireStorage = "tokenExpire";
 const wcaMeStorage = "wcaMe";
 const loggedInCookie = "loggedIn";
 
+// "global" headers
+const userIdHeader = "user-id";
+const eventIdHeader = "event-id";
+const timesHeader = "times";
+
 // send a fetch request, specifically to the server
 // path: the local path (e.g. "/home", "/wca-me"...)
 // options: the http request (fetch) options.

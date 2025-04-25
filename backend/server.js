@@ -224,6 +224,7 @@ app.get("/retrieveTimes", async (req, res) => {
 
     if (!compEvent) { // event doesn't exist
         res.json(errorObject("Invalid event."));
+        return;
     }
 
     let times = userObj.getEventTimes(currCompNumber, eventId);
@@ -235,6 +236,21 @@ app.get("/retrieveTimes", async (req, res) => {
     }
 
     res.json(times);
+});
+
+app.get("/eventStatuses", async (req, res) => {
+    if (!sentFromClient(req)) {
+        res.redirect("/");
+        return;
+    }
+
+    // get headers
+    const userId = req.headers[userIdHeader];
+
+    const currCompNumber = compManager().getCurrentCompNumber();
+    const userObj = await userManager().getUserById(userId);
+    
+    res.json(userObj.getEventStatuses(currCompNumber));
 });
 
 // #endregion

@@ -71,6 +71,7 @@ body {
          spinner-oaa3wk 1.6s infinite linear;
     width: 5rem;
     height: 5rem;
+    margin: auto;
  }
  
 @keyframes spinner-bulqg1 {
