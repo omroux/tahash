@@ -1,5 +1,5 @@
 <% if (eventData) { %>
-    <h1 style="font-size: 300%; margin: 0;" class="Title"><%- eventData.event.eventTitle %></h1>
+    <h1 style="font-size: 300%;" class="Title"><%- eventData.event.eventTitle %></h1>
 
     <div id="menuAndPanelSpinner">
         <span class="Cubing-Icon <%- eventData.event.iconName %>"></span>
@@ -8,7 +8,7 @@
     <div class="Menu-And-Panel-Container" id="menuAndPanelContainer" hide="true">
         <div class="Scrambles-Menu-Container">
             <% for (let i = 0; i < eventData.scrambles.length; i++) { %>
-                <button class="Scramble-Menu-Item" id="scrMenuItemContainer<%- i %>">
+                <button class="Scramble-Menu-Item" id="scrMenuItemContainer<%- i %>" canEdit>
                     <p class="Scramble-Menu-Item-Number" id="scrMenuItemNum"><%- (i+1) %>.</p>
                     <p class="Scramble-Menu-Item-Time" id="scrMenuItemTime">-</p>
                 </button>

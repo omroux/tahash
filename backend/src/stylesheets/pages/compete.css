@@ -10,7 +10,10 @@
     --active-scramble-bg: rgba(140, 140, 140, 0.8);
     --done-scramble-bg: rgba(33, 212, 93, 0.45);
     --done-hover-scramble-bg: rgba(135, 228, 65, 0.8);
+    --noedit-done-hover-scramble-bg: hsla(140, 80%, 40%, 0.5);
     --done-active-scramble-bg: rgba(234, 255, 43, 0.7);
+    --noedit-done-active-scramble-bg: hsla(140, 80%, 38%, 0.6);
+    --done-scramble-bg: rgba(33, 212, 93, 0.45);
 }
 
 * {
@@ -304,7 +307,8 @@
             background-color: var(--active-scramble-bg);
     
             &[done="true"] {
-                background-color: var(--done-active-scramble-bg);
+                background-color: var(--noedit-done-active-scramble-bg);
+                &[canEdit] { background-color: var(--done-active-scramble-bg); }
             }
         }
     
@@ -313,12 +317,13 @@
                 background-color: var(--done-scramble-bg);
         
                 &:hover {
-                    background-color: var(--done-hover-scramble-bg);
+                    background-color: var(--noedit-done-hover-scramble-bg);
+                    &[canEdit] { background-color: var(--done-hover-scramble-bg); }
                 }
             }
         
             &:not([done="true"]):hover {
-                background-color: var(--hover-scramble-bg);
+                background-color: var(--hover-scramble-bg)
             }
         }
     }

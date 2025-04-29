@@ -50,12 +50,9 @@ function updateActiveScr() {
 
     currTimesObj = allTimes[activeScr].timesObj;
     scrContainers[activeScr].removeAttribute("hidden");
+    scrMenuItemContainers[activeScr].setAttribute("active", true);
     timeInput.value = allTimes[activeScr].timeStr;
     timePreviewLbl.innerText = allTimes[activeScr].previewStr;
-    
-    // don't show "active" if you can't edit
-    if (limitations.canEdit)
-        scrMenuItemContainers[activeScr].setAttribute("active", true);
 
     // load penalty
     if (allTimes[activeScr].penalty == Penalties.DNF) setDnfState(true);
@@ -214,10 +211,9 @@ onPageLoad(async () => {
         // hide edit ability
         inputAndPenaltyContainer.removeAttribute(canEditAttribute);
         previewAndSubmitContainer.removeAttribute(canEditAttribute);
-        console.log(inputAndPenaltyContainer);
-        // inputAndPenaltyContainer.style.display = "none";
-        // submitTimeBtn.style.display = "none";
-        // previewAndSubmitContainer.style.margin = "auto";
+
+        for (let i = 0; i < numScr; i++)
+            scrMenuItemContainers[i].removeAttribute(canEditAttribute);
     }
 
     setLoadingState(false);
@@ -287,24 +283,6 @@ onPageLoad(async () => {
 window.onresize = () => {
     for (let i = 0; i < scrContainers.length; i++)
         scramblesSized[i] = false;
-};
-
-nextScrBtn.onclick = () => {
-    activeScr += 1;
-    updateActiveScr();
-
-    if (activeScr == numScr - 1)
-        nextScrBtn.disabled = true;
-    prevScrBtn.disabled = false;
-};
-
-prevScrBtn.onclick = () => {
-    activeScr -= 1;
-    updateActiveScr();
-
-    if (activeScr == 0)
-        prevScrBtn.disabled = true;
-    nextScrBtn.disabled = false;
 };
 
 timeInput.oninput = () => {
