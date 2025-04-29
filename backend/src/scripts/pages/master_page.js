@@ -2,6 +2,7 @@ const loadingContainer = document.querySelector("#loading_container");
 const contentContainer = document.querySelector("#content_container");
 const logsContainer = document.getElementById("logsContainer");
 
+// #region Debugging System
 
 // post a new log at the top of the page
 // returns the log element
@@ -17,6 +18,10 @@ const postLog = (txt, alignLeft = false) => {
     return newEl;
 };
 
+// #endregion
+
+// #region Displaying Errors
+
 const errorsStorage = "errorsList";
 // go to /error and display error messages
 // if the message is null, no context will be given
@@ -25,7 +30,9 @@ function throwError(...errors) {
     window.location = "/error";
 };
 
-// #region cookies
+// #endregion
+
+// #region Cookies Management
 
 function setCookie(name, value, expireMs = null) {
     let expires = "";
@@ -54,15 +61,24 @@ function deleteCookie(name) {
 
 // #endregion
 
-// #region loading
+// #region Page Loading System
+
 const getLoadingState = () => contentContainer.hidden;
 // set the loading state of the page
 // true =>  hide content, show loading
 // false => show content, hide loading
 const setLoadingState = (state) => { loadingContainer.hidden = !(contentContainer.hidden = state); }
+
 // #endregion
 
-// #region login system
+// #region Login System
+
+const accessTokenStorage = "accessToken";
+const refreshTokenStorage = "refreshToken";
+const tokenExpireStorage = "tokenExpire";
+const wcaMeStorage = "wcaMe";
+const loggedInCookie = "loggedIn";
+
 let _isLoggedIn = false;
 const isLoggedIn = () => _isLoggedIn;
 function setLoggedInState(state) { _isLoggedIn = state; };
@@ -82,9 +98,19 @@ function clearLoginData() {
     sessionStorage.removeItem(wcaMeStorage);
     deleteCookie(loggedInCookie);
 }
+
+// has the saved token expired
+const hasTokenExpired = () => {
+    if (!localStorage.getItem(tokenExpireStorage) || localStorage.getItem(tokenExpireStorage) <= new Date().getTime()) {
+        localStorage.removeItem(accessTokenStorage);
+        return true;
+    }
+    return false;
+};
+
 // #endregion
 
-// #region WCA me
+// #region WCA me handling
 
 function hasStoredWcaMeData() {
     return sessionStorage.getItem(wcaMeStorage) != null;
@@ -115,11 +141,7 @@ async function getWcaMe(forceFetch = false) {
 
 // #endregion
 
-const accessTokenStorage = "accessToken";
-const refreshTokenStorage = "refreshToken";
-const tokenExpireStorage = "tokenExpire";
-const wcaMeStorage = "wcaMe";
-const loggedInCookie = "loggedIn";
+// #region Requests Handling
 
 // "global" headers
 const userIdHeader = "user-id";
@@ -153,15 +175,8 @@ async function sendRequest(path, options = {}) {
     }
 
 }
-// TODO: setLoadingText(text="טוען...") possibly?
 
-const hasTokenExpired = () => {
-    if (!localStorage.getItem(tokenExpireStorage) || localStorage.getItem(tokenExpireStorage) <= new Date().getTime()) {
-        localStorage.removeItem(accessTokenStorage);
-        return true;
-    }
-    return false;
-};
+// #endregion
 
 const pageLoadCallback = [];
 let _invokedPageLoad = false;

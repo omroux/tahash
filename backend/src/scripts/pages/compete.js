@@ -5,6 +5,7 @@ import {
     packTimes,
     unpackTimes,
     equalTimes,
+    isFullTimesArr,
     Penalties
   } from '/src/scripts/backend/utils/timesUtils.js';
 
@@ -27,6 +28,7 @@ const menuAndPanelSpinner = document.getElementById("menuAndPanelSpinner");
 const root = document.querySelector(":root");
 
 const showPreviewAttribute = "showPreview";
+const canEditAttribute = "canEdit";
 
 let activeScr = 0;
 const numScr = scrContainers.length;
@@ -46,11 +48,15 @@ function updateActiveScr() {
 
     lastActive = activeScr;
 
+    currTimesObj = allTimes[activeScr].timesObj;
     scrContainers[activeScr].removeAttribute("hidden");
-    scrMenuItemContainers[activeScr].setAttribute("active", true);
     timeInput.value = allTimes[activeScr].timeStr;
     timePreviewLbl.innerText = allTimes[activeScr].previewStr;
-    currTimesObj = allTimes[activeScr].timesObj;
+    
+    // don't show "active" if you can't edit
+    if (limitations.canEdit)
+        scrMenuItemContainers[activeScr].setAttribute("active", true);
+
     // load penalty
     if (allTimes[activeScr].penalty == Penalties.DNF) setDnfState(true);
     else {
@@ -74,38 +80,12 @@ let vbInit = [];
 const widthModifier = eventId == "megaminx" || eventId == "777" ? 35
                     : eventId == "666" ? 30
                     : 25;
-const timeout = 5;
-const lowerMin = 5;
-const upperMax = 45;
-function normalizeSizes() {
-    const threshold = 25;
-    // for (let i = 0; i < scrContainers.length; i++) {
-    //     if (scrContainers[i].hidden || scramblesSized[i]) continue;
 
-    //     const c = scrContainers[i];
-    //     const svgEl = c.getElementsByTagName("svg")[0];
-        
-    //     const currWidth = svgEl.getAttribute("width");
-    //     const currHeight = svgEl.getAttribute("height");
-    //     if (!vbInit[i]) {
-    //         svgEl.setAttribute("viewBox", `0 0 ${currWidth} ${currHeight}`);
-    //         vbInit[i] = true;
-    //     }
-        
-    //     const newWidth = scrContainers[i].clientWidth * (widthModifier / 100);
-    //     svgEl.setAttribute("width", newWidth);
-    //     const newHeight = currHeight * newWidth / currWidth;
-    //     svgEl.setAttribute("height", newHeight);
-        
-    //     const textEl = c.getElementsByTagName("p")[0];
-        
-    //     setTimeout(async () => {
-    //         textEl.style.fontSize = lowerMin;
-    //         // let boundsObj = {lowerBound: 0, upperBound: 0};
-    //         let { lowerBound, upperBound } = await findFontSizeBounds(textEl, lowerMin, newHeight);
-    //         await optimizeFontSize(textEl, lowerBound, upperBound, newHeight);
-    //     }, timeout);
-    // }
+function normalizeSizes() {
+    const timeout = 5;
+    const lowerMin = 5;
+    const upperMax = 45;
+    const threshold = 25;
     const c = scrContainers[activeScr];
     const svgEl = c.getElementsByTagName("svg")[0];
     
@@ -203,6 +183,7 @@ function normalizeSizes() {
 }
 
 const userData = { userId: -1 };
+const limitations = { canEdit: true };
 // time structure: { previewStr: str, timeStr: str, timesObj: [timesObj], penalty: 0|1|2 }  (penalty: 0=nothing, 1=+2, 2=dnf)
 let allTimes = [];
 onPageLoad(async () => {
@@ -226,6 +207,18 @@ onPageLoad(async () => {
 
     console.log("packed", timesRes);
     allTimes = unpackTimes(timesRes);
+
+    if (allTimes[numScr - 1].timesObj != null) {
+        limitations.canEdit = false;
+
+        // hide edit ability
+        inputAndPenaltyContainer.removeAttribute(canEditAttribute);
+        previewAndSubmitContainer.removeAttribute(canEditAttribute);
+        console.log(inputAndPenaltyContainer);
+        // inputAndPenaltyContainer.style.display = "none";
+        // submitTimeBtn.style.display = "none";
+        // previewAndSubmitContainer.style.margin = "auto";
+    }
 
     setLoadingState(false);
 
@@ -336,8 +329,11 @@ function updatePreviewLabel() {
 }
 
 function hidePreview(hidePlus2 = true) {
+    if (!limitations.canEdit)
+        return;
+
     validTime = false;
-    timePreviewLbl.removeAttribute("showPreview");
+    timePreviewLbl.removeAttribute(showPreviewAttribute);
     submitTimeBtn.disabled = true;
     dnfBtn.disabled = true;
     dnfState = false;
@@ -349,7 +345,7 @@ function hidePreview(hidePlus2 = true) {
 
 function showPreview() {
     validTime = true;
-    timePreviewLbl.setAttribute("showPreview", true);
+    timePreviewLbl.setAttribute(showPreviewAttribute, true);
     submitTimeBtn.disabled = false;
     dnfBtn.disabled = false;
     plus2Btn.disabled = dnfState;
@@ -384,7 +380,6 @@ function getCurrPenalty() {
 }
 
 // interactionState - can the user interact with the elements
-// TODO: when interaction state is false, put a low opacity gray rectangle over everything or something
 let _interactionState = true;
 function setInteractionState(value, updateSpinner = false, returnPreview = false) {
     timeInput.disabled = !value;
@@ -402,7 +397,7 @@ function getInteractionState() {
 
 async function submitTime(uploadData = true) {
     if (!validTime || (uploadData && equalTimes(allTimes[activeScr].timesObj, currTimesObj) && allTimes[activeScr].penalty == getCurrPenalty())) return;
-    if (activeScr == numScr - 1) {
+    if (limitations.canEdit && activeScr == numScr - 1) {
         // TODO: Warn the user they won't be able to edit their times if they submit
         if (!confirm("You will not be able to edit the results later if you submit now."))
             return;
@@ -430,8 +425,8 @@ async function submitTime(uploadData = true) {
         console.log(res);
     }
 
-    if (activeScr == numScr - 1) {
-        window.location = "/scrambles";
+    if (limitations.canEdit && activeScr == numScr - 1) {
+        window.location = window.location;
         return;
     }
     

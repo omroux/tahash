@@ -104,6 +104,10 @@ export function tryAnalyzeTimes(timeStr) {
     }
 }
 
+export function isFullTimesArr(arr) {
+    return arr.some(a => !a.timesObj);
+}
+
 export function getDisplayTime(timesObj) {
     if (timesObj == null)
         return "-";

@@ -163,6 +163,14 @@
             outline: none;
         }
     }
+
+    &:not([canEdit]) {
+        display: none;
+
+        & > .Preview-And-Submit-Container {
+            margin: auto;
+        }
+    }
 }
 
 .Preview-And-Submit-Container {
@@ -171,6 +179,14 @@
     width: 40%;
     /* margin-right: 20%; */
     margin-left: 20%;
+
+    &:not([canEdit]) {
+        margin: auto;
+        
+        & > .Submit-Time-Btn {
+            display: none;
+        }
+    }
 }
 
 .Time-Preview-Lbl {
