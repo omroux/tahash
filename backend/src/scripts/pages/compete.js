@@ -9,7 +9,11 @@ import {
     Penalties
   } from '/src/scripts/backend/utils/timesUtils.js';
 
+// console.log(cstimer);
+
+const scrsContainer = document.getElementById("scrsContainer");
 const scrContainers = document.querySelectorAll("[id^='scrContainer'");
+const scrImages = document.querySelectorAll("[id^='scrImg'");
 const scrMenuItemContainers = document.querySelectorAll("[id^='scrMenuItemContainer'");
 const scrMenuItemTimes = document.querySelectorAll("[id^='scrMenuItemTime'");
 const scrNumTitle = document.getElementById("scrNumberTitle");
@@ -78,25 +82,35 @@ const widthModifier = eventId == "megaminx" || eventId == "777" ? 35
                     : eventId == "666" ? 30
                     : 25;
 
+const hideImageEvents = Object.freeze(["3bld", "4bld", "5bld", "mbld"]);
+let _templateSVG;
+
 function normalizeSizes() {
-    const timeout = 5;
+    const timeout = 1;
     const lowerMin = 5;
     const upperMax = 45;
     const threshold = 25;
     const c = scrContainers[activeScr];
-    const svgEl = c.getElementsByTagName("svg")[0];
-    
-    const currWidth = svgEl.getAttribute("width");
-    const currHeight = svgEl.getAttribute("height");
-    if (!vbInit[activeScr]) {
-        svgEl.setAttribute("viewBox", `0 0 ${currWidth} ${currHeight}`);
-        vbInit[activeScr] = true;
+
+    let newHeight;
+    if (!_templateSVG) {
+        const svgEl = c.getElementsByTagName("svg")[0];
+        
+        const currWidth = svgEl.getAttribute("width");
+        const currHeight = svgEl.getAttribute("height");
+        if (!vbInit[activeScr]) {
+            svgEl.setAttribute("viewBox", `0 0 ${currWidth} ${currHeight}`);
+            vbInit[activeScr] = true;
+        }
+        
+        const newWidth = scrContainers[activeScr].clientWidth * (widthModifier / 100);
+        svgEl.setAttribute("width", newWidth);
+        newHeight = currHeight * newWidth / currWidth;
+        svgEl.setAttribute("height", newHeight);
     }
+    else
+        newHeight = _templateSVG.clientHeight;
     
-    const newWidth = scrContainers[activeScr].clientWidth * (widthModifier / 100);
-    svgEl.setAttribute("width", newWidth);
-    const newHeight = currHeight * newWidth / currWidth;
-    svgEl.setAttribute("height", newHeight);
     
     const textEl = c.getElementsByTagName("p")[0];
     
@@ -143,40 +157,6 @@ function normalizeSizes() {
         await new Promise(r => setTimeout(r, timeout));
         return await findFontSizeBounds(textEl, currFontSize + delta, maxHeight);
     }
-
-    function getStyle(el) {
-        return window.getComputedStyle(el);
-    }
-
-    function getFontSize(textEl) {
-        return parseFloat(window.getComputedStyle(textEl).fontSize.replace("px", ""));
-    }
-
-    function nextLoop() {
-        if (Math.abs(textEl.clientHeight - newHeight) <= threshold) return;
-        
-        const mid = (lowerBound + upperBound) / 2;
-        console.log("nextLoop: lowerBound", lowerBound, "upperBound", upperBound, "mid", mid);
-        textEl.style.fontSize = mid;
-        if (newHeight > textEl.clientHeight) lowerBound = mid;
-        else    upperBound = mid;
-
-        setTimeout(nextLoop, timeout);
-    }
-
-    function findUpperBound() {
-        console.log("finding upper");
-        if (textEl.clientHeight > newHeight) {
-            upperBound = getFontSize(textEl);
-            console.log("textEl.clientHeight", textEl.clientHeight, "newHeight", newHeight, "upperBound", upperBound);
-            nextLoop();
-            return;
-        }
-
-        textEl.style.fontSize = `${getFontSize(textEl) + 10}px`;
-
-        setTimeout(findUpperBound, timeout);
-    }
 }
 
 const userData = { userId: -1 };
@@ -218,6 +198,18 @@ onPageLoad(async () => {
 
     setLoadingState(false);
 
+    // TODO: do this for blind events - make a "hideImage" things
+    if (hideImageEvents.includes(eventId)) {
+        _templateSVG = document.createElement("svg");
+        _templateSVG = await cstimerWorker.getImage("", scrType);
+    }
+    else {
+        for (let i = 0; i < numScr; i++) {
+            const img = await cstimerWorker.getImage(scrambles[i], scrType);
+            scrImages[i].innerHTML = img;
+        }
+    }
+
     for (let i = 0; i < scrContainers.length; i++) {
         scramblesSized.push(false);
         vbInit.push(false);
@@ -236,13 +228,6 @@ onPageLoad(async () => {
         if (i != 0)
             scrMenuItemContainers[i].setAttribute("disabled", "true");
     }
-
-    // TODO: do this for blind events - make a "hideImage" things
-    // if (eventId == "3bld") {
-    //     // console.log(scrContainers[i].getElementsByClassName("Scramble-Img")[0]);
-    //     scrContainers[0].getElementsByTagName("svg")[0].setAttribute("width", "0");
-    //     scrContainers[0].getElementsByTagName("svg")[0].setAttribute("height", "0");
-    // }
 
     activeScr = 0;
     prevScrBtn.disabled = true;
@@ -283,6 +268,7 @@ onPageLoad(async () => {
 window.onresize = () => {
     for (let i = 0; i < scrContainers.length; i++)
         scramblesSized[i] = false;
+    normalizeSizes();
 };
 
 timeInput.oninput = () => {

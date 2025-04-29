@@ -95,7 +95,7 @@
     }
 }
 
-.Scramble-Text-Container {
+.Scramble-Pair-Container {
     display: flex;
     flex-direction: row-reverse;
     justify-content: space-between;

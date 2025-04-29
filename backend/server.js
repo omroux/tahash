@@ -31,7 +31,6 @@ import {
     userManager
 } from "./serverUtils.js";
 import { errorObject, Penalties } from "./src/scripts/backend/utils/globalUtils.js";
-import cstimer from "cstimer_module";
 import { tryAnalyzeTimes, getDisplayTime, getTimesObjStr, packTimes, unpackTimes } from "./src/scripts/backend/utils/timesUtils.js"
 import { getEventById } from "./src/scripts/backend/database/CompEvent.js";
 
@@ -149,17 +148,10 @@ app.get("/compete/:eventId", async (req, res) => {
     const pageOptions = {};
     const eventData = currComp.getEventDataById(req.params.eventId);
     if (eventData) {
-        const scrImages = [];
-        // images
-        for (let i = 0; i < eventData.scrambles.length; i++)
-            scrImages.push(cstimer.getImage(eventData.scrambles[i], eventData.event.scrType));
-
         pageOptions.eventData = {
             event: eventData.event,
-            scrambles: eventData.scrambles,
-            scrImages: scrImages
+            scrambles: eventData.scrambles
         };
-
     }
 
     renderPage(req,

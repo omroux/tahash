@@ -17,14 +17,11 @@
     
         <div class="Compete-Container">
             <!-- <a href="/scrambles"><button class="Back-To-Scrambles-Button">חזור לערבובים</button></a><br/> -->
-    
-            <div class="Scrambles-Container">
+            <div class="Scrambles-Container" id="scrsContainer">
                 <% for (let i = 0; i < eventData.scrambles.length; i++) { %>
-                    <div class="Scramble-Text-Container" id="scrContainer<%- i %>" <% if (i != 0) { %> hidden <% } %> >
+                    <div class="Scramble-Pair-Container" id="scrContainer<%- i %>" <% if (i != 0) { %> hidden <% } %> >
                         <p class="Scramble-Text" style="direction: ltr; white-space: pre-wrap;"> <%- eventData.scrambles[i].replaceAll(' ', '  ').trim() %></p>
-                        <div class="Scramble-Img" id="scrImg<%- i %>">
-                            <%- eventData.scrImages[i] %>
-                        </div>
+                        <div class="Scramble-Img" id="scrImg<%- i %>"></div>
                     </div>
                 <% } %>
             </div>
@@ -49,11 +46,16 @@
             </div>
     
             <script>
-                const scrambles = `<%- eventData.scrambles %>`.split(',');
-                for (let i = 0; i < scrambles.length; i++)
-                    scrambles[i] = scrambles[i].trim();
+                // const scrambles = `< % - eventData.scrambles % >`.split(',');
+                // for (let i = 0; i < scrambles.length; i++)
+                //     scrambles[i] = scrambles[i].trim();
+                const scrambles = [];
+                <% for (let i = 0; i < eventData.scrambles.length; i++) { %>
+                    scrambles.push(`<%- eventData.scrambles[i] %>`.trim());
+                <% } %>
     
                 const eventId = `<%- eventData.event.eventId %>`;
+                const scrType = `<%- eventData.event.scrType %>`;
             </script>
         </div>
         
@@ -64,6 +66,48 @@
         </div>
     </div>
 
+    <!-- cstimer_module web worker -->
+    <script>
+        var cstimerWorker = (function() {
+            var worker = new Worker('/src/scripts/backend/utils/cstimer_module.js');
+    
+            var callbacks = {};
+            var msgid = 0;
+    
+            worker.onmessage = function(e) {
+                var data = e.data; //data: [msgid, type, ret]
+                var callback = callbacks[data[0]];
+                delete callbacks[data[0]];
+                callback && callback(data[2]);
+            }
+    
+            function callWorkerAsync(type, details) {
+                return new Promise(function(type, details, resolve) {
+                    ++msgid;
+                    callbacks[msgid] = resolve;
+                    worker.postMessage([msgid, type, details]);
+                }.bind(null, type, details));
+            }
+    
+            return {
+                getScrambleTypes: function() {
+                    return callWorkerAsync('scrtype');
+                },
+                getScramble: function() {
+                    return callWorkerAsync('scramble', Array.prototype.slice.apply(arguments));
+                },
+                setSeed: function(seed) {
+                    return callWorkerAsync('seed', [seed]);
+                },
+                setGlobal: function(key, value) {
+                    return callWorkerAsync('set', [key, value]);
+                },
+                getImage: function(scramble, type) {
+                    return callWorkerAsync('image', [scramble, type]);
+                }
+            }
+        })();
+    </script>
     <script type="module" src="/src/scripts/pages/compete.js"></script>
 <% } else { %>
     <div class="Not-Found-Container">

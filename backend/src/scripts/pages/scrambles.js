@@ -61,9 +61,7 @@ onPageLoad(async () => {
 
     const headers = { };
     headers[userIdHeader] = wcaMeData.id;
-    console.log(headers);
     const res = await sendRequest("/eventStatuses", { headers: headers }); // res = [ { eventId, status } ]
-    console.log(res);
     if (res.error) {
         throwError(res.error);
         return;
