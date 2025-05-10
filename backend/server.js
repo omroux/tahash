@@ -153,6 +153,11 @@ app.get("/compete/:eventId", async (req, res) => {
             scrambles: eventData.scrambles
         };
     }
+    else {  // TODO: redirect to "event not found page"?
+        res.redirect("/scrambles");
+        return;
+    }
+
 
     renderPage(req,
         res,

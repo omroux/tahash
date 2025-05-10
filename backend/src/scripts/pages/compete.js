@@ -9,7 +9,8 @@ import {
     Penalties
   } from '/src/scripts/backend/utils/timesUtils.js';
 
-// console.log(cstimer);
+
+const isFMC = eventId == "fmc";
 
 const scrsContainer = document.getElementById("scrsContainer");
 const scrContainers = document.querySelectorAll("[id^='scrContainer'");
@@ -25,7 +26,9 @@ const plus2Btn = document.getElementById("plus2Btn");
 const dnfBtn = document.getElementById("dnfBtn");
 const submitTimeBtn = document.getElementById("submitTimeBtn");
 const submitSpinner = document.getElementById("submitSpinner");
-const inputAndPenaltyContainer = document.getElementById("inputAndPenaltyContainer");
+const inputAndPenaltyContainer = document.getElementById(isFMC ? "checkSolutionContainer" : "inputAndPenaltyContainer");
+const checkSolutionBtn = isFMC ? document.getElementById("checkSolutionButton") : null;
+const solutionInputField = isFMC ? document.getElementById("solutionInputField") : null;
 const previewAndSubmitContainer = document.getElementById("previewAndSubmitContainer");
 const menuAndPanelContainer = document.getElementById("menuAndPanelContainer");
 const menuAndPanelSpinner = document.getElementById("menuAndPanelSpinner");
@@ -33,6 +36,13 @@ const root = document.querySelector(":root");
 
 const showPreviewAttribute = "showPreview";
 const canEditAttribute = "canEdit";
+
+// fmc input
+if (isFMC) {
+    const el = document.getElementById("inputAndPenaltyContainer");
+    el.removeAttribute(canEditAttribute);
+    inputAndPenaltyContainer.setAttribute("canEdit", "");
+}
 
 let activeScr = 0;
 const numScr = scrContainers.length;
@@ -57,6 +67,11 @@ function updateActiveScr() {
     scrMenuItemContainers[activeScr].setAttribute("active", true);
     timeInput.value = allTimes[activeScr].timeStr;
     timePreviewLbl.innerText = allTimes[activeScr].previewStr;
+
+    if (isFMC && allTimes[activeScr].extraArgs) {
+        const fmcSolution = allTimes[activeScr].extraArgs.fmcSolution ?? "";
+        solutionInputField.value = fmcSolution.join(" ");
+    }
 
     // load penalty
     if (allTimes[activeScr].penalty == Penalties.DNF) setDnfState(true);
@@ -185,6 +200,7 @@ onPageLoad(async () => {
     console.log("packed", timesRes);
     allTimes = unpackTimes(timesRes);
 
+    // update canEdit limitation
     if (allTimes[numScr - 1].timesObj != null) {
         limitations.canEdit = false;
 
@@ -198,9 +214,9 @@ onPageLoad(async () => {
 
     setLoadingState(false);
 
-    // TODO: do this for blind events - make a "hideImage" things
     if (hideImageEvents.includes(eventId)) {
         _templateSVG = document.createElement("svg");
+        // generate an empty image for the right image size
         _templateSVG = await cstimerWorker.getImage("", scrType);
     }
     else {
@@ -330,13 +346,17 @@ function setPlus2State(newState) {
     updatePreviewLabel();
 }
 
-function updateTimeInMenu(index, previewStr, timeStr, timesObj, penalty) {
+// save a time inside the allTimes object
+function saveTime(index, previewStr, timeStr, timesObj, penalty, extraArgs = null) {
     allTimes[index].previewStr = previewStr;
     allTimes[index].timeStr = timeStr;
     allTimes[index].timesObj = timesObj;
     allTimes[index].penalty = penalty;
+    allTimes[index].extraArgs = extraArgs;
+}
 
-    scrMenuItemTimes[activeScr].innerText = previewStr;
+function updateTimeInMenu(index, previewStr) {
+    scrMenuItemTimes[index].innerText = previewStr;
 }
 
 function getCurrPenalty() {
@@ -351,6 +371,7 @@ function setInteractionState(value, updateSpinner = false, returnPreview = false
         const hidden = !(submitSpinner.hidden = value);
         previewAndSubmitContainer.setAttribute("hide", hidden);
         inputAndPenaltyContainer.setAttribute("hide", hidden);
+
     }
     if (!value) hidePreview();
     else if (returnPreview) showPreview();
@@ -360,14 +381,17 @@ function getInteractionState() {
 }
 
 async function submitTime(uploadData = true) {
-    if (!validTime || (uploadData && equalTimes(allTimes[activeScr].timesObj, currTimesObj) && allTimes[activeScr].penalty == getCurrPenalty())) return;
+    if (!isFMC && (!validTime || (uploadData && equalTimes(allTimes[activeScr].timesObj, currTimesObj) && allTimes[activeScr].penalty == getCurrPenalty()))) return;
     if (limitations.canEdit && activeScr == numScr - 1) {
         // TODO: Warn the user they won't be able to edit their times if they submit
         if (!confirm("You will not be able to edit the results later if you submit now."))
             return;
     }
 
-    updateTimeInMenu(activeScr, timePreviewLbl.innerText, timeInput.value, currTimesObj, getCurrPenalty()); 
+    // save the time
+    saveTime(activeScr, timePreviewLbl.innerText, timeInput.value, currTimesObj, getCurrPenalty());
+    updateTimeInMenu(activeScr, timePreviewLbl.innerText);
+    
     setInteractionState(false, true);
     
     if (uploadData) {
@@ -421,5 +445,108 @@ window.onkeydown = (event) => {
     if (event.keyCode == submitKeyCode && timeInput === document.activeElement)
         submitTimeBtn.click();
 };
+
+// FMC check solution
+let _validSolution = false;
+if (isFMC) {
+    // returns whether the solution is valid
+    function checkSolution(solutionTxt) {
+        setInteractionState(false, true);
+        
+        const cube = new Cube();
+        
+        const scrambleTxt = scrambles[activeScr];
+        cube.move(scrambleTxt);
+
+        const wideMovesRGX = /\b([RULFDB])w\b/g;
+        solutionTxt = solutionTxt = solutionTxt.replace(wideMovesRGX, (_, face) => face.toLowerCase());
+        cube.move(solutionTxt);
+
+        setInteractionState(true, true);
+
+        return cube.isSolved();
+    }
+
+    // returns the solution as an array of strings (moves)
+    function parseSolution(txt) {
+        const solution = [];
+
+        const whitespaceRGX = /\s/;
+        const faceMoveRGX = /[RUFLDB]/i;
+        const rotationRGX = /[XYZ]/i;
+
+        const wideMove = 'w';
+        const doubleMove = '2';
+        const primeMove = '\'';
+
+        txt = " " + txt + " ";
+        for (let i = 0; i < txt.length - 1; i++) {
+            while (whitespaceRGX.test(txt[i])) i++; // skip whitespace
+
+            let newMove = "";
+
+            const isFaceMove = faceMoveRGX.test(txt[i]);
+            const isRotation = rotationRGX.test(txt[i]);
+            if (!isFaceMove && !isRotation) {
+                for (i++; !whitespaceRGX.test(txt[i]); i++); // skip garbage
+                i--;
+                continue;
+            }
+
+            newMove += isFaceMove ? txt[i].toUpperCase() : txt[i].toLowerCase();
+            i++; // next character
+
+            // wide move
+            if (!isRotation && txt[i] == wideMove) {
+                newMove += wideMove;
+                i++;
+            }
+
+            // double move
+            if (txt[i] == doubleMove) {
+                newMove += doubleMove;
+                i++;
+            }
+            else if (txt[i] == primeMove) {
+                newMove += primeMove;
+                i++;
+            }
+            else if (!whitespaceRGX.test(txt[i])) { // garbage
+                for (i++; !whitespaceRGX.test(txt[i]); i++); // skip garbage
+                i--;
+                continue;
+            }
+
+            
+            // the move is only valid if there's a whitespace after it
+            if (whitespaceRGX.test(txt[i])) {
+                solution.push(newMove);
+                i--; // rollback whitespace
+            }
+        }
+
+        return solution;
+    }
+
+    // TODO: display the solutionTxt on a seperate text element (#solutionPreview) instead of replacing the textarea's value (line 544)
+    checkSolutionBtn.onclick = async () => {
+        checkSolutionBtn.disabled = true;
+        solutionInputField.disabled = true;
+
+        const solutionArr = parseSolution(solutionInputField.value);
+        console.log(solutionArr);
+        const solutionTxt = solutionInputField.value = solutionArr.join(" ");
+
+        console.log(_validSolution = checkSolution(solutionTxt));
+
+        checkSolutionBtn.disabled = false;
+        solutionInputField.disabled = false;
+    };
+
+    solutionInputField.addEventListener("input", () => {
+        checkSolutionBtn.disabled = solutionInputField.value.length == 0;
+    });
+}
+
 
 // TODO: on leave site, save the results

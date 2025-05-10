@@ -178,6 +178,7 @@ async function sendRequest(path, options = {}) {
 
 // #endregion
 
+// #region On Page Load System
 const pageLoadCallback = [];
 let _invokedPageLoad = false;
 const onPageLoad = (callback) => { if (_invokedPageLoad) { callback() } else { pageLoadCallback.push(callback); } };
@@ -188,6 +189,10 @@ const _invokePageLoad = () => {
         pageLoadCallback.forEach(f => f());
     }, 10);
 };
+
+// #endregion
+
+// #region Login Maintenance
 
 setLoadingState(true);
 setLoggedInState(false);
@@ -218,3 +223,13 @@ else {
     _invokePageLoad();
 }
 
+// #endregion
+
+// #region General Utils
+
+// Sleep for [ms] milliseconds
+async function sleep(ms) {
+    return await new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// #endregion

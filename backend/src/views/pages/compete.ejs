@@ -1,7 +1,7 @@
 <% if (eventData) { %>
     <h1 style="font-size: 300%;" class="Title"><%- eventData.event.eventTitle %></h1>
 
-    <div id="menuAndPanelSpinner">
+    <div class="Menu-And-Panel-Spinner" id="menuAndPanelSpinner">
         <span class="Cubing-Icon <%- eventData.event.iconName %>"></span>
     </div>
 
@@ -26,17 +26,29 @@
                 <% } %>
             </div>
     
+        <% if (eventData.event.eventId == "fmc") { %>
+            <script src="https://ldez.github.io/cubejs/lib/cube.js"></script>
+            <div class="FMC-Solution-Input-Container" id="fmcSolInputContainer">
+                <textarea class="Input-Solution-Field" id="solutionInputField" placeholder="R U R' U'..."></textarea>
+                <span class="Solution-Preview" id="solutionPreview"></span> <!-- TODO: this -->
+            </div>
+        <% } %>
+
             <div>
                 <div class="Time-Input-Container">
                     <div class="Input-And-Penalty-Container" id="inputAndPenaltyContainer" canEdit>
-                        <input type="text" oninput="" id="timeInput" maxlength="12"/>
+                        <input class="Time-Input-Field" type="text" oninput="" id="timeInput" maxlength="12"/>
         
                         <div class="Penalty-Select-Container">
                             <button class="Plus-2-Btn" id="plus2Btn" style="direction: ltr;">+2</button>
                             <button class="DNF-Btn" id="dnfBtn">DNF</button>
                         </div>
                     </div>
-        
+
+                    <div class="Check-Solution-Container" id="checkSolutionContainer">
+                        <button class="Check-Solution-BTN" id="checkSolutionButton" disabled>בדוק פתרון</button>
+                    </div>
+
                     <div class="Preview-And-Submit-Container" id="previewAndSubmitContainer" canEdit>
                         <label class="Time-Preview-Lbl" id="timePreviewLbl">-</label>
                         <button class="Submit-Time-Btn" id="submitTimeBtn">הבא</button>
@@ -44,11 +56,9 @@
                 </div>
                 <div class="Spinner" id="submitSpinner" hidden></div>
             </div>
-    
+
             <script>
-                // const scrambles = `< % - eventData.scrambles % >`.split(',');
-                // for (let i = 0; i < scrambles.length; i++)
-                //     scrambles[i] = scrambles[i].trim();
+                // set up global scrambles, eventId and scramble type
                 const scrambles = [];
                 <% for (let i = 0; i < eventData.scrambles.length; i++) { %>
                     scrambles.push(`<%- eventData.scrambles[i] %>`.trim());

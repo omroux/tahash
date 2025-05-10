@@ -20,7 +20,7 @@
     overflow-anchor: none;
 }
 
-.Back-To-Scrambles-Button, .Next-Scr-Btn, .Prev-Scr-Btn, .Plus-2-Btn, .DNF-Btn, .Submit-Time-Btn {
+.Back-To-Scrambles-Button, .Next-Scr-Btn, .Prev-Scr-Btn, .Plus-2-Btn, .DNF-Btn, .Submit-Time-Btn, .Check-Solution-BTN {
     transition: scale 0.075s, background-color 0.1s;
     transition-timing-function: ease-in;
 
@@ -89,10 +89,6 @@
     place-content: center;
     place-items: center;
     margin-right: 5%;
-    
-    & > svg {
-        /* border: 5px solid black; */
-    }
 }
 
 .Scramble-Pair-Container {
@@ -145,6 +141,30 @@
     margin-top: 2%;
 }
 
+.Time-Input-Field, .Input-Solution-Field {
+    direction: ltr;
+    margin: auto;
+    border-radius: 10px;
+    border: none;
+    font-weight: 400;
+
+    &:focus {
+        outline: none;
+    }
+}
+
+.Input-Solution-Field {
+    letter-spacing: 2px;
+    text-align: left;
+    width: 85%;
+    height: 12rem;
+    border-radius: 7px;
+    font-size: 200%;
+    line-height: 2.2rem;
+    padding: 0.5rem;
+    resize: none;
+}
+
 .Input-And-Penalty-Container {
     display: flex;
     flex-direction: column;
@@ -152,19 +172,10 @@
     /* margin-left: 25%; */
     margin-right: 25%;
 
-    & > input {
+    & > .Time-Input-Field {
         text-align: center;
-        direction: ltr;
         width: 100%;
         font-size: 350%;
-        margin: auto;
-        border-radius: 10px;
-        border: none;
-        font-weight: 400;
-
-        &:focus {
-            outline: none;
-        }
     }
 
     &:not([canEdit]) {
@@ -226,7 +237,7 @@
     }
 }
 
-.Preview-And-Submit-Container, .Input-And-Penalty-Container {
+.Preview-And-Submit-Container, .Input-And-Penalty-Container, .Check-Solution-Container {
     transition: opacity 0.15s ease-out, height 0.2s;
     &[hide="true"] {
         height: 0;
@@ -238,7 +249,7 @@
     }
 }
 
-.DNF-Btn, .Plus-2-Btn, .Submit-Time-Btn {
+.DNF-Btn, .Plus-2-Btn, .Submit-Time-Btn, .Check-Solution-BTN {
     &:disabled {
         opacity: 60%;
         background-color: var(--button-disabled-bg);
@@ -340,7 +351,7 @@
     }
 }
 
-#menuAndPanelSpinner {
+.Menu-And-Panel-Spinner {
     display: flex;
     place-content: center;
 
@@ -373,4 +384,30 @@
     height: 5vw;
     border-width: 7px;
     margin: auto;
+}
+
+
+.FMC-Solution-Input-Container {
+    display: flex;
+    flex-direction: column;
+    place-items: center;
+    width: 100%;
+    gap: 1rem;
+}
+
+.Check-Solution-BTN {
+    padding: 2.5%;
+    font-weight: 650%;
+}
+
+.Check-Solution-Container {
+    display: flex;
+    place-content: center;
+
+    width: 40%;
+    margin-right: 25%;
+
+    &:not([canEdit]) {
+        display: none;
+    }
 }
