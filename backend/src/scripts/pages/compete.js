@@ -41,6 +41,7 @@ const fmcSolutionErrorLbl = isFMC ? document.getElementById("fmcSolutionErrorLbl
 
 const showPreviewAttribute = "showPreview";
 const canEditAttribute = "canEdit";
+const hiddenAttribute = "hidden";
 const changedAttribute = "changed";
 
 // fmc input
@@ -544,6 +545,7 @@ if (isFMC) {
             return _validSolution;
 
         _changeSinceCheck = false;
+        solutionPreviewLbl.removeAttribute(changedAttribute);
         fmcSolutionErrorLbl.removeAttribute(changedAttribute);
 
         fmcSolutionErrorLbl.innerText = "";
@@ -556,9 +558,8 @@ if (isFMC) {
 
         console.log(_validSolution = checkSolution(solutionTxt));
 
-        if (!_validSolution) {
-            fmcSolutionErrorLbl.innerText = "הפתרון שהוקלד לא פותר את הערבוב! יש לבדוק שהפתרון הוקלד נכון.";
-        }
+        if (_validSolution) previewAndSubmitContainer.removeAttribute(hiddenAttribute);
+        else fmcSolutionErrorLbl.innerText = "הפתרון שהוקלד לא פותר את הערבוב! יש לוודא שהפתרון הוקלד נכון.";
 
         solutionInputField.disabled = false;
     };
@@ -566,6 +567,8 @@ if (isFMC) {
     solutionInputField.addEventListener("input", () => {
         _changeSinceCheck = true;
         fmcSolutionErrorLbl.setAttribute(changedAttribute, "");
+        solutionPreviewLbl.setAttribute(changedAttribute, "");
+        previewAndSubmitContainer.setAttribute(hiddenAttribute, "");
 
         checkSolutionBtn.disabled = solutionInputField.value.length == 0;
     });
