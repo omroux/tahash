@@ -12,6 +12,7 @@ import {
 
 const isFMC = eventId == "fmc";
 
+const emptyElement = document.createElement("div");
 const scrsContainer = document.getElementById("scrsContainer");
 const scrContainers = document.querySelectorAll("[id^='scrContainer'");
 const scrImages = document.querySelectorAll("[id^='scrImg'");
@@ -20,28 +21,32 @@ const scrMenuItemTimes = document.querySelectorAll("[id^='scrMenuItemTime'");
 const scrNumTitle = document.getElementById("scrNumberTitle");
 const nextScrBtn = document.getElementById("nextScrBtn");
 const prevScrBtn = document.getElementById("prevScrBtn");
-const timeInput = document.getElementById("timeInput");
+const timeInput = isFMC ? emptyElement : document.getElementById("timeInput");
 const timePreviewLbl = document.getElementById("timePreviewLbl");
-const plus2Btn = document.getElementById("plus2Btn");
-const dnfBtn = document.getElementById("dnfBtn");
+const plus2Btn = isFMC ? emptyElement : document.getElementById("plus2Btn");
+const dnfBtn = isFMC ? emptyElement : document.getElementById("dnfBtn");
 const submitTimeBtn = document.getElementById("submitTimeBtn");
 const submitSpinner = document.getElementById("submitSpinner");
 const inputAndPenaltyContainer = document.getElementById(isFMC ? "checkSolutionContainer" : "inputAndPenaltyContainer");
-const checkSolutionBtn = isFMC ? document.getElementById("checkSolutionButton") : null;
-const solutionInputField = isFMC ? document.getElementById("solutionInputField") : null;
-const previewAndSubmitContainer = document.getElementById("previewAndSubmitContainer");
+const previewAndSubmitContainer = document.getElementById(isFMC ? "fmcSubmitContainer" : "previewAndSubmitContainer");
 const menuAndPanelContainer = document.getElementById("menuAndPanelContainer");
 const menuAndPanelSpinner = document.getElementById("menuAndPanelSpinner");
 const root = document.querySelector(":root");
 
+// fmc elements
+const checkSolutionBtn = isFMC ? document.getElementById("checkSolutionButton") : null;
+const solutionInputField = isFMC ? document.getElementById("solutionInputField") : null;
+const solutionPreviewLbl = isFMC ? document.getElementById("solutionPreviewLbl") : null;
+const fmcSolutionErrorLbl = isFMC ? document.getElementById("fmcSolutionErrorLbl") : null;
+
 const showPreviewAttribute = "showPreview";
 const canEditAttribute = "canEdit";
+const changedAttribute = "changed";
 
 // fmc input
 if (isFMC) {
-    const el = document.getElementById("inputAndPenaltyContainer");
-    el.removeAttribute(canEditAttribute);
-    inputAndPenaltyContainer.setAttribute("canEdit", "");
+    inputAndPenaltyContainer.setAttribute(canEditAttribute, "");
+    previewAndSubmitContainer.setAttribute(canEditAttribute, "");
 }
 
 let activeScr = 0;
@@ -65,12 +70,14 @@ function updateActiveScr() {
     currTimesObj = allTimes[activeScr].timesObj;
     scrContainers[activeScr].removeAttribute("hidden");
     scrMenuItemContainers[activeScr].setAttribute("active", true);
-    timeInput.value = allTimes[activeScr].timeStr;
-    timePreviewLbl.innerText = allTimes[activeScr].previewStr;
 
-    if (isFMC && allTimes[activeScr].extraArgs) {
-        const fmcSolution = allTimes[activeScr].extraArgs.fmcSolution ?? "";
+    if (isFMC) {
+        const fmcSolution = (allTimes[activeScr].extraArgs.fmcSolution) ?? "";
         solutionInputField.value = fmcSolution.join(" ");
+    }
+    else {
+        timeInput.value = allTimes[activeScr].timeStr;
+        timePreviewLbl.innerText = allTimes[activeScr].previewStr;
     }
 
     // load penalty
@@ -248,7 +255,9 @@ onPageLoad(async () => {
     activeScr = 0;
     prevScrBtn.disabled = true;
     updateActiveScr();
-    updatePreviewLabel();
+
+    if (!isFMC)
+        updatePreviewLabel();
 
     // Normalize all sizes and load saved times
     let lastSaved;
@@ -373,6 +382,7 @@ function setInteractionState(value, updateSpinner = false, returnPreview = false
         inputAndPenaltyContainer.setAttribute("hide", hidden);
 
     }
+
     if (!value) hidePreview();
     else if (returnPreview) showPreview();
 }
@@ -449,7 +459,7 @@ window.onkeydown = (event) => {
 // FMC check solution
 let _validSolution = false;
 if (isFMC) {
-    // returns whether the solution is valid
+    // returns whether the solution solves the scramble
     function checkSolution(solutionTxt) {
         setInteractionState(false, true);
         
@@ -481,7 +491,7 @@ if (isFMC) {
 
         txt = " " + txt + " ";
         for (let i = 0; i < txt.length - 1; i++) {
-            while (whitespaceRGX.test(txt[i])) i++; // skip whitespace
+            if (whitespaceRGX.test(txt[i])) continue; // skip whitespace
 
             let newMove = "";
 
@@ -492,7 +502,7 @@ if (isFMC) {
                 i--;
                 continue;
             }
-
+            
             newMove += isFaceMove ? txt[i].toUpperCase() : txt[i].toLowerCase();
             i++; // next character
 
@@ -528,24 +538,38 @@ if (isFMC) {
         return solution;
     }
 
-    // TODO: display the solutionTxt on a seperate text element (#solutionPreview) instead of replacing the textarea's value (line 544)
+    let _changeSinceCheck = false;
     checkSolutionBtn.onclick = async () => {
+        if (!_changeSinceCheck)
+            return _validSolution;
+
+        _changeSinceCheck = false;
+        fmcSolutionErrorLbl.removeAttribute(changedAttribute);
+
+        fmcSolutionErrorLbl.innerText = "";
         checkSolutionBtn.disabled = true;
         solutionInputField.disabled = true;
 
         const solutionArr = parseSolution(solutionInputField.value);
         console.log(solutionArr);
-        const solutionTxt = solutionInputField.value = solutionArr.join(" ");
+        const solutionTxt = solutionPreviewLbl.innerText = solutionArr.join("\t");
 
         console.log(_validSolution = checkSolution(solutionTxt));
 
-        checkSolutionBtn.disabled = false;
+        if (!_validSolution) {
+            fmcSolutionErrorLbl.innerText = "הפתרון שהוקלד לא פותר את הערבוב! יש לבדוק שהפתרון הוקלד נכון.";
+        }
+
         solutionInputField.disabled = false;
     };
 
     solutionInputField.addEventListener("input", () => {
+        _changeSinceCheck = true;
+        fmcSolutionErrorLbl.setAttribute(changedAttribute, "");
+
         checkSolutionBtn.disabled = solutionInputField.value.length == 0;
     });
+
 }
 
 

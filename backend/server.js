@@ -31,7 +31,7 @@ import {
     userManager
 } from "./serverUtils.js";
 import { errorObject, Penalties } from "./src/scripts/backend/utils/globalUtils.js";
-import { tryAnalyzeTimes, getDisplayTime, getTimesObjStr, packTimes, unpackTimes } from "./src/scripts/backend/utils/timesUtils.js"
+import { tryAnalyzeTimes, getDisplayTime, getTimesObjStr, packTimes, unpackTimes, getEmptyPackedTimes } from "./src/scripts/backend/utils/timesUtils.js"
 import { getEventById } from "./src/scripts/backend/database/CompEvent.js";
 
 
@@ -224,14 +224,7 @@ app.get("/retrieveTimes", async (req, res) => {
         return;
     }
 
-    let times = userObj.getEventTimes(currCompNumber, eventId);
-    if (!times) {
-        const nTimes = compEvent.getNumScrambles();
-        times = [];
-        for (let i = 0; i < nTimes; i++)
-            times.push({ centis: -1, penalty: Penalties.None });
-    }
-
+    const times = userObj.getEventTimes(currCompNumber, eventId) ?? getEmptyPackedTimes(compEvent);
     res.json(times);
 });
 

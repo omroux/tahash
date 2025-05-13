@@ -27,35 +27,48 @@
             </div>
     
         <% if (eventData.event.eventId == "fmc") { %>
+            <!-- TODO: if the event is finished, don't load the cube.js script -->
             <script src="https://ldez.github.io/cubejs/lib/cube.js"></script>
-            <div class="FMC-Solution-Input-Container" id="fmcSolInputContainer">
+            <div class="FMC-Solution-Input-Container" id="fmcSolInputContainer" canEdit>
                 <textarea class="Input-Solution-Field" id="solutionInputField" placeholder="R U R' U'..."></textarea>
-                <span class="Solution-Preview" id="solutionPreview"></span> <!-- TODO: this -->
             </div>
-        <% } %>
-
-            <div>
-                <div class="Time-Input-Container">
-                    <div class="Input-And-Penalty-Container" id="inputAndPenaltyContainer" canEdit>
-                        <input class="Time-Input-Field" type="text" oninput="" id="timeInput" maxlength="12"/>
-        
-                        <div class="Penalty-Select-Container">
-                            <button class="Plus-2-Btn" id="plus2Btn" style="direction: ltr;">+2</button>
-                            <button class="DNF-Btn" id="dnfBtn">DNF</button>
-                        </div>
-                    </div>
-
-                    <div class="Check-Solution-Container" id="checkSolutionContainer">
+            <% } %>
+            
+            <div class="Time-Input-Container">
+            <% if (eventData.event.eventId == "fmc") { %>
+                <div class="Check-Solution-Container" id="checkSolutionContainer" canEdit>
+                    <span class="Solution-Preview-Label" id="solutionPreviewLbl"></span>
+                    <div class="Check-Solution-Error-And-Button-Container">
+                        <span class="FMC-Solution-Error-Label" id="fmcSolutionErrorLbl"></span>
                         <button class="Check-Solution-BTN" id="checkSolutionButton" disabled>בדוק פתרון</button>
                     </div>
+                </div>
+            <% } else { %>
 
-                    <div class="Preview-And-Submit-Container" id="previewAndSubmitContainer" canEdit>
-                        <label class="Time-Preview-Lbl" id="timePreviewLbl">-</label>
-                        <button class="Submit-Time-Btn" id="submitTimeBtn">הבא</button>
+                <div class="Input-And-Penalty-Container" id="inputAndPenaltyContainer" canEdit>
+                    <input class="Time-Input-Field" type="text" oninput="" id="timeInput" maxlength="12"/>
+    
+                    <div class="Penalty-Select-Container">
+                        <button class="Plus-2-Btn" id="plus2Btn" style="direction: ltr;">+2</button>
+                        <button class="DNF-Btn" id="dnfBtn">DNF</button>
                     </div>
                 </div>
-                <div class="Spinner" id="submitSpinner" hidden></div>
+
+                
+                <div class="Preview-And-Submit-Container" id="previewAndSubmitContainer" canEdit>
+                    <label class="Time-Preview-Lbl" id="timePreviewLbl">-</label>
+                    <button class="Submit-Time-Btn" id="submitTimeBtn">הבא</button>
+                </div>
+            <% } %>
             </div>
+            <div class="Spinner" id="submitSpinner" hidden></div>
+
+        <% if (eventData.event.eventId == "fmc") { %>
+            <div class="FMC-Submit-Container" id="fmcSubmitContainer">
+                <label class="Time-Preview-Lbl" id="timePreviewLbl">-</label>
+                <button class="Submit-Time-Btn" id="submitTimeBtn">הבא</button>
+            </div>
+        <% } %>
 
             <script>
                 // set up global scrambles, eventId and scramble type

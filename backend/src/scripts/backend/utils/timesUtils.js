@@ -13,6 +13,7 @@ const maxLen = (maxHours-1).toString().length + (maxMinutes-1).toString().length
 //              = 1 + 2 + 2 + 2 = 7
 
 export function tryAnalyzeTimes(timeStr) {
+    if (timeStr == null) return null;
     timeStr = timeStr.trim();
     const noColons = timeStr.replaceAll(":", "");
 
@@ -150,10 +151,16 @@ export function getTimesObjStr(timesObj, penalty = Penalties.None) {
 // returns the result
 export function packTimes(allTimes) {
     const packed = [];
-    if (!allTimes) return packed;
+    if (!allTimes || !allTimes[0]) return packed;
 
     for (let i = 0; i < allTimes.length; i++) {
-        packed.push({ centis: timesObjToCentis(allTimes[i].timesObj), penalty: allTimes[i].penalty});
+        const newPack = { centis: timesObjToCentis(allTimes[i].timesObj),
+                        penalty: allTimes[i].penalty };
+        
+        if (allTimes[i].extraArgs != null)
+            newPack.extraArgs = allTimes[i].extraArgs;
+
+        packed.push(newPack);
     }
 
     return packed;
@@ -177,7 +184,14 @@ export function unpackTimes(packed) {
     for (let i = 0; i < packed.length; i++) {
         const timesObj = centisToTimesObj(packed[i].centis);
         const displayTime = getDisplayTime(timesObj);
-        allTimes.push({ previewStr: displayTime, timeStr: timesObj ? displayTime : "", timesObj: timesObj, penalty: packed[i].penalty });
+        const newTime = { previewStr: displayTime,
+                        timeStr: timesObj ? displayTime : "",
+                        timesObj: timesObj,
+                        penalty: packed[i].penalty };
+
+        if (packed[i].extraArgs != null)
+            newTime.extraArgs = packed[i].extraArgs;
+        allTimes.push(newTime);
     }
 
     return allTimes;
@@ -198,6 +212,21 @@ export function unpackTimes(packed) {
         centis %= sec;
         return { numHours: numHours, numMinutes: numMinutes, numSeconds: numSeconds, numMillis: centis };
     }
+}
+
+// returns an empty packed times object
+export function getEmptyPackedTimes(compEvent) {
+    const nTimes = compEvent.getNumScrambles();
+    const times = [];
+    for (let i = 0; i < nTimes; i++) {
+        const newTime = { centis: -1, penalty: Penalties.None };
+        if (compEvent.emptyExtraArgs != null)
+            newTime.extraArgs = Object.assign({ }, compEvent.emptyExtraArgs);
+
+        times.push(newTime);
+    }
+
+    return times;
 }
 
 // check if two timesObjs are equal

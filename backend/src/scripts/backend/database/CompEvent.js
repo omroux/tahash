@@ -7,16 +7,18 @@ class CompEvent {
     scrType;        // csTimer scramble type
     iconName;       // name of the event's icon in the icon "database"
     timeFormat;         // the format of the event (e.g. ao5, bo3, ...)
+    emptyExtraArgs;   // does the event have extra arguments (solution for fmc, ...)
     scrLenExp;      // scramble length expectancy
     scrLenRadius;   // scramble length variance (radius)
 
     // scrambleExp - the expected length of the scramble. (negative/0 -> default value)
-    constructor(eventTitle, eventId, scrType, iconName, resultFormat, scrLenExp = 0, scrLenRadius = 0) {
+    constructor(eventTitle, eventId, scrType, iconName, resultFormat, scrLenExp = 0, scrLenRadius = 0, emptyExtraArgs = null) {
         this.eventTitle =   eventTitle;
         this.eventId =      eventId;
         this.scrType =      scrType;
         this.iconName =     iconName;
         this.timeFormat =   resultFormat;
+        this.emptyExtraArgs = emptyExtraArgs;
         this.scrLenExp =    scrLenExp;
         this.scrLenRadius = Math.abs(scrLenRadius);
     }
@@ -74,7 +76,7 @@ export const getNumScrambles = timeFormat => numScrambles[timeFormat];
 // official WCA events (CompEvent[])
 export const WCAEvents = [
     // -- WCA Events --
-    //              Title       Id          ScrType     Icon            Format              [scrLenExp]
+    //              Title       Id          ScrType     Icon            Format              scrLenExp   scrLenRadius    emptyExtraArgs
     new CompEvent(  "3x3x3",    "333",      "333",      "event-333",    TimeFormat.ao5),
     new CompEvent(  "2x2x2",    "222",      "222so",    "event-222",    TimeFormat.ao5),
     new CompEvent(  "4x4x4",    "444",      "444wca",   "event-444",    TimeFormat.ao5),
@@ -82,7 +84,7 @@ export const WCAEvents = [
     new CompEvent(  "6x6x6",    "666",      "666wca",   "event-666",    TimeFormat.mo3,     80),
     new CompEvent(  "7x7x7",    "777",      "777wca",   "event-777",    TimeFormat.mo3,     100),
     new CompEvent(  "3x3 BLD",  "3bld",     "333ni",    "event-333bf",  TimeFormat.bo3),
-    new CompEvent(  "FMC",      "fmc",      "333fm",    "event-333fm",  TimeFormat.bo3),
+    new CompEvent(  "FMC",      "fmc",      "333fm",    "event-333fm",  TimeFormat.bo3,     0,          0,              Object.freeze({ fmcSolution: [] })),
     new CompEvent(  "3x3 OH",   "oh",       "333",      "event-333oh",  TimeFormat.ao5),
     new CompEvent(  "Clock",    "clock",    "clkwca",   "event-clock",  TimeFormat.ao5),
     new CompEvent(  "Megaminx", "megaminx", "mgmp",     "event-minx",   TimeFormat.ao5,     70),

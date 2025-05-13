@@ -393,6 +393,12 @@
     place-items: center;
     width: 100%;
     gap: 1rem;
+
+    &:not([canEdit]) {
+        & > .Input-Solution-Field {
+            display: none;
+        }
+    }
 }
 
 .Check-Solution-BTN {
@@ -400,14 +406,57 @@
     font-weight: 650%;
 }
 
-.Check-Solution-Container {
+.Check-Solution-Error-And-Button-Container {
     display: flex;
+    flex-direction: column;
     place-content: center;
 
+    gap: 0.4rem;
+
     width: 40%;
-    margin-right: 25%;
+}
+
+.Check-Solution-Container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
 
     &:not([canEdit]) {
         display: none;
+    }
+}
+
+.Solution-Preview-Label {
+    direction: ltr;
+    font-size: 1.5rem;
+    text-align: left;
+    width: 85%;
+    margin: auto;
+    white-space: pre-wrap;
+}
+
+.FMC-Submit-Container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    gap: 2%;
+
+    margin-top: 2%;
+}
+
+.FMC-Solution-Error-Label {
+    transition: font-size 0.1s ease-out;
+
+    color: red;
+    text-align: center;
+    font-size: 120%;
+    font-weight: 450;
+
+    &[changed] {
+        font-size: 110%;
+        font-weight: 425;
+        opacity: 0.8;
     }
 }
