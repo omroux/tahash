@@ -127,6 +127,8 @@ export function getDisplayTime(timesObj) {
     }
 }
 
+export const DNF_STRING = "DNF";
+
 // getTimesObjStr: convert a valid times obj (with an optional penalty) to a string from
 export function getTimesObjStr(timesObj, penalty = Penalties.None) {
     if (!timesObj) return "-";
@@ -144,7 +146,7 @@ export function getTimesObjStr(timesObj, penalty = Penalties.None) {
         }
     }
 
-    return (penalty == Penalties.DNF) ? "DNF" : (getDisplayTime(dispTimesObj) + (penalty == Penalties.Plus2 ? "+" : ""));
+    return (penalty == Penalties.DNF) ? DNF_STRING : (getDisplayTime(dispTimesObj) + (penalty == Penalties.Plus2 ? "+" : ""));
 }
 
 // format a times array to [{centis: <time in centiseconds>, penalty: <penalty>}]

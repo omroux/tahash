@@ -6,7 +6,8 @@ import {
     unpackTimes,
     equalTimes,
     isFullTimesArr,
-    Penalties
+    Penalties,
+    DNF_STRING
   } from '/src/scripts/backend/utils/timesUtils.js';
 
 
@@ -46,6 +47,9 @@ const changedAttribute = "changed";
 
 // fmc input
 if (isFMC) {
+    console.log("T perm: ( R U R' U' R' F R2 U' R' U' R U R' F' )");
+    console.log("Initializing solver...");
+    Cube.initSolver();
     inputAndPenaltyContainer.setAttribute(canEditAttribute, "");
     previewAndSubmitContainer.setAttribute(canEditAttribute, "");
 }
@@ -62,7 +66,7 @@ function updateActiveScr() {
         scrContainers[lastActive].setAttribute("hidden", true);
         scrMenuItemContainers[lastActive].removeAttribute("active");
 
-        if (validTime)
+        if (!isFMC && validTime)
             allTimes[lastActive].timeStr = timeInput.value;
     }
 
@@ -73,8 +77,10 @@ function updateActiveScr() {
     scrMenuItemContainers[activeScr].setAttribute("active", true);
 
     if (isFMC) {
-        const fmcSolution = (allTimes[activeScr].extraArgs.fmcSolution) ?? "";
-        solutionInputField.value = fmcSolution.join(" ");
+        fmcSolutionArr = allTimes[activeScr].extraArgs.fmcSolution;
+        solutionInputField.value = fmcSolutionArr.join(" ");
+        _validSolution = fmcSolutionArr.length > 0;
+        updateFMCText();
     }
     else {
         timeInput.value = allTimes[activeScr].timeStr;
@@ -235,6 +241,12 @@ onPageLoad(async () => {
     }
 
     for (let i = 0; i < scrContainers.length; i++) {
+        if (isFMC) { // solutions
+            const myCube = new Cube();
+            myCube.move(scrambles[i]);
+            console.log(`Solution for scramble ${i+1}:\n ${myCube.solve()}`);
+        }
+
         scramblesSized.push(false);
         vbInit.push(false);
 
@@ -256,9 +268,7 @@ onPageLoad(async () => {
     activeScr = 0;
     prevScrBtn.disabled = true;
     updateActiveScr();
-
-    if (!isFMC)
-        updatePreviewLabel();
+    updatePreviewLabel();
 
     // Normalize all sizes and load saved times
     let lastSaved;
@@ -267,7 +277,7 @@ onPageLoad(async () => {
         while (!scramblesSized[i])
             await new Promise(r => setTimeout(r, 1));
 
-        if (allTimes[i].timesObj == null)
+        if ((!isFMC && allTimes[i].timesObj == null) || (isFMC && allTimes[i].extraArgs.fmcSolution.length == 0))
             break;
         
         await submitTime(false);
@@ -308,12 +318,14 @@ let validTime = false;
 function updatePreviewLabel() {
     currTimesObj = tryAnalyzeTimes(timeInput.value);
 
-    if (currTimesObj == null) {
+    if ((!isFMC && currTimesObj == null) || (isFMC && !_validSolution)) {
         hidePreview();
         return;
     }
 
-    timePreviewLbl.innerText = getTimesObjStr(currTimesObj, dnfState ? Penalties.DNF : (plus2State ? Penalties.Plus2 : Penalties.None));
+    timePreviewLbl.innerText = isFMC
+        ? (dnfState ? DNF_STRING : fmcSolutionArr.length)
+        : (getTimesObjStr(currTimesObj, dnfState ? Penalties.DNF : (plus2State ? Penalties.Plus2 : Penalties.None)));
 
     showPreview();
 }
@@ -335,7 +347,7 @@ function hidePreview(hidePlus2 = true) {
 
 function showPreview() {
     validTime = true;
-    timePreviewLbl.setAttribute(showPreviewAttribute, true);
+    timePreviewLbl.setAttribute(showPreviewAttribute, "");
     submitTimeBtn.disabled = false;
     dnfBtn.disabled = false;
     plus2Btn.disabled = dnfState;
@@ -381,7 +393,6 @@ function setInteractionState(value, updateSpinner = false, returnPreview = false
         const hidden = !(submitSpinner.hidden = value);
         previewAndSubmitContainer.setAttribute("hide", hidden);
         inputAndPenaltyContainer.setAttribute("hide", hidden);
-
     }
 
     if (!value) hidePreview();
@@ -391,16 +402,24 @@ function getInteractionState() {
     return _interactionState;   
 }
 
+// get this solve's extra args
+function getExtraArgs() {
+    return isFMC    ? (_validSolution ? { fmcSolution: fmcSolutionArr } : [])
+                    : null;
+}
+
 async function submitTime(uploadData = true) {
-    if (!isFMC && (!validTime || (uploadData && equalTimes(allTimes[activeScr].timesObj, currTimesObj) && allTimes[activeScr].penalty == getCurrPenalty()))) return;
+    if ((!isFMC && (!validTime || (uploadData && equalTimes(allTimes[activeScr].timesObj, currTimesObj) && allTimes[activeScr].penalty == getCurrPenalty())))
+        || (isFMC && (!_validSolution || (uploadData && allTimes[activeScr].extraArgs.fmcSolution.join() == fmcSolutionArr.join())))) return;
+
     if (limitations.canEdit && activeScr == numScr - 1) {
         // TODO: Warn the user they won't be able to edit their times if they submit
-        if (!confirm("You will not be able to edit the results later if you submit now."))
+        if (!confirm("You will not be able to edit this event later if you submit now."))
             return;
     }
 
     // save the time
-    saveTime(activeScr, timePreviewLbl.innerText, timeInput.value, currTimesObj, getCurrPenalty());
+    saveTime(activeScr, timePreviewLbl.innerText, timeInput.value, currTimesObj, getCurrPenalty(), getExtraArgs());
     updateTimeInMenu(activeScr, timePreviewLbl.innerText);
     
     setInteractionState(false, true);
@@ -425,7 +444,7 @@ async function submitTime(uploadData = true) {
     }
 
     if (limitations.canEdit && activeScr == numScr - 1) {
-        window.location = window.location;
+        window.location = window.location; // refresh
         return;
     }
     
@@ -439,7 +458,9 @@ function nextScramble(removeDisabled = true) {
     updateActiveScr();
     if (removeDisabled)
         scrMenuItemContainers[activeScr].removeAttribute("disabled");
-    timeInput.focus();
+
+    if (!isFMC)
+        timeInput.focus();
 }
 
 dnfBtn.onclick = () => setDnfState(!dnfState);
@@ -458,12 +479,27 @@ window.onkeydown = (event) => {
 };
 
 // FMC check solution
+function updateFMCText() {
+    solutionPreviewLbl.innerText = fmcSolutionArr.join("\t");
+    if (_validSolution) {
+        previewAndSubmitContainer.removeAttribute(hiddenAttribute);
+        previewAndSubmitContainer.removeAttribute("hide");
+        updatePreviewLabel();
+    }
+    else {
+        previewAndSubmitContainer.setAttribute(hiddenAttribute, "");
+        fmcSolutionErrorLbl.innerText = fmcErrorTxt;
+    }
+}
+
 let _validSolution = false;
+let fmcErrorTxt = "";
+let fmcSolutionArr = [];
 if (isFMC) {
+    Cube.initSolver();
+    
     // returns whether the solution solves the scramble
-    function checkSolution(solutionTxt) {
-        setInteractionState(false, true);
-        
+    function checkSolutionValidity(solutionTxt) {
         const cube = new Cube();
         
         const scrambleTxt = scrambles[activeScr];
@@ -472,8 +508,6 @@ if (isFMC) {
         const wideMovesRGX = /\b([RULFDB])w\b/g;
         solutionTxt = solutionTxt = solutionTxt.replace(wideMovesRGX, (_, face) => face.toLowerCase());
         cube.move(solutionTxt);
-
-        setInteractionState(true, true);
 
         return cube.isSolved();
     }
@@ -540,35 +574,50 @@ if (isFMC) {
     }
 
     let _changeSinceCheck = false;
-    checkSolutionBtn.onclick = async () => {
+    function checkSolution(solutionTxt) {
+        const maxSolutionLength = 80;
+
         if (!_changeSinceCheck)
             return _validSolution;
 
         _changeSinceCheck = false;
+        _validSolution = false;
+
+        fmcSolutionArr = parseSolution(solutionTxt);
+
+        // solution length
+        if (fmcSolutionArr.length > maxSolutionLength) {
+            fmcErrorTxt = `יש להקליד פתרון בעל לכל היותר ${maxSolutionLength} מהלכים!` + ` (הפתרון שהוקלד בעל ${fmcSolutionArr.length} מהלכים.)`
+            return;
+        }
+
+        console.log(fmcSolutionArr);
+        const fixedSolutionTxt = fmcSolutionArr.join("\t");
+
+        console.log(_validSolution = checkSolutionValidity(fixedSolutionTxt));
+        fmcErrorTxt = _validSolution ? "" : "הפתרון שהוקלד לא פותר את הערבוב! יש לוודא שהפתרון הוקלד נכון.";
+    }
+
+    checkSolutionBtn.onclick = () => {
         solutionPreviewLbl.removeAttribute(changedAttribute);
         fmcSolutionErrorLbl.removeAttribute(changedAttribute);
 
-        fmcSolutionErrorLbl.innerText = "";
         checkSolutionBtn.disabled = true;
         solutionInputField.disabled = true;
 
-        const solutionArr = parseSolution(solutionInputField.value);
-        console.log(solutionArr);
-        const solutionTxt = solutionPreviewLbl.innerText = solutionArr.join("\t");
-
-        console.log(_validSolution = checkSolution(solutionTxt));
-
-        if (_validSolution) previewAndSubmitContainer.removeAttribute(hiddenAttribute);
-        else fmcSolutionErrorLbl.innerText = "הפתרון שהוקלד לא פותר את הערבוב! יש לוודא שהפתרון הוקלד נכון.";
+        checkSolution(solutionInputField.value);
+        updateFMCText();
 
         solutionInputField.disabled = false;
     };
 
     solutionInputField.addEventListener("input", () => {
         _changeSinceCheck = true;
+        _validSolution = false;
         fmcSolutionErrorLbl.setAttribute(changedAttribute, "");
         solutionPreviewLbl.setAttribute(changedAttribute, "");
         previewAndSubmitContainer.setAttribute(hiddenAttribute, "");
+        fmcSolutionErrorLbl.innerText = "";
 
         checkSolutionBtn.disabled = solutionInputField.value.length == 0;
     });
