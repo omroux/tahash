@@ -47,9 +47,9 @@ const changedAttribute = "changed";
 
 // fmc input
 if (isFMC) {
-    console.log("T perm: ( R U R' U' R' F R2 U' R' U' R U R' F' )");
-    console.log("Initializing solver...");
-    Cube.initSolver();
+    // console.log("T perm: ( R U R' U' R' F R2 U' R' U' R U R' F' )");
+    // console.log("Initializing solver...");
+    // Cube.initSolver();
     inputAndPenaltyContainer.setAttribute(canEditAttribute, "");
     previewAndSubmitContainer.setAttribute(canEditAttribute, "");
 }
@@ -101,7 +101,7 @@ function updateActiveScr() {
         normalizeSizes();
 
     scrNumTitle.innerText = `${activeScr+1}/${numScr}`;
-    submitTimeBtn.innerText = activeScr >= numScr - 1 ? "הגש מקצה" : "הבא";
+    submitTimeBtn.innerText = activeScr < numScr - 1 ? "הבא" : "הגש מקצה";
 }
 
 let scramblesSized = [];
@@ -215,7 +215,8 @@ onPageLoad(async () => {
     allTimes = unpackTimes(timesRes);
 
     // update canEdit limitation
-    if (allTimes[numScr - 1].timesObj != null) {
+    if ((!isFMC && allTimes[numScr - 1].timesObj != null)
+        || (isFMC && allTimes[numScr - 1].extraArgs.fmcSolution.length > 0)) {
         limitations.canEdit = false;
 
         // hide edit ability
@@ -224,6 +225,10 @@ onPageLoad(async () => {
 
         for (let i = 0; i < numScr; i++)
             scrMenuItemContainers[i].removeAttribute(canEditAttribute);
+
+        if (isFMC) {
+            solutionInputField.disabled = true;
+        }
     }
 
     setLoadingState(false);
@@ -241,11 +246,11 @@ onPageLoad(async () => {
     }
 
     for (let i = 0; i < scrContainers.length; i++) {
-        if (isFMC) { // solutions
-            const myCube = new Cube();
-            myCube.move(scrambles[i]);
-            console.log(`Solution for scramble ${i+1}:\n ${myCube.solve()}`);
-        }
+        // if (isFMC) { // solutions
+        //     const myCube = new Cube();
+        //     myCube.move(scrambles[i]);
+        //     console.log(`Solution for scramble ${i+1}:\n ${myCube.solve()}`);
+        // }
 
         scramblesSized.push(false);
         vbInit.push(false);
@@ -496,8 +501,6 @@ let _validSolution = false;
 let fmcErrorTxt = "";
 let fmcSolutionArr = [];
 if (isFMC) {
-    Cube.initSolver();
-    
     // returns whether the solution solves the scramble
     function checkSolutionValidity(solutionTxt) {
         const cube = new Cube();

@@ -193,7 +193,9 @@
     width: 40%;
     /* margin-right: 20%; */
     margin-left: 20%;
+}
 
+.Preview-And-Submit-Container, .FMC-Submit-Container {
     &:not([canEdit]) {
         margin: auto;
         
@@ -406,7 +408,7 @@
     font-weight: 650%;
 }
 
-.Check-Solution-Error-And-Button-Container {
+.Check-Solution-Button-Container {
     display: flex;
     flex-direction: column;
     place-content: center;
@@ -460,6 +462,10 @@
 
     &[hidden] {
         display: none;
+    }
+
+    &:not([canedit]) {
+        border: none;
     }
 }
 

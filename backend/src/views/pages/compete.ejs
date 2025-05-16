@@ -29,7 +29,7 @@
         <% if (eventData.event.eventId == "fmc") { %>
             <!-- TODO: if the event is finished, don't load the cube.js script -->
             <script src="https://ldez.github.io/cubejs/lib/cube.js"></script>
-            <script src="https://ldez.github.io/cubejs/lib/solve.js"></script>
+            <!-- TODO: remove this after debug <script src="https://ldez.github.io/cubejs/lib/solve.js"></script> -->
             <div class="FMC-Solution-Input-Container" id="fmcSolInputContainer" canEdit>
                 <textarea class="Input-Solution-Field" id="solutionInputField" placeholder="R U R' U'..."></textarea>
             </div>
@@ -40,7 +40,7 @@
                 <div class="Check-Solution-Container" id="checkSolutionContainer" canEdit>
                     <span class="Solution-Preview-Label" id="solutionPreviewLbl"></span>
                     <span class="FMC-Solution-Error-Label" id="fmcSolutionErrorLbl"></span>
-                    <div class="Check-Solution-Error-And-Button-Container">
+                    <div class="Check-Solution-Button-Container">
                         <button class="Check-Solution-BTN" id="checkSolutionButton" disabled>בדוק פתרון</button>
                     </div>
                 </div>
