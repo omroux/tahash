@@ -16,13 +16,28 @@ export const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 // config data property
 let _configData = null;
+
+// only update hostname if it hasn't been set yet
 let _hostname = null;
-export const getConfigData = () => _configData ?? (_configData = readConfigFile());
-export const getHostname = () =>
-        _hostname ?? (_hostname = getConfigData().baseUrl + (getConfigData().local ? `:${getConfigData().port}` : ""));
+export const getHostname = () => _hostname;
+export const setHostname = (hostname) => {
+    if (_hostname) return;
+
+    console.log(`Setting hostname to '${hostname}'`);
+    return _hostname = hostname;
+};
 
 // config options for reading .env file
-export const envConfigOptions = getConfigData().local ? { path: path.join(__dirname + "/.env") } : {};
+let _envConfigOptions = null;
+let _isContainer = false; // is the app running on a docker container
+export const getEnvConfigOptions = () => {
+    if (_envConfigOptions)
+        return _envConfigOptions;
+
+    const deployEnvPath = path.join(__dirname + "/../deploy/.env");
+    _isContainer = !fs.existsSync(deployEnvPath);
+    return _envConfigOptions = (_isContainer ? { } : { path: deployEnvPath });
+};
 
 
 // filePath = the page's file path *inside* src/views/pages, including .ejs extension. (src/views/pages/:filePath)
@@ -133,49 +148,6 @@ export function tryGetCookie(req, cookieName, isJson = true) {
 // #endregion
 
 
-// read the config file (default/local)
-// handles exceptions (by throwing them :p )
-// returns the configData
-export function readConfigFile() {
-    const localConfigFile = "config.local.json";
-
-    // config data defaults to website config
-    let configData = {
-        "port": 3000,
-        "baseUrl": "https://comp.kehilush.com",
-        "local": false
-    };
-
-    // read content from local file, if it exists
-    if (fs.existsSync(localConfigFile)) {
-        try { configData = JSON.parse(fs.readFileSync(localConfigFile, 'utf-8')); }
-        catch (err) {
-            console.error("Error reading config file.");
-            throw err;
-        }
-
-        if (!configData.baseUrl || (configData.local === undefined) || !configData.port)
-            throw Error("Error: invalid config file.");
-
-        // validate port
-        const parsedPort = parseInt(configData.port.toString(), 10);
-        // check if the port is a valid number and within the valid range (0–65535)
-        if (isNaN(parsedPort) || parsedPort < 0 && parsedPort > 65535)
-            throw Error("Invalid port in config file.");
-        configData.port = parsedPort;
-
-        // validate "local" boolean
-        configData.local = configData.local.toString();
-        if (configData.local === "true")        configData.local = true;
-        else if (configData.local === "false")  configData.local = false;
-        else throw Error("Config 'local' has to be a valid boolean");
-    }
-
-    // build hostname
-    return configData;
-}
-
-
 const fromClientHeader = "from-client";
 // check if a request was sent from a client
 export const sentFromClient = (req) => (req.headers[fromClientHeader] === "true");
@@ -256,7 +228,7 @@ export async function initDatabase() {
     // retrieve mongodb host url
     const mongoUsername = process.env.MONGO_INITDB_ROOT_USERNAME;
     const mongoPassword = process.env.MONGO_INITDB_ROOT_PASSWORD;
-    const host = process.env.MONGO_SERVICE || (getConfigData().local ? "localhost" : "mongodb");
+    const host = _isContainer ? process.env.MONGO_SERVICE : "localhost";
 
     // use the credentials, if they exist
     const hasCredentials = (mongoUsername && mongoPassword);
@@ -273,6 +245,9 @@ export async function initDatabase() {
     // get comps and users collections
     _compManager = new CompManager(_tahashDb.collection(compsCollectionName));
     _userManager = new UserManager(_tahashDb.collection(usersCollectionName));
+
+    // initialize comps collection if it's empty
+    await _compManager.initComps();
 
     // validate current comp
     await _compManager.validateCurrentComp();

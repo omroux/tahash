@@ -11,6 +11,15 @@ export class CompManager {
         this.#collection = compsCollection;
     }
 
+    // initialize comps collection if it's empty
+    async initComps() {
+        const count = await this.#collection.countDocuments({}, { limit: 1 });
+        if (count > 0) return;
+
+        // save an empty comp with compNumber 0
+        await this.saveComp(new TahashComp(this, { compNumber: 0, endDate: new Date(1) }));
+    }
+
     // get a TahashComp object from the database by its comp number
     // returns null if a comp wasn't found
     async getTahashComp(compNumber) {

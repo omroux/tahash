@@ -18,17 +18,16 @@ import {
     storeCookie,
     tryGetCookie,
     authTokenCookie,
-    readConfigFile,
     __dirname,
     sentFromClient,
     retrieveWCAMe,
     isLoggedIn,
-    envConfigOptions,
-    getConfigData,
     getHostname,
     initDatabase,
     compManager,
-    userManager
+    userManager,
+    getEnvConfigOptions,
+    setHostname
 } from "./serverUtils.js";
 import { errorObject, Penalties } from "./src/scripts/backend/utils/globalUtils.js";
 import { tryAnalyzeTimes, getDisplayTime, getTimesObjStr, packTimes, unpackTimes, getEmptyPackedTimes } from "./src/scripts/backend/utils/timesUtils.js"
@@ -37,11 +36,12 @@ import { getEventById } from "./src/scripts/backend/database/CompEvent.js";
 
 // general setup
 const app = express();  // express app
-config(envConfigOptions); // configure .env file
+config(getEnvConfigOptions()); // configure .env file
 
+const WEBSITE_PORT = process.env.PORT || 3000;
 
 // MongoDB
-console.log("Connecting to MongoDB...", getConfigData());
+console.log("Connecting to MongoDB...");
 await initDatabase();
 console.log("Connected to MongoDB!");
 
@@ -85,7 +85,7 @@ app.get("/login", async (req, res) => {
         res,
         "login.ejs",
         { title: "Login" },
-        { auth_path: "/redirect-to-auth" },
+        { needHostname: (getHostname() == null), auth_path: "/redirect-to-auth" },
         [ "/src/stylesheets/pages/login.css" ],
     );
 });
@@ -104,6 +104,17 @@ app.get("/profile", async (req, res) => {
 // Automatically redirect to authentication
 app.get("/redirect-to-auth", (req, res) => {
     res.redirect(WCA_AUTH_URL(getHostname()));
+});
+
+const hostnameHeader = "hostname";
+app.post("/updateHostname", (req, res) => {
+    if (!sentFromClient(req)) {
+        res.redirect("/");
+        return;
+    }
+
+    setHostname(req.headers[hostnameHeader]);
+    res.status(200).json({ });
 });
 
 // Route for auth-callback
@@ -323,10 +334,8 @@ app.get("/newcomp", async (req, res) => {
 
 
 // Start receiving HTTP requests
-app.listen(getConfigData().port, () => {
-    console.log(
-        `Listening on ${getHostname()} (port ${getConfigData().port})${getConfigData().local ? ", locally" : ""}`,
-    );
+app.listen(WEBSITE_PORT, () => {
+    console.log(`Website is running on port ${WEBSITE_PORT}.`);
 });
 
 

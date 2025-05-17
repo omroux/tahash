@@ -33,6 +33,13 @@ onPageLoad(async () => {
         wcaMeData = await getWcaMe();
 
     setLoadingState(false);
+
+    if (!getCookie(loggedInCookie)) {
+        clearLoginData();
+        window.location = "/login";
+        return;
+    }
+
     updateWcaData();
 });
 

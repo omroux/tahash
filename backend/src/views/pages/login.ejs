@@ -15,8 +15,14 @@
     });
 
     const loginBtn = document.querySelector("#login-btn");
-    loginBtn.onclick = () => {
+    const hostnameHeader = "hostname";
+    loginBtn.onclick = async () => {
         loginBtn.disabled = true;
-        window.location.href = "<%= auth_path %>";
+    <% if (locals.needHostname) { %>
+        const headers = {};
+        headers[hostnameHeader] = window.location.origin;
+        await sendRequest("/updateHostname", { method: "post", headers: headers });
+    <% } %>
+        window.location = "<%- auth_path %>";
     }
 </script>
