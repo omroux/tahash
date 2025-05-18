@@ -142,8 +142,8 @@ config.local.json
 **/.env
 cmds.txt
 
-# server deploy folder
-server_deploy
+# manager.sh
+manager1.sh
 
 # vscode
 launch.json

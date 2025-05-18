@@ -14,10 +14,12 @@ export class CompManager {
     // initialize comps collection if it's empty
     async initComps() {
         const count = await this.#collection.countDocuments({}, { limit: 1 });
+        console.log("There are", count, "comps in the database.");
         if (count > 0) return;
 
         // save an empty comp with compNumber 0
         await this.saveComp(new TahashComp(this, { compNumber: 0, endDate: new Date(1) }));
+        await this.#collection.findOne({}); // mongodb needs more time to register saving the new comp
     }
 
     // get a TahashComp object from the database by its comp number
@@ -38,14 +40,14 @@ export class CompManager {
     // save a TahashComp to the database by its comp number (if it already exists, just update its values).
     // returns whether the update has been acknowledged (usually true).
     async saveComp(tahashComp) {
-        return await this.#collection.updateOne({ compNumber: tahashComp.compNumber },
+        return (await this.#collection.updateOne({ compNumber: tahashComp.compNumber },
             { $set: {
                 compNumber: tahashComp.compNumber,
                 startDate: tahashComp.startDate,
                 endDate:  tahashComp.endDate,
                 data:  compDataToDocData(tahashComp.data)
                 } },
-            { upsert: true }).acknowledged;
+            { upsert: true })).acknowledged;
     }
 
     // get the current comp in the database (by highest comp number)

@@ -246,7 +246,7 @@ export async function initDatabase() {
     _compManager = new CompManager(_tahashDb.collection(compsCollectionName));
     _userManager = new UserManager(_tahashDb.collection(usersCollectionName));
 
-    // initialize comps collection if it's empty
+    // initialize comps collection in case it's empty
     await _compManager.initComps();
 
     // validate current comp
