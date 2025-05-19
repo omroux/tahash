@@ -436,11 +436,14 @@ async function submitTime(uploadData = true) {
             return;
         }
     
-        const headers = { };
-        headers[userIdHeader] = userData.userId;
-        headers[eventIdHeader] = eventId;
-        headers[timesHeader] = JSON.stringify(packTimes(allTimes));
-        const res = await sendRequest("/updateTimes", { headers: headers });
+        const body = {
+            userId: userData.userId,
+            eventId: eventId,
+            times: packTimes(allTimes)
+        };
+        const res = await sendRequest("/updateTimes", { method: "post",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(body) });
         if (res.error) {
             throwError("בעיה בשמירת התוצאות");
             return;

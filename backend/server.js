@@ -55,6 +55,9 @@ app.set("views", path.join(__dirname, "/src/views/"));
 // middleware to parse cookies
 app.use(cookieParser());
 
+// middleware to parse json requests (Content-Type: application/json)
+app.use(express.json());
+
 
 // #region page routing
 
@@ -181,29 +184,27 @@ app.get("/compete/:eventId", async (req, res) => {
 
 const userIdHeader = "user-id";
 const eventIdHeader = "event-id";
-const timesHeader = "times";
-app.get("/updateTimes", async (req, res) => {
+
+app.post("/updateTimes", async (req, res) => {
     if (!sentFromClient(req)) {
         res.redirect("/");
         return;
     }
 
-    // get headers
-    const userId = req.headers[userIdHeader];
-    const eventId = req.headers[eventIdHeader];
-    const timesStr = req.headers[timesHeader];
-    if (!userId || !eventId || !timesStr) {
-        console.log("Invalid headers for updateTimes. Request:", req);
+    const userId = req.body.userId;
+    const eventId = req.body.eventId;
+    const times = req.body.times;
+    if (!userId || !eventId || !times) {
+        console.log("Invalid body for updateTimes. Request:", req);
         res.json(errorObject("Invalid headers"));
         return;
     }
 
-    const times = JSON.parse(timesStr);
     const currCompNumber = compManager().getCurrentCompNumber();
     const userObj = await userManager().getUserById(userId);
     userObj.setEventTimes(currCompNumber, eventId, times);
     await userObj.saveToDB();
-    res.json({text: "Saved successfully!"});
+    res.json({ text: "Saved successfully!" });
 });
 
 /*
@@ -223,7 +224,7 @@ app.get("/retrieveTimes", async (req, res) => {
     }
 
     // get headers
-    const userId = req.headers[userIdHeader];
+    const userId = parseInt(req.headers[userIdHeader]);
     const eventId = req.headers[eventIdHeader];
 
     const currCompNumber = compManager().getCurrentCompNumber();
@@ -245,8 +246,8 @@ app.get("/eventStatuses", async (req, res) => {
         return;
     }
 
-    // get headers
-    const userId = req.headers[userIdHeader];
+    // get header
+    const userId = parseInt(req.headers[userIdHeader]);
 
     const currCompNumber = compManager().getCurrentCompNumber();
     const userObj = await userManager().getUserById(userId);
