@@ -495,12 +495,14 @@
     display: flex;
     flex-direction: row-reverse;
     justify-content:space-between;
-    margin: auto 5%;
+    margin: auto 7.5%;
     margin-bottom: 0.5rem;
 }
 
 .Num-Scrambles-Control-Btn {
     direction: ltr;
+    box-sizing: border-box;
+    text-align: center;
 }
 
 .Num-Scrambles-Amount-Label, .Num-Scrambles-Label {

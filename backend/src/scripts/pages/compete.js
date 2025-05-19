@@ -307,6 +307,13 @@ onPageLoad(async () => {
     
     menuAndPanelContainer.setAttribute("hide", false);
     menuAndPanelSpinner.hidden = true;
+
+    if (isMBLD) {
+        scrContainers[0].setAttribute(hiddenAttribute, "true");
+        inputAndPenaltyContainer.removeAttribute(canEditAttribute);
+        previewAndSubmitContainer.removeAttribute(canEditAttribute);
+        previewAndSubmitContainer.setAttribute("hide", "true");
+    }
 });
 
 window.onresize = () => {
@@ -631,6 +638,11 @@ if (isFMC) {
         checkSolutionBtn.disabled = solutionInputField.value.length == 0;
     });
 
+}
+
+if (isMBLD) {
+    scrContainers[0].setAttribute(hiddenAttribute, "true");
+    console.log(scrContainers[0])
 }
 
 
