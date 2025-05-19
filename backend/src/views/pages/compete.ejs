@@ -16,6 +16,20 @@
         </div>
     
         <div class="Compete-Container">
+            <% if (eventData.event.eventId == "mbld") { %>
+                <div class="Num-Scrambles-Select-Container" id="numScramblesSelectContainer">
+                    <p class="Num-Scrambles-Label">כמה קוביות?</p>
+                    <div class="Num-Scrambles-Controller-Container">
+                        <button class="Num-Scrambles-Control-Btn" id="tenLessScramblesBtn">-10</button>
+                        <button class="Num-Scrambles-Control-Btn" id="oneLessScrambleBtn">-1</button>
+                        <p class="Num-Scrambles-Amount-Label">2</p>
+                        <button class="Num-Scrambles-Control-Btn" id="oneMoreScrambleBtn">+1</button>
+                        <button class="Num-Scrambles-Control-Btn" id="tenMoreScramblesBtn">+10</button>
+                    </div>
+                    <button class="Submit-Num-Scrambles-Btn" id="submitNumScramblesBtn">ערבב</button>
+                </div>
+            <% } %>
+
             <!-- <a href="/scrambles"><button class="Back-To-Scrambles-Button">חזור לערבובים</button></a><br/> -->
             <div class="Scrambles-Container" id="scrsContainer">
                 <% for (let i = 0; i < eventData.scrambles.length; i++) { %>
@@ -33,7 +47,7 @@
             <div class="FMC-Solution-Input-Container" id="fmcSolInputContainer" canEdit>
                 <textarea class="Input-Solution-Field" id="solutionInputField" placeholder="R U R' U'..."></textarea>
             </div>
-            <% } %>
+        <% } %>
             
             <div class="Time-Input-Container">
             <% if (eventData.event.eventId == "fmc") { %>
@@ -44,8 +58,22 @@
                         <button class="Check-Solution-BTN" id="checkSolutionButton" disabled>בדוק פתרון</button>
                     </div>
                 </div>
-            <% } else { %>
+            <% } else if (eventData.event.eventId == "mbld") { %>
+                <div class="Input-And-Penalty-Container" id="inputAndPenaltyContainer" canEdit style="opacity: 0">
+                    <input class="Time-Input-Field" type="text" oninput="" id="timeInput" maxlength="12"/>
+    
+                    <div class="Penalty-Select-Container">
+                        <button class="Plus-2-Btn" id="plus2Btn" style="direction: ltr;">+2</button>
+                        <button class="DNF-Btn" id="dnfBtn">DNF</button>
+                    </div>
+                </div>
 
+                
+                <div class="Preview-And-Submit-Container" id="previewAndSubmitContainer" canEdit style="opacity: 0">
+                    <label class="Time-Preview-Lbl" id="timePreviewLbl">-</label>
+                    <button class="Submit-Time-Btn" id="submitTimeBtn">הבא</button>
+                </div>
+            <% } else { %>
                 <div class="Input-And-Penalty-Container" id="inputAndPenaltyContainer" canEdit>
                     <input class="Time-Input-Field" type="text" oninput="" id="timeInput" maxlength="12"/>
     

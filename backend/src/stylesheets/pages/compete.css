@@ -20,7 +20,7 @@
     overflow-anchor: none;
 }
 
-.Back-To-Scrambles-Button, .Next-Scr-Btn, .Prev-Scr-Btn, .Plus-2-Btn, .DNF-Btn, .Submit-Time-Btn, .Check-Solution-BTN {
+.Back-To-Scrambles-Button, .Next-Scr-Btn, .Prev-Scr-Btn, .Plus-2-Btn, .DNF-Btn, .Submit-Time-Btn, .Check-Solution-BTN, .Num-Scrambles-Control-Btn, .Submit-Num-Scrambles-Btn {
     transition: scale 0.075s, background-color 0.1s;
     transition-timing-function: ease-in;
 
@@ -490,3 +490,39 @@
     direction: ltr;
     font-weight: 400;
 }
+
+.Num-Scrambles-Controller-Container {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content:space-between;
+    margin: auto 5%;
+    margin-bottom: 0.5rem;
+}
+
+.Num-Scrambles-Control-Btn {
+    direction: ltr;
+}
+
+.Num-Scrambles-Amount-Label, .Num-Scrambles-Label {
+    text-align: center;
+    font-weight: 450;
+    letter-spacing: 1.05;
+}
+
+.Num-Scrambles-Label {
+    font-size: 1.5em;
+    margin: auto auto 0.75rem auto;
+}
+
+.Num-Scrambles-Amount-Label {
+    font-size: 2.25em;
+    margin: auto;
+}
+
+.Submit-Num-Scrambles-Btn {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+}
+
