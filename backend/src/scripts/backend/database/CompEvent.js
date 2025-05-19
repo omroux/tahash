@@ -1,4 +1,5 @@
 import csTimer from "cstimer_module";
+import { getRandomString } from "../utils/globalUtils.js";
 
 // Competition event structure
 class CompEvent {
@@ -36,12 +37,14 @@ class CompEvent {
     // returns a string[] with scrambles for this event
     generateScrambles() {
         const num = this.getNumScrambles();
-        let result = [];
-        let lens = [];
 
+        // generate seed instead of scrambles
+        if (num < 0)
+            return [ getRandomString() ];
+
+        let result = [];
         for (let i = 0; i < num; i++) {
             const len = this.getScrambleLength();
-            lens.push(len);
             result.push(csTimer.getScramble(this.scrType, len));
         }
 
@@ -62,11 +65,12 @@ export const TimeFormat = Object.freeze({
     multi: "multi"
 });
 
+// -1 -> generate seed
 const numScrambles = Object.freeze({
     ao5: 5,
     mo3: 3,
     bo3: 3,
-    multi: 20
+    multi: -1
 });
 
 // get the number of scrambles for a TimeFormat
@@ -93,7 +97,7 @@ export const WCAEvents = [
     new CompEvent(  "Square-1", "square-1", "sqrs",     "event-sq1",    TimeFormat.ao5),
     new CompEvent(  "4x4 BLD",  "4bld",     "444bld",   "event-444bf",  TimeFormat.bo3,     40),
     new CompEvent(  "5x5 BLD",  "5bld",     "555bld",   "event-555bf",  TimeFormat.bo3,     60),
-    new CompEvent(  "3x3 MBLD", "mbld",     "r3ni",     "event-333mbf", TimeFormat.multi,   5)
+    new CompEvent(  "3x3 MBLD", "mbld",     "r3ni",     "event-333mbf", TimeFormat.multi,   1)
 ];
 Object.freeze(WCAEvents);
 

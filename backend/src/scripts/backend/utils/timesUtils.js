@@ -218,8 +218,10 @@ export function unpackTimes(packed) {
 
 // returns an empty packed times object
 export function getEmptyPackedTimes(compEvent) {
-    const nTimes = compEvent.getNumScrambles();
+    let nTimes = compEvent.getNumScrambles();
+    nTimes = nTimes < 1 ? 1 : nTimes;
     const times = [];
+
     for (let i = 0; i < nTimes; i++) {
         const newTime = { centis: -1, penalty: Penalties.None };
         if (compEvent.emptyExtraArgs != null)

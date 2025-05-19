@@ -12,6 +12,7 @@ import {
 
 
 const isFMC = eventId == "fmc";
+const isMBLD = eventId == "mbld";
 
 const emptyElement = document.createElement("div");
 const scrsContainer = document.getElementById("scrsContainer");
@@ -213,6 +214,8 @@ onPageLoad(async () => {
 
     console.log("packed", timesRes);
     allTimes = unpackTimes(timesRes);
+    console.log(allTimes);
+    console.log("numScr:", numScr);
 
     // update canEdit limitation
     if ((!isFMC && allTimes[numScr - 1].timesObj != null)

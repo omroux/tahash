@@ -17,6 +17,8 @@ export class CompManager {
         console.log("There are", count, "comps in the database.");
         if (count > 0) return;
 
+        console.log("Initializing empty comp...");
+        
         // save an empty comp with compNumber 0
         await this.saveComp(new TahashComp(this, { compNumber: 0, endDate: new Date(1) }));
         await this.#collection.findOne({}); // mongodb needs more time to register saving the new comp

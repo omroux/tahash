@@ -29,8 +29,8 @@ import {
     getEnvConfigOptions,
     setHostname
 } from "./serverUtils.js";
-import { errorObject, Penalties } from "./src/scripts/backend/utils/globalUtils.js";
-import { tryAnalyzeTimes, getDisplayTime, getTimesObjStr, packTimes, unpackTimes, getEmptyPackedTimes } from "./src/scripts/backend/utils/timesUtils.js"
+import { errorObject } from "./src/scripts/backend/utils/globalUtils.js";
+import { tryAnalyzeTimes, getDisplayTime, getTimesObjStr, packTimes, unpackTimes, Penalties, getEmptyPackedTimes } from "./src/scripts/backend/utils/timesUtils.js"
 import { getEventById } from "./src/scripts/backend/database/CompEvent.js";
 
 
