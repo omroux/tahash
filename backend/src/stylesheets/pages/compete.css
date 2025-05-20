@@ -122,6 +122,17 @@
     &[hide="true"] {
         opacity: 0;
     }
+
+    &[hideImages] {
+        
+        .Scramble-Img {
+            margin: 0;
+        }
+
+        .Scramble-Pair-Container {
+            gap: 0px;
+        }
+    }
 }
 
 .Compete-Container {

@@ -45,6 +45,7 @@ const showPreviewAttribute = "showPreview";
 const canEditAttribute = "canEdit";
 const hiddenAttribute = "hidden";
 const changedAttribute = "changed";
+const hideImagesAttribute = "hideImages";
 
 // fmc input
 if (isFMC) {
@@ -64,7 +65,7 @@ function updateActiveScr() {
     if (activeScr == lastActive) return;
 
     if (lastActive >= 0) {
-        scrContainers[lastActive].setAttribute("hidden", true);
+        scrContainers[lastActive].setAttribute(hiddenAttribute, true);
         scrMenuItemContainers[lastActive].removeAttribute("active");
 
         if (!isFMC && validTime)
@@ -236,10 +237,14 @@ onPageLoad(async () => {
 
     setLoadingState(false);
 
+    // hide image events
     if (hideImageEvents.includes(eventId)) {
         _templateSVG = document.createElement("svg");
         // generate an empty image for the right image size
         _templateSVG = await cstimerWorker.getImage("", scrType);
+        
+        // hide the images
+        scrsContainer.setAttribute(hideImagesAttribute, "");
     }
     else {
         for (let i = 0; i < numScr; i++) {
@@ -309,10 +314,9 @@ onPageLoad(async () => {
     menuAndPanelSpinner.hidden = true;
 
     if (isMBLD) {
-        scrContainers[0].setAttribute(hiddenAttribute, "true");
-        inputAndPenaltyContainer.removeAttribute(canEditAttribute);
-        previewAndSubmitContainer.removeAttribute(canEditAttribute);
-        previewAndSubmitContainer.setAttribute("hide", "true");
+        // scrContainers[0].setAttribute(hiddenAttribute, "true");
+        // inputAndPenaltyContainer.setAttribute("hide", "true");
+        // previewAndSubmitContainer.setAttribute("hide", "true");
     }
 });
 
@@ -642,11 +646,13 @@ if (isFMC) {
 
 if (isMBLD) {
     // mbld elements
-    const fiveLessScramblesBtn = isMBLD ? document.getElementById("fiveLessScramblesBtn") : null;
-    const oneLessScrambleBtn = isMBLD ? document.getElementById("oneLessScrambleBtn") : null;
-    const numScramblesAmountLbl = isMBLD ? document.getElementById("numScramblesAmountLbl") : null;
-    const oneMoreScrambleBtn = isMBLD ? document.getElementById("oneMoreScrambleBtn") : null;
-    const fiveMoreScramblesBtn = isMBLD ? document.getElementById("fiveMoreScramblesBtn") : null;
+    const fiveLessScramblesBtn = document.getElementById("fiveLessScramblesBtn");
+    const oneLessScrambleBtn = document.getElementById("oneLessScrambleBtn");
+    const numScramblesAmountLbl = document.getElementById("numScramblesAmountLbl");
+    const oneMoreScrambleBtn = document.getElementById("oneMoreScrambleBtn");
+    const fiveMoreScramblesBtn = document.getElementById("fiveMoreScramblesBtn");
+    const submitNumScrsBtn = document.getElementById("submitNumScramblesBtn");
+    
 
     const smallDelta = 1;
     const bigDelta = 5;
@@ -658,14 +664,13 @@ if (isMBLD) {
 
     function submitNumScrsSelect() {
         numScrs = Math.min(Math.max(numScrs, minScrs), maxScrs); // clamp value
-        console.log("submit");
 
         // generate scrambles
 
-        scrContainers[0].setAttribute(hiddenAttribute, "false");
-        inputAndPenaltyContainer.setAttribute(canEditAttribute, "");
-        previewAndSubmitContainer.setAttribute(canEditAttribute, "");
-        previewAndSubmitContainer.setAttribute("hide", "false");
+
+        // scrContainers[0].setAttribute(hiddenAttribute, "false");
+        // inputAndPenaltyContainer.setAttribute("hide", "false");
+        // previewAndSubmitContainer.setAttribute("hide", "false");
     }
 
     function updateNumScrs(delta = 0) {
@@ -682,7 +687,7 @@ if (isMBLD) {
     oneLessScrambleBtn.onclick = () => updateNumScrs(-smallDelta);
     oneMoreScrambleBtn.onclick = () => updateNumScrs(smallDelta);
     fiveMoreScramblesBtn.onclick = () => updateNumScrs(bigDelta);
-    submitNumScrsSelect.onclick = () => submitNumScrsSelect();
+    submitNumScrsBtn.onclick = submitNumScrsSelect;
 
 }
 
