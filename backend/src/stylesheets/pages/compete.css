@@ -507,7 +507,7 @@
     flex-direction: row-reverse;
     justify-content:space-between;
     margin: auto 7.5%;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
 }
 
 .Num-Scrambles-Control-Btn {
@@ -530,10 +530,7 @@
 .Num-Scrambles-Amount-Label {
     font-size: 2.25em;
     margin: auto;
-    margin-left: 5%;
-    margin-right: 5%;
-    padding-left: 10%;
-    padding-right: 10%;
+    width: 15%;
     box-sizing: border-box;
     border: 1px solid black;
 }
