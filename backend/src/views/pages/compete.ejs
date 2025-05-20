@@ -16,29 +16,41 @@
         </div>
     
         <div class="Compete-Container">
-            <% if (eventData.event.eventId == "mbld") { %>
-                <div class="Num-Scrambles-Select-Container" id="numScramblesSelectContainer">
-                    <p class="Num-Scrambles-Label">כמה קוביות?</p>
-                    <div class="Num-Scrambles-Controller-Container">
-                        <button class="Num-Scrambles-Control-Btn" style="width: 11%;" id="fiveLessScramblesBtn">-5</button>
-                        <button class="Num-Scrambles-Control-Btn" style="width: 8%;" id="oneLessScrambleBtn">-1</button>
-                        <p class="Num-Scrambles-Amount-Label" id="numScramblesAmountLbl">2</p>
-                        <button class="Num-Scrambles-Control-Btn" style="width: 8%;" id="oneMoreScrambleBtn">+1</button>
-                        <button class="Num-Scrambles-Control-Btn" style="width: 11%;" id="fiveMoreScramblesBtn">+5</button>
-                    </div>
-                    <button class="Submit-Num-Scrambles-Btn" id="submitNumScramblesBtn">הצג ערבובים</button>
+        <% if (eventData.event.eventId == "mbld") { %>
+            <div class="Num-Scrambles-Select-Container" id="numScramblesSelectContainer">
+                <p class="Num-Scrambles-Label">כמה קוביות?</p>
+                <div class="Num-Scrambles-Controller-Container">
+                    <button class="Num-Scrambles-Control-Btn" style="width: 11%;" id="fiveLessScramblesBtn">-5</button>
+                    <button class="Num-Scrambles-Control-Btn" style="width: 8%;" id="oneLessScrambleBtn">-1</button>
+                    <p class="Num-Scrambles-Amount-Label" id="numScramblesAmountLbl">2</p>
+                    <button class="Num-Scrambles-Control-Btn" style="width: 8%;" id="oneMoreScrambleBtn">+1</button>
+                    <button class="Num-Scrambles-Control-Btn" style="width: 11%;" id="fiveMoreScramblesBtn">+5</button>
                 </div>
-            <% } %>
+                <button class="Submit-Num-Scrambles-Btn" id="submitNumScramblesBtn">הצג ערבובים</button>
+            </div>
 
+            <script>const scramblesSeed = "<%- eventData.scrambles[0] %>";</script>
+
+            <div class="Scrambles-Container" id="scrsContainer">
+                <div class="Scramble-Pair-Container" id="scrContainer">
+                    <div class="MBLD-Scrambles-Container" id="mbldScrsContainer">
+                        <p class="MBLD-Scramble-Text Scramble-Text" style="display: none;" id="scrTxt"></p>
+                    </div>
+                    <div class="Scramble-Img" id="scrImg"></div>
+                </div>
+            </div>
+        <% } else { %>
             <!-- <a href="/scrambles"><button class="Back-To-Scrambles-Button">חזור לערבובים</button></a><br/> -->
             <div class="Scrambles-Container" id="scrsContainer">
                 <% for (let i = 0; i < eventData.scrambles.length; i++) { %>
                     <div class="Scramble-Pair-Container" id="scrContainer<%- i %>" <% if (i != 0) { %> hidden <% } %> >
-                        <p class="Scramble-Text" style="direction: ltr; white-space: pre-wrap;"> <%- eventData.scrambles[i].replaceAll(' ', '  ').trim() %></p>
+                        <p class="Scramble-Text" id="scrTxt<%- i %>"> <%- eventData.scrambles[i].replaceAll(' ', '  ').trim() %></p>
                         <div class="Scramble-Img" id="scrImg<%- i %>"></div>
                     </div>
                 <% } %>
             </div>
+
+        <% } %>
     
         <% if (eventData.event.eventId == "fmc") { %>
             <!-- TODO: if the event is finished, don't load the cube.js script -->

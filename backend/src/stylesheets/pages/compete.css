@@ -81,6 +81,8 @@
     font-size: 1em;
     letter-spacing: 1.05;
     margin: auto;
+    direction: ltr;
+    white-space: pre-wrap;
 }
 
 .Scramble-Img {
@@ -124,7 +126,6 @@
     }
 
     &[hideImages] {
-        
         .Scramble-Img {
             margin: 0;
         }
@@ -506,8 +507,12 @@
     display: flex;
     flex-direction: row-reverse;
     justify-content:space-between;
-    margin: auto 7.5%;
+    margin: auto 12.5%;
     margin-bottom: 1rem;
+
+    &[hidden] {
+        display: none;
+    }
 }
 
 .Num-Scrambles-Control-Btn {
@@ -532,7 +537,6 @@
     margin: auto;
     width: 15%;
     box-sizing: border-box;
-    border: 1px solid black;
 }
 
 .Submit-Num-Scrambles-Btn {
@@ -542,3 +546,17 @@
     margin-bottom: 0.5rem;
 }
 
+.MBLD-Scramble-Text {
+    font-size: 150%;
+    font-weight: 500;
+    text-align: center;
+}
+
+.MBLD-Scrambles-Container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    justify-content: center;
+
+    width: 100%;
+}

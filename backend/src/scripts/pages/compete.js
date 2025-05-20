@@ -18,6 +18,7 @@ const emptyElement = document.createElement("div");
 const scrsContainer = document.getElementById("scrsContainer");
 const scrContainers = document.querySelectorAll("[id^='scrContainer'");
 const scrImages = document.querySelectorAll("[id^='scrImg'");
+const scrTexts = document.querySelectorAll("[id^='scrTxt'");
 const scrMenuItemContainers = document.querySelectorAll("[id^='scrMenuItemContainer'");
 const scrMenuItemTimes = document.querySelectorAll("[id^='scrMenuItemTime'");
 const scrNumTitle = document.getElementById("scrNumberTitle");
@@ -314,9 +315,9 @@ onPageLoad(async () => {
     menuAndPanelSpinner.hidden = true;
 
     if (isMBLD) {
-        // scrContainers[0].setAttribute(hiddenAttribute, "true");
-        // inputAndPenaltyContainer.setAttribute("hide", "true");
-        // previewAndSubmitContainer.setAttribute("hide", "true");
+        scrContainers[0].setAttribute(hiddenAttribute, "true");
+        inputAndPenaltyContainer.setAttribute("hide", "true");
+        previewAndSubmitContainer.setAttribute("hide", "true");
     }
 });
 
@@ -645,7 +646,10 @@ if (isFMC) {
 }
 
 if (isMBLD) {
+    const mbldScrsContainer = document.getElementById("mbldScrsContainer");
+
     // mbld elements
+    const numScrsSelectContainer = document.getElementById("numScramblesSelectContainer");
     const fiveLessScramblesBtn = document.getElementById("fiveLessScramblesBtn");
     const oneLessScrambleBtn = document.getElementById("oneLessScrambleBtn");
     const numScramblesAmountLbl = document.getElementById("numScramblesAmountLbl");
@@ -653,7 +657,7 @@ if (isMBLD) {
     const fiveMoreScramblesBtn = document.getElementById("fiveMoreScramblesBtn");
     const submitNumScrsBtn = document.getElementById("submitNumScramblesBtn");
     
-
+    // general variables
     const smallDelta = 1;
     const bigDelta = 5;
     const minScrs = 2;
@@ -661,16 +665,43 @@ if (isMBLD) {
     let numScrs = minScrs;
     updateNumScrs();
 
+    // fetch scramble seed
+    // const scramblesSeed = scrambles[0];
 
-    function submitNumScrsSelect() {
+    async function generateScrambles(seed, amount) {
+        setInteractionState(false, true, false);
+
+        await cstimerWorker.setSeed(seed);
+        const allScramblesStr = await cstimerWorker.getScramble(scrType, amount)
+        const allScrambles = allScramblesStr.split('\n');
+        for (let i = 0; i < allScrambles.length; i++) {
+            const el = insertScramble(allScrambles[i]);
+            el.id = "scrTxt" + i;
+        }
+        
+
+        setInteractionState(true, true, false);
+
+        function insertScramble(scrTxt) {
+            const newEl = document.createElement("p");
+            newEl.className = "MBLD-Scramble-Text Scramble-Text";
+            newEl.innerText = scrTxt;
+            mbldScrsContainer.appendChild(newEl);
+            return newEl;
+        }
+    }
+
+
+    async function submitNumScrsSelect() {
         numScrs = Math.min(Math.max(numScrs, minScrs), maxScrs); // clamp value
+        numScrsSelectContainer.setAttribute(hiddenAttribute, "");
 
         // generate scrambles
+        await generateScrambles(scramblesSeed, numScrs);
 
-
-        // scrContainers[0].setAttribute(hiddenAttribute, "false");
-        // inputAndPenaltyContainer.setAttribute("hide", "false");
-        // previewAndSubmitContainer.setAttribute("hide", "false");
+        scrContainers[0].removeAttribute(hiddenAttribute);
+        inputAndPenaltyContainer.removeAttribute("hide");
+        previewAndSubmitContainer.removeAttribute("hide");
     }
 
     function updateNumScrs(delta = 0) {
@@ -687,7 +718,10 @@ if (isMBLD) {
     oneLessScrambleBtn.onclick = () => updateNumScrs(-smallDelta);
     oneMoreScrambleBtn.onclick = () => updateNumScrs(smallDelta);
     fiveMoreScramblesBtn.onclick = () => updateNumScrs(bigDelta);
-    submitNumScrsBtn.onclick = submitNumScrsSelect;
+    submitNumScrsBtn.onclick = async () => {
+        submitNumScrsBtn.disabled = true;
+        await submitNumScrsSelect();
+    };
 
 }
 
