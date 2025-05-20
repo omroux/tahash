@@ -641,8 +641,49 @@ if (isFMC) {
 }
 
 if (isMBLD) {
-    scrContainers[0].setAttribute(hiddenAttribute, "true");
-    console.log(scrContainers[0])
+    // mbld elements
+    const fiveLessScramblesBtn = isMBLD ? document.getElementById("fiveLessScramblesBtn") : null;
+    const oneLessScrambleBtn = isMBLD ? document.getElementById("oneLessScrambleBtn") : null;
+    const numScramblesAmountLbl = isMBLD ? document.getElementById("numScramblesAmountLbl") : null;
+    const oneMoreScrambleBtn = isMBLD ? document.getElementById("oneMoreScrambleBtn") : null;
+    const fiveMoreScramblesBtn = isMBLD ? document.getElementById("fiveMoreScramblesBtn") : null;
+
+    const smallDelta = 1;
+    const bigDelta = 5;
+    const minScrs = 2;
+    const maxScrs = 50;
+    let numScrs = minScrs;
+    updateNumScrs();
+
+
+    function submitNumScrsSelect() {
+        numScrs = Math.min(Math.max(numScrs, minScrs), maxScrs); // clamp value
+        console.log("submit");
+
+        // generate scrambles
+
+        scrContainers[0].setAttribute(hiddenAttribute, "false");
+        inputAndPenaltyContainer.setAttribute(canEditAttribute, "");
+        previewAndSubmitContainer.setAttribute(canEditAttribute, "");
+        previewAndSubmitContainer.setAttribute("hide", "false");
+    }
+
+    function updateNumScrs(delta = 0) {
+        numScrs += delta;
+        numScramblesAmountLbl.innerText = numScrs;
+
+        fiveLessScramblesBtn.disabled = numScrs - bigDelta < minScrs;
+        oneLessScrambleBtn.disabled = numScrs - smallDelta < minScrs;
+        oneMoreScrambleBtn.disabled = numScrs + smallDelta > maxScrs;
+        fiveMoreScramblesBtn.disabled = numScrs + bigDelta > maxScrs;
+    }
+
+    fiveLessScramblesBtn.onclick = () => updateNumScrs(-bigDelta);
+    oneLessScrambleBtn.onclick = () => updateNumScrs(-smallDelta);
+    oneMoreScrambleBtn.onclick = () => updateNumScrs(smallDelta);
+    fiveMoreScramblesBtn.onclick = () => updateNumScrs(bigDelta);
+    submitNumScrsSelect.onclick = () => submitNumScrsSelect();
+
 }
 
 
