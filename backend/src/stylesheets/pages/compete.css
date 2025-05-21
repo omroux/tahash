@@ -226,6 +226,7 @@
     text-align: center;
     direction: ltr;
     font-weight: 400;
+    white-space: nowrap;
 
     opacity: 0.7;
     scale: 0.9;
@@ -268,10 +269,6 @@
 .Preview-And-Submit-Container, .Input-And-Penalty-Container {
     &[horizontalCenter] {
         margin: auto;
-    }
-
-    &[hide="true"] {
-        /* display: none; */
     }
 }
 

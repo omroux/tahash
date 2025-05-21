@@ -355,8 +355,9 @@ function updatePreviewLabel() {
     }
 
     if (isMBLD && !dnfState) {
-
+        timesObjStr = `${mbldPointsStr}    ${timesObjStr}`;
     }
+
 
     timePreviewLbl.innerText = timesObjStr;
 
@@ -661,6 +662,7 @@ if (isFMC) {
 }
 
 let totalMBLDPoints = 0;
+let mbldPointsStr = "";
 if (isMBLD) {
     const mbldScrsContainer = document.getElementById("mbldScrsContainer");
     const mbldPreviewAndSubmitContainer = document.getElementById("mbldPreviewAndSubmitContainer");
@@ -773,6 +775,8 @@ if (isMBLD) {
 
         totalMBLDPoints = numSucc - (numScrs - numSucc);
         setDnfState(totalMBLDPoints <= 0);
+        mbldPointsStr = `${numSucc}/${numScrs}`;
+        updatePreviewLabel();
     }
 
     fiveLessSuccBtn.onclick = () => updateNumSucc(-bigDelta);
