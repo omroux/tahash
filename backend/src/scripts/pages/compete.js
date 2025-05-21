@@ -665,29 +665,32 @@ if (isMBLD) {
     let numScrs = minScrs;
     updateNumScrs();
 
-    // fetch scramble seed
-    // const scramblesSeed = scrambles[0];
-
     async function generateScrambles(seed, amount) {
+        const scramblesSectionMax = 5;
         setInteractionState(false, true, false);
 
         await cstimerWorker.setSeed(seed);
         const allScramblesStr = await cstimerWorker.getScramble(scrType, amount)
         const allScrambles = allScramblesStr.split('\n');
         for (let i = 0; i < allScrambles.length; i++) {
-            const el = insertScramble(allScrambles[i]);
-            el.id = "scrTxt" + i;
+            insertScramble(allScrambles[i], i);
         }
         
-
         setInteractionState(true, true, false);
 
-        function insertScramble(scrTxt) {
+        function insertScramble(scrTxt, scrNumber) {
+            if (scrNumber > 0 && scrNumber % scramblesSectionMax == 0) {
+                const divider = document.createElement("div");
+                divider.className = "MBLD-Scrambles-Divider";
+                divider.id = "mbldScramblesDivider" + scrNumber / scramblesSectionMax;
+                mbldScrsContainer.appendChild(divider);
+            }
+
             const newEl = document.createElement("p");
             newEl.className = "MBLD-Scramble-Text Scramble-Text";
             newEl.innerText = scrTxt;
+            newEl.id = "scrTxt" + scrNumber;
             mbldScrsContainer.appendChild(newEl);
-            return newEl;
         }
     }
 

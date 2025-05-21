@@ -560,3 +560,10 @@
 
     width: 100%;
 }
+
+.MBLD-Scrambles-Divider:not(:last-child) {
+    border-top: 2px black dashed;
+    width: 95%;
+    margin: 0.5rem auto;
+    height: 2px;
+}
