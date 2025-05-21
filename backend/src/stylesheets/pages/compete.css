@@ -285,6 +285,10 @@
 
     margin-bottom: 1%;
     gap: 1vw;
+
+    & > :only-child {
+        margin: auto;
+    }
 }
 
 .Scramble-Menu-Item {
