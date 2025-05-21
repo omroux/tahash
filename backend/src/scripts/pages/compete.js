@@ -350,7 +350,7 @@ function updatePreviewLabel() {
         : (getTimesObjStr(currTimesObj, dnfState ? Penalties.DNF : (plus2State ? Penalties.Plus2 : Penalties.None)));
         
     if ((!isFMC && (currTimesObj == null || !timesObjStr)) || (isMBLD && currTimesObj.numHours >= mbldMaxHours) || (isFMC && !_validSolution)) {
-        hidePreview(false);
+        hidePreview(timesObjStr != null);
         return;
     }
 
