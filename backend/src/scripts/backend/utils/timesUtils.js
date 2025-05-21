@@ -140,10 +140,8 @@ export function getTimesObjStr(timesObj, penalty = Penalties.None) {
         dispTimesObj.numSeconds %= maxSeconds;
         dispTimesObj.numHours += Math.floor(dispTimesObj.numMinutes / maxMinutes);
         dispTimesObj.numMinutes %= maxMinutes;
-        if (dispTimesObj.numHours >= maxHours) {
-            hidePreview(false);
-            return;
-        }
+        if (dispTimesObj.numHours >= maxHours)
+            return null;
     }
 
     return (penalty == Penalties.DNF) ? DNF_STRING : (getDisplayTime(dispTimesObj) + (penalty == Penalties.Plus2 ? "+" : ""));

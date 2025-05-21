@@ -57,11 +57,6 @@ if (isFMC) {
     previewAndSubmitContainer.setAttribute(canEditAttribute, "");
 }
 
-// mbld input
-if (isMBLD) {
-    
-}
-
 
 let activeScr = 0;
 const numScr = scrContainers.length;
@@ -344,14 +339,16 @@ let validTime = false;
 function updatePreviewLabel() {
     currTimesObj = tryAnalyzeTimes(timeInput.value);
 
-    if ((!isFMC && currTimesObj == null) || (isFMC && !_validSolution)) {
-        hidePreview();
+    const timesObjStr = isFMC
+        ? (dnfState ? DNF_STRING : fmcSolutionArr.length)
+        : (getTimesObjStr(currTimesObj, dnfState ? Penalties.DNF : (plus2State ? Penalties.Plus2 : Penalties.None)));
+        
+    if ((!isFMC && (currTimesObj == null || !timesObjStr)) || (isFMC && !_validSolution)) {
+        hidePreview(false);
         return;
     }
 
-    timePreviewLbl.innerText = isFMC
-        ? (dnfState ? DNF_STRING : fmcSolutionArr.length)
-        : (getTimesObjStr(currTimesObj, dnfState ? Penalties.DNF : (plus2State ? Penalties.Plus2 : Penalties.None)));
+    timePreviewLbl.innerText = timesObjStr;
 
     showPreview();
 }
