@@ -58,9 +58,42 @@
             <!-- TODO: remove this after debug <script src="https://ldez.github.io/cubejs/lib/solve.js"></script> -->
             <div class="FMC-Solution-Input-Container" id="fmcSolInputContainer" canEdit>
                 <textarea class="Input-Solution-Field" id="solutionInputField" placeholder="R U R' U'..."></textarea>
+                <!-- TODO: <div class="Penalty-Select-Container">
+                    <button class="DNF-Btn" id="dnfBtn">DNF</button>
+                </div> -->
+            </div>
+        <% } else if (eventData.event.eventId == "mbld") { %>
+        <% } %>
+        
+        <% if (eventData.event.eventId == "mbld") { %>
+            <!-- mbld time input container over the reguler time input -->
+             <div class="MBLD-Result-Input-Container">
+                <div class="Num-Successes-Select-Container" id="numSuccessesSelectContainer" hidden>
+                    <p class="Num-Successes-Label">כמה קוביות השלמת?</p>
+                    <div class="Num-Successes-Controller-Container">
+                        <button class="Num-Successes-Control-Btn" style="width: 11%;" id="fiveLessSuccessesBtn">-5</button>
+                        <button class="Num-Successes-Control-Btn" style="width: 8%;" id="oneLessSuccessBtn">-1</button>
+                        <p class="Num-Successes-Amount-Label" id="numSuccessesAmountLbl">0</p>
+                        <button class="Num-Successes-Control-Btn" style="width: 8%;" id="oneMoreSuccessBtn">+1</button>
+                        <button class="Num-Successes-Control-Btn" style="width: 11%;" id="fiveMoreSuccessesBtn">+5</button>
+                    </div>
+                </div>
+                <p class="Attempt-Time-Label" id="attemptTimeLbl" hidden>בכמה זמן?</p>
+                <div class="Input-And-Penalty-Container" id="inputAndPenaltyContainer" centerOfPage canEdit>
+                    <input class="Time-Input-Field" type="text" oninput="" id="timeInput" maxlength="12"/>
+    
+                    <div class="Penalty-Select-Container">
+                        <button class="DNF-Btn" id="dnfBtn">DNF</button>
+                    </div>
+                </div>
+                
+                <div class="Preview-And-Submit-Container" id="previewAndSubmitContainer" centerOfPage canEdit>
+                    <label class="Time-Preview-Lbl" id="timePreviewLbl">-</label>
+                    <button class="Submit-Time-Btn" id="submitTimeBtn">הבא</button>
+                </div>
             </div>
         <% } %>
-            
+
             <div class="Time-Input-Container">
             <% if (eventData.event.eventId == "fmc") { %>
                 <div class="Check-Solution-Container" id="checkSolutionContainer" canEdit>
@@ -70,22 +103,7 @@
                         <button class="Check-Solution-BTN" id="checkSolutionButton" disabled>בדוק פתרון</button>
                     </div>
                 </div>
-            <% } else if (eventData.event.eventId == "mbld") { %>
-                <div class="Input-And-Penalty-Container" id="inputAndPenaltyContainer" canEdit style="opacity: 0">
-                    <input class="Time-Input-Field" type="text" oninput="" id="timeInput" maxlength="12"/>
-    
-                    <div class="Penalty-Select-Container">
-                        <button class="Plus-2-Btn" id="plus2Btn" style="direction: ltr;">+2</button>
-                        <button class="DNF-Btn" id="dnfBtn">DNF</button>
-                    </div>
-                </div>
-
-                
-                <div class="Preview-And-Submit-Container" id="previewAndSubmitContainer" canEdit style="opacity: 0">
-                    <label class="Time-Preview-Lbl" id="timePreviewLbl">-</label>
-                    <button class="Submit-Time-Btn" id="submitTimeBtn">הבא</button>
-                </div>
-            <% } else { %>
+            <% } else if (eventData.event.eventId != "mbld") { %>
                 <div class="Input-And-Penalty-Container" id="inputAndPenaltyContainer" canEdit>
                     <input class="Time-Input-Field" type="text" oninput="" id="timeInput" maxlength="12"/>
     
@@ -94,7 +112,6 @@
                         <button class="DNF-Btn" id="dnfBtn">DNF</button>
                     </div>
                 </div>
-
                 
                 <div class="Preview-And-Submit-Container" id="previewAndSubmitContainer" canEdit>
                     <label class="Time-Preview-Lbl" id="timePreviewLbl">-</label>
@@ -102,6 +119,12 @@
                 </div>
             <% } %>
             </div>
+
+        <% if (eventData.event.eventId == "mbld") { %>
+            <!-- mbld time input container over the reguler time input -->
+            <!-- </div> -->
+        <% } %>
+        
             <div class="Spinner" id="submitSpinner" hidden></div>
 
         <% if (eventData.event.eventId == "fmc") { %>

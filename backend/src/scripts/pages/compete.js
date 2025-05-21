@@ -26,7 +26,7 @@ const nextScrBtn = document.getElementById("nextScrBtn");
 const prevScrBtn = document.getElementById("prevScrBtn");
 const timeInput = isFMC ? emptyElement : document.getElementById("timeInput");
 const timePreviewLbl = document.getElementById("timePreviewLbl");
-const plus2Btn = isFMC ? emptyElement : document.getElementById("plus2Btn");
+const plus2Btn = (isFMC || isMBLD) ? emptyElement : document.getElementById("plus2Btn");
 const dnfBtn = isFMC ? emptyElement : document.getElementById("dnfBtn");
 const submitTimeBtn = document.getElementById("submitTimeBtn");
 const submitSpinner = document.getElementById("submitSpinner");
@@ -56,6 +56,12 @@ if (isFMC) {
     inputAndPenaltyContainer.setAttribute(canEditAttribute, "");
     previewAndSubmitContainer.setAttribute(canEditAttribute, "");
 }
+
+// mbld input
+if (isMBLD) {
+    
+}
+
 
 let activeScr = 0;
 const numScr = scrContainers.length;
@@ -647,15 +653,8 @@ if (isFMC) {
 
 if (isMBLD) {
     const mbldScrsContainer = document.getElementById("mbldScrsContainer");
-
-    // mbld elements
-    const numScrsSelectContainer = document.getElementById("numScramblesSelectContainer");
-    const fiveLessScramblesBtn = document.getElementById("fiveLessScramblesBtn");
-    const oneLessScrambleBtn = document.getElementById("oneLessScrambleBtn");
-    const numScramblesAmountLbl = document.getElementById("numScramblesAmountLbl");
-    const oneMoreScrambleBtn = document.getElementById("oneMoreScrambleBtn");
-    const fiveMoreScramblesBtn = document.getElementById("fiveMoreScramblesBtn");
-    const submitNumScrsBtn = document.getElementById("submitNumScramblesBtn");
+    const numSuccessesContainer = document.getElementById("numSuccessesSelectContainer");
+    const attemptTimeLbl = document.getElementById("attemptTimeLbl");
     
     // general variables
     const smallDelta = 1;
@@ -663,7 +662,19 @@ if (isMBLD) {
     const minScrs = 2;
     const maxScrs = 50;
     let numScrs = minScrs;
+
+
+    // #region Number Of Scrambles Controller
+    // elements
+    const numScrsSelectContainer = document.getElementById("numScramblesSelectContainer");
+    const fiveLessScramblesBtn = document.getElementById("fiveLessScramblesBtn");
+    const oneLessScrambleBtn = document.getElementById("oneLessScrambleBtn");
+    const numScramblesAmountLbl = document.getElementById("numScramblesAmountLbl");
+    const oneMoreScrambleBtn = document.getElementById("oneMoreScrambleBtn");
+    const fiveMoreScramblesBtn = document.getElementById("fiveMoreScramblesBtn");
+    const submitNumScrsBtn = document.getElementById("submitNumScramblesBtn");
     updateNumScrs();
+
 
     async function generateScrambles(seed, amount) {
         const scramblesSectionMax = 5;
@@ -703,6 +714,8 @@ if (isMBLD) {
         await generateScrambles(scramblesSeed, numScrs);
 
         scrContainers[0].removeAttribute(hiddenAttribute);
+        numSuccessesContainer.removeAttribute(hiddenAttribute);
+        attemptTimeLbl.removeAttribute(hiddenAttribute);
         inputAndPenaltyContainer.removeAttribute("hide");
         previewAndSubmitContainer.removeAttribute("hide");
     }
@@ -725,6 +738,13 @@ if (isMBLD) {
         submitNumScrsBtn.disabled = true;
         await submitNumScrsSelect();
     };
+    // #endregion
+
+    
+    // #region Number Of Successes Controller
+    
+
+    // #endregion
 
 }
 

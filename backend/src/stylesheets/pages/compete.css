@@ -20,7 +20,7 @@
     overflow-anchor: none;
 }
 
-.Back-To-Scrambles-Button, .Next-Scr-Btn, .Prev-Scr-Btn, .Plus-2-Btn, .DNF-Btn, .Submit-Time-Btn, .Check-Solution-BTN, .Num-Scrambles-Control-Btn, .Submit-Num-Scrambles-Btn {
+.Back-To-Scrambles-Button, .Next-Scr-Btn, .Prev-Scr-Btn, .Plus-2-Btn, .DNF-Btn, .Submit-Time-Btn, .Check-Solution-BTN, .Num-Scrambles-Control-Btn, .Submit-Num-Scrambles-Btn, .Num-Successes-Control-Btn {
     transition: scale 0.075s, background-color 0.1s;
     transition-timing-function: ease-in;
 
@@ -192,9 +192,11 @@
 
     &:not([canEdit]) {
         display: none;
+    }
 
-        & > .Preview-And-Submit-Container {
-            margin: auto;
+    &[centerOfPage] {
+        & > .Time-Input-Field {
+            width: 50%;
         }
     }
 }
@@ -242,11 +244,11 @@
     margin-top: 10px;
     margin-bottom: 10px;
 
-    & > .DNF-Btn {
+    & > .DNF-Btn:not(:only-child) {
         margin-right: 10px;
     }
 
-    & > .Plus-2-Btn {
+    & > .Plus-2-Btn:not(:only-child) {
         margin-left: 10px;
     }
 }
@@ -263,6 +265,12 @@
     }
 }
 
+.Preview-And-Submit-Container, .Input-And-Penalty-Container {
+    &[centerOfPage] {
+        margin: auto;
+    }
+}
+
 .DNF-Btn, .Plus-2-Btn, .Submit-Time-Btn, .Check-Solution-BTN, .Num-Scrambles-Control-Btn, .Submit-Num-Scrambles-Btn {
     &:disabled {
         opacity: 60%;
@@ -276,6 +284,10 @@
         background-color: var(--button-selected-bg);
         scale: 0.95;
     }
+}
+
+.Submit-Time-Btn {
+    white-space: nowrap;
 }
 
 .Scrambles-Menu-Container {
@@ -404,6 +416,7 @@
     margin: auto;
 }
 
+/* -- FMC -- */
 
 .FMC-Solution-Input-Container {
     display: flex;
@@ -507,7 +520,9 @@
     font-weight: 400;
 }
 
-.Num-Scrambles-Controller-Container {
+/* -- MBLD -- */
+
+.Num-Scrambles-Controller-Container, .Num-Successes-Controller-Container {
     display: flex;
     flex-direction: row-reverse;
     justify-content:space-between;
@@ -519,24 +534,24 @@
     }
 }
 
-.Num-Scrambles-Control-Btn {
+.Num-Scrambles-Control-Btn, .Num-Successes-Control-Btn {
     direction: ltr;
     box-sizing: border-box;
     text-align: center;
 }
 
-.Num-Scrambles-Amount-Label, .Num-Scrambles-Label {
+.Num-Scrambles-Amount-Label, .Num-Scrambles-Label, .Num-Successes-Amount-Label, .Num-Successes-Label, .Attempt-Time-Label {
     text-align: center;
     font-weight: 450;
     letter-spacing: 1.05;
 }
 
-.Num-Scrambles-Label {
+.Num-Scrambles-Label, .Num-Successes-Label, .Attempt-Time-Label {
     font-size: 1.5em;
     margin: auto auto 0.75rem auto;
 }
 
-.Num-Scrambles-Amount-Label {
+.Num-Scrambles-Amount-Label, .Num-Successes-Amount-Label {
     font-size: 2.25em;
     margin: auto;
     width: 15%;
