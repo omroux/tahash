@@ -275,7 +275,7 @@
     }
 }
 
-.DNF-Btn, .Plus-2-Btn, .Submit-Time-Btn, .Check-Solution-BTN, .Num-Scrambles-Control-Btn, .Submit-Num-Scrambles-Btn {
+.DNF-Btn, .Plus-2-Btn, .Submit-Time-Btn, .Check-Solution-BTN, .Num-Scrambles-Control-Btn, .Submit-Num-Scrambles-Btn, .Num-Successes-Control-Btn {
     &:disabled {
         opacity: 60%;
         background-color: var(--button-disabled-bg);

@@ -673,8 +673,8 @@ else if (isMBLD) {
     const oneMoreScrambleBtn = document.getElementById("oneMoreScrambleBtn");
     const fiveMoreScramblesBtn = document.getElementById("fiveMoreScramblesBtn");
     const submitNumScrsBtn = document.getElementById("submitNumScramblesBtn");
-    updateNumScrs();
 
+    updateNumScrs();
 
     async function generateScrambles(seed, amount) {
         const scramblesSectionMax = 5;
@@ -705,9 +705,8 @@ else if (isMBLD) {
         }
     }
 
-
     async function submitNumScrsSelect() {
-        numScrs = Math.min(Math.max(numScrs, minScrs), maxScrs); // clamp value
+        // numScrs = Math.min(Math.max(numScrs, minScrs), maxScrs); // clamp value
         numScrsSelectContainer.setAttribute(hiddenAttribute, "");
 
         // generate scrambles
@@ -719,10 +718,12 @@ else if (isMBLD) {
         mbldPreviewAndSubmitContainer.removeAttribute(hiddenAttribute);
         inputAndPenaltyContainer.removeAttribute("hide");
         previewAndSubmitContainer.removeAttribute("hide");
+
+        updateNumSucc(numScrs);
     }
 
     function updateNumScrs(delta = 0) {
-        numScrs += delta;
+        numScrs = Math.min(Math.max(numScrs + delta, minScrs), maxScrs); // clamp value
         numScramblesAmountLbl.innerText = numScrs;
 
         fiveLessScramblesBtn.disabled = numScrs - bigDelta < minScrs;
@@ -743,8 +744,27 @@ else if (isMBLD) {
 
     
     // #region Number Of Successes Controller
-    
+    const fiveLessSuccBtn = document.getElementById("fiveLessSuccessesBtn");
+    const oneLessSuccBtn = document.getElementById("oneLessSuccessBtn");
+    const numSuccAmountLbl = document.getElementById("numSuccessesAmountLbl");
+    const oneMoreSuccBtn = document.getElementById("oneMoreSuccessBtn");
+    const fiveMoreSuccBtn = document.getElementById("fiveMoreSuccessesBtn");
 
+    let numSucc = 0;
+    async function updateNumSucc(delta = 0) {
+        numSucc = Math.min(Math.max(numSucc + delta, 0), numScrs); // clamp value
+        numSuccAmountLbl.innerText = numSucc;
+
+        fiveLessSuccBtn.disabled = numSucc - bigDelta < 0;
+        oneLessSuccBtn.disabled = numSucc - smallDelta < 0;
+        oneMoreSuccBtn.disabled = numSucc + smallDelta > numScrs;
+        fiveMoreSuccBtn.disabled = numSucc + bigDelta > numScrs;
+    }
+
+    fiveLessSuccBtn.onclick = () => updateNumSucc(-bigDelta);
+    oneLessSuccBtn.onclick = () => updateNumSucc(-smallDelta);
+    oneMoreSuccBtn.onclick = () => updateNumSucc(smallDelta);
+    fiveMoreSuccBtn.onclick = () => updateNumSucc(bigDelta);
     // #endregion
 
 }
