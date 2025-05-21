@@ -197,6 +197,7 @@ function normalizeSizes() {
 
 const userData = { userId: -1 };
 const limitations = { canEdit: true };
+let finishLoad = false;
 // time structure: { previewStr: str, timeStr: str, timesObj: [timesObj], penalty: 0|1|2 }  (penalty: 0=nothing, 1=+2, 2=dnf)
 let allTimes = [];
 onPageLoad(async () => {
@@ -221,7 +222,6 @@ onPageLoad(async () => {
     console.log("packed", timesRes);
     allTimes = unpackTimes(timesRes);
     console.log(allTimes);
-    console.log("numScr:", numScr);
 
     // update canEdit limitation
     if ((!isFMC && allTimes[numScr - 1].timesObj != null)
@@ -323,6 +323,8 @@ onPageLoad(async () => {
         inputAndPenaltyContainer.setAttribute("hide", "true");
         previewAndSubmitContainer.setAttribute("hide", "true");
     }
+
+    finishLoad = true;
 });
 
 window.onresize = () => {
@@ -441,7 +443,7 @@ function getInteractionState() {
 // get this solve's extra args
 function getExtraArgs() {
     return isFMC    ? (_validSolution ? { fmcSolution: fmcSolutionArr } : [])
-                    : null;
+                    : (isMBLD ? { numSuccess: 0, numAttempt: 0 } : null);
 }
 
 async function submitTime(uploadData = true) {
@@ -657,8 +659,7 @@ if (isFMC) {
         fmcSolutionErrorLbl.innerText = "";
 
         checkSolutionBtn.disabled = solutionInputField.value.length == 0;
-    });
-
+    }); 
 }
 
 let totalMBLDPoints = 0;
@@ -785,6 +786,18 @@ if (isMBLD) {
     fiveMoreSuccBtn.onclick = () => updateNumSucc(bigDelta);
     // #endregion
 
+    onPageLoad(async () => {
+        while (!finishLoad)
+            await sleep(10);
+        if (limitations.canEdit) return;
+
+        // load 
+        updateNumScrs(numScrs);
+        await submitNumScrsSelect();
+        attemptTimeLbl.style.display = "none";
+        numSuccessesContainer.style.display = "none";
+        mbldPreviewAndSubmitContainer.style["border-top"] = "0px solid black";
+    });
 }
 
 

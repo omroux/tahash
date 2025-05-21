@@ -70,7 +70,7 @@
                 </div>
             </div>
         <% } else if (eventData.event.eventId == "mbld") { %>
-            <div class="MBLD-Result-Input-Container">
+            <div class="MBLD-Result-Input-Container" id="mbldResultInputContainer">
                 <div class="Num-Successes-Select-Container" id="numSuccessesSelectContainer" hidden>
                     <p class="Num-Successes-Label">כמה קוביות השלמת?</p>
                     <div class="Num-Successes-Controller-Container">
@@ -85,7 +85,6 @@
                 <div class="Input-And-Penalty-Container" id="inputAndPenaltyContainer" style="margin-bottom: 1rem;" horizontalCenter canEdit>
                     <input class="Time-Input-Field" type="text" oninput="" id="timeInput" maxlength="12"/>
                 </div>
-
                 <div class="MBLD-Preview-And-Submit-Container" id="mbldPreviewAndSubmitContainer" hidden>
                     <div class="Preview-And-Submit-Container" id="previewAndSubmitContainer" style="margin-top: 0.5rem;" horizontalCenter canEdit>
                         <label class="Time-Preview-Lbl" id="timePreviewLbl">-</label>

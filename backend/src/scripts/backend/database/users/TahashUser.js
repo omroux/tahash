@@ -112,7 +112,7 @@ export class TahashUser {
 
         // given times arr returns whether the user finished the event
         function finishedEvent(times) {
-            return times[times.length - 1].centis > 0; // if the last time was submitted the event is finished
+            return (times[times.length - 1].centis > 0) || (times[times.length - 1].extraArgs != null); // if the last time was submitted the event is finished
         }
     }
 }

@@ -97,7 +97,7 @@ export const WCAEvents = [
     new CompEvent(  "Square-1", "square-1", "sqrs",     "event-sq1",    TimeFormat.ao5),
     new CompEvent(  "4x4 BLD",  "4bld",     "444bld",   "event-444bf",  TimeFormat.bo3,     40),
     new CompEvent(  "5x5 BLD",  "5bld",     "555bld",   "event-555bf",  TimeFormat.bo3,     60),
-    new CompEvent(  "3x3 MBLD", "mbld",     "r3ni",     "event-333mbf", TimeFormat.multi,   1)
+    new CompEvent(  "3x3 MBLD", "mbld",     "r3ni",     "event-333mbf", TimeFormat.multi,   1,          0,              Object.freeze({ numSuccess: 0, numAttempt: 0 }))
 ];
 Object.freeze(WCAEvents);
 
