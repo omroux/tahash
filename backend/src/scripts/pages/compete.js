@@ -57,6 +57,9 @@ if (isFMC) {
     previewAndSubmitContainer.setAttribute(canEditAttribute, "");
 }
 
+// mbld consts
+const mbldMaxHours = 1;
+
 
 let activeScr = 0;
 const numScr = scrContainers.length;
@@ -329,8 +332,11 @@ window.onresize = () => {
 };
 
 timeInput.oninput = () => {
-    setDnfState(false);
-    setPlus2State(false);
+    if (!isMBLD) {
+        setDnfState(false);
+        setPlus2State(false);
+    }
+    
     updatePreviewLabel();
 }
 
@@ -339,13 +345,17 @@ let validTime = false;
 function updatePreviewLabel() {
     currTimesObj = tryAnalyzeTimes(timeInput.value);
 
-    const timesObjStr = isFMC
+    let timesObjStr = isFMC
         ? (dnfState ? DNF_STRING : fmcSolutionArr.length)
         : (getTimesObjStr(currTimesObj, dnfState ? Penalties.DNF : (plus2State ? Penalties.Plus2 : Penalties.None)));
         
-    if ((!isFMC && (currTimesObj == null || !timesObjStr)) || (isFMC && !_validSolution)) {
+    if ((!isFMC && (currTimesObj == null || !timesObjStr)) || (isMBLD && currTimesObj.numHours >= mbldMaxHours) || (isFMC && !_validSolution)) {
         hidePreview(false);
         return;
+    }
+
+    if (isMBLD && !dnfState) {
+
     }
 
     timePreviewLbl.innerText = timesObjStr;
@@ -360,8 +370,10 @@ function hidePreview(hidePlus2 = true) {
     validTime = false;
     timePreviewLbl.removeAttribute(showPreviewAttribute);
     submitTimeBtn.disabled = true;
-    dnfBtn.disabled = true;
-    dnfState = false;
+    if (!isMBLD) {
+        dnfBtn.disabled = true;
+        dnfState = false;
+    }
 
     if (!hidePlus2) return;
     plus2Btn.disabled = true;
@@ -647,7 +659,9 @@ if (isFMC) {
     });
 
 }
-else if (isMBLD) {
+
+let totalMBLDPoints = 0;
+if (isMBLD) {
     const mbldScrsContainer = document.getElementById("mbldScrsContainer");
     const mbldPreviewAndSubmitContainer = document.getElementById("mbldPreviewAndSubmitContainer");
     const numSuccessesContainer = document.getElementById("numSuccessesSelectContainer");
@@ -756,6 +770,9 @@ else if (isMBLD) {
         oneLessSuccBtn.disabled = numSucc - smallDelta < 0;
         oneMoreSuccBtn.disabled = numSucc + smallDelta > numScrs;
         fiveMoreSuccBtn.disabled = numSucc + bigDelta > numScrs;
+
+        totalMBLDPoints = numSucc - (numScrs - numSucc);
+        setDnfState(totalMBLDPoints <= 0);
     }
 
     fiveLessSuccBtn.onclick = () => updateNumSucc(-bigDelta);
