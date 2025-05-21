@@ -194,7 +194,7 @@
         display: none;
     }
 
-    &[centerOfPage] {
+    &[horizontalCenter] {
         & > .Time-Input-Field {
             width: 50%;
         }
@@ -266,8 +266,12 @@
 }
 
 .Preview-And-Submit-Container, .Input-And-Penalty-Container {
-    &[centerOfPage] {
+    &[horizontalCenter] {
         margin: auto;
+    }
+
+    &[hide="true"] {
+        /* display: none; */
     }
 }
 
@@ -585,4 +589,12 @@
     width: 95%;
     margin: 0.5rem auto;
     height: 2px;
+}
+
+.MBLD-Preview-And-Submit-Container {
+    border-top: 2px solid black;
+
+    &[hidden] {
+        display: none;
+    }
 }

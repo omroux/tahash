@@ -27,7 +27,7 @@ const prevScrBtn = document.getElementById("prevScrBtn");
 const timeInput = isFMC ? emptyElement : document.getElementById("timeInput");
 const timePreviewLbl = document.getElementById("timePreviewLbl");
 const plus2Btn = (isFMC || isMBLD) ? emptyElement : document.getElementById("plus2Btn");
-const dnfBtn = isFMC ? emptyElement : document.getElementById("dnfBtn");
+const dnfBtn = (isFMC || isMBLD) ? emptyElement : document.getElementById("dnfBtn");
 const submitTimeBtn = document.getElementById("submitTimeBtn");
 const submitSpinner = document.getElementById("submitSpinner");
 const inputAndPenaltyContainer = document.getElementById(isFMC ? "checkSolutionContainer" : "inputAndPenaltyContainer");
@@ -653,6 +653,7 @@ if (isFMC) {
 
 if (isMBLD) {
     const mbldScrsContainer = document.getElementById("mbldScrsContainer");
+    const mbldPreviewAndSubmitContainer = document.getElementById("mbldPreviewAndSubmitContainer");
     const numSuccessesContainer = document.getElementById("numSuccessesSelectContainer");
     const attemptTimeLbl = document.getElementById("attemptTimeLbl");
     
@@ -716,6 +717,7 @@ if (isMBLD) {
         scrContainers[0].removeAttribute(hiddenAttribute);
         numSuccessesContainer.removeAttribute(hiddenAttribute);
         attemptTimeLbl.removeAttribute(hiddenAttribute);
+        mbldPreviewAndSubmitContainer.removeAttribute(hiddenAttribute);
         inputAndPenaltyContainer.removeAttribute("hide");
         previewAndSubmitContainer.removeAttribute("hide");
     }

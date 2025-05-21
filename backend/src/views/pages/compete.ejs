@@ -79,17 +79,15 @@
                     </div>
                 </div>
                 <p class="Attempt-Time-Label" id="attemptTimeLbl" hidden>בכמה זמן?</p>
-                <div class="Input-And-Penalty-Container" id="inputAndPenaltyContainer" centerOfPage canEdit>
+                <div class="Input-And-Penalty-Container" id="inputAndPenaltyContainer" style="margin-bottom: 1rem;" horizontalCenter canEdit>
                     <input class="Time-Input-Field" type="text" oninput="" id="timeInput" maxlength="12"/>
-    
-                    <div class="Penalty-Select-Container">
-                        <button class="DNF-Btn" id="dnfBtn">DNF</button>
-                    </div>
                 </div>
-                
-                <div class="Preview-And-Submit-Container" id="previewAndSubmitContainer" centerOfPage canEdit>
-                    <label class="Time-Preview-Lbl" id="timePreviewLbl">-</label>
-                    <button class="Submit-Time-Btn" id="submitTimeBtn">הבא</button>
+
+                <div class="MBLD-Preview-And-Submit-Container" id="mbldPreviewAndSubmitContainer" hidden>
+                    <div class="Preview-And-Submit-Container" id="previewAndSubmitContainer" style="margin-top: 0.5rem;" horizontalCenter canEdit>
+                        <label class="Time-Preview-Lbl" id="timePreviewLbl">-</label>
+                        <button class="Submit-Time-Btn" id="submitTimeBtn">הבא</button>
+                    </div>
                 </div>
             </div>
         <% } %>
