@@ -62,12 +62,15 @@
                     <button class="DNF-Btn" id="dnfBtn">DNF</button>
                 </div> -->
             </div>
+            <div class="Check-Solution-Container" id="checkSolutionContainer" canEdit>
+                <span class="Solution-Preview-Label" id="solutionPreviewLbl"></span>
+                <span class="FMC-Solution-Error-Label" id="fmcSolutionErrorLbl"></span>
+                <div class="Check-Solution-Button-Container">
+                    <button class="Check-Solution-BTN" id="checkSolutionButton" disabled>בדוק פתרון</button>
+                </div>
+            </div>
         <% } else if (eventData.event.eventId == "mbld") { %>
-        <% } %>
-        
-        <% if (eventData.event.eventId == "mbld") { %>
-            <!-- mbld time input container over the reguler time input -->
-             <div class="MBLD-Result-Input-Container">
+            <div class="MBLD-Result-Input-Container">
                 <div class="Num-Successes-Select-Container" id="numSuccessesSelectContainer" hidden>
                     <p class="Num-Successes-Label">כמה קוביות השלמת?</p>
                     <div class="Num-Successes-Controller-Container">
@@ -90,18 +93,8 @@
                     </div>
                 </div>
             </div>
-        <% } %>
-
+        <% } else {%>
             <div class="Time-Input-Container">
-            <% if (eventData.event.eventId == "fmc") { %>
-                <div class="Check-Solution-Container" id="checkSolutionContainer" canEdit>
-                    <span class="Solution-Preview-Label" id="solutionPreviewLbl"></span>
-                    <span class="FMC-Solution-Error-Label" id="fmcSolutionErrorLbl"></span>
-                    <div class="Check-Solution-Button-Container">
-                        <button class="Check-Solution-BTN" id="checkSolutionButton" disabled>בדוק פתרון</button>
-                    </div>
-                </div>
-            <% } else if (eventData.event.eventId != "mbld") { %>
                 <div class="Input-And-Penalty-Container" id="inputAndPenaltyContainer" canEdit>
                     <input class="Time-Input-Field" type="text" oninput="" id="timeInput" maxlength="12"/>
     
@@ -115,14 +108,9 @@
                     <label class="Time-Preview-Lbl" id="timePreviewLbl">-</label>
                     <button class="Submit-Time-Btn" id="submitTimeBtn">הבא</button>
                 </div>
-            <% } %>
             </div>
-
-        <% if (eventData.event.eventId == "mbld") { %>
-            <!-- mbld time input container over the reguler time input -->
-            <!-- </div> -->
         <% } %>
-        
+<!-- R' U B U R' B2 R B' L' F B2 U L2 F2 U2 L2 U F2 L2 U' -->        
             <div class="Spinner" id="submitSpinner" hidden></div>
 
         <% if (eventData.event.eventId == "fmc") { %>

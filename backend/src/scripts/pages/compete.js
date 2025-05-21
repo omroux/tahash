@@ -650,8 +650,7 @@ if (isFMC) {
     });
 
 }
-
-if (isMBLD) {
+else if (isMBLD) {
     const mbldScrsContainer = document.getElementById("mbldScrsContainer");
     const mbldPreviewAndSubmitContainer = document.getElementById("mbldPreviewAndSubmitContainer");
     const numSuccessesContainer = document.getElementById("numSuccessesSelectContainer");
