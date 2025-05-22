@@ -27,7 +27,8 @@ import {
     compManager,
     userManager,
     getEnvConfigOptions,
-    setHostname
+    setHostname,
+    ADMINS_LIST
 } from "./serverUtils.js";
 import { errorObject } from "./src/scripts/backend/utils/globalUtils.js";
 import { tryAnalyzeTimes, getDisplayTime, getTimesObjStr, packTimes, unpackTimes, Penalties, getEmptyPackedTimes } from "./src/scripts/backend/utils/timesUtils.js"
@@ -182,7 +183,15 @@ app.get("/compete/:eventId", async (req, res) => {
             eventIconsSrc ]);
 });
 
+// #endregion
+
+
+// #region other request handling
+
+// the user requests
+
 const userIdHeader = "user-id";
+const wcaIdHeader = "wca-id";
 const eventIdHeader = "event-id";
 
 app.post("/updateTimes", async (req, res) => {
@@ -246,6 +255,11 @@ app.get("/eventStatuses", async (req, res) => {
         return;
     }
 
+    if (!req.headers[userIdHeader]) {
+        res.status(400).json(errorObject("No user id sent."));
+        return;
+    }
+
     // get header
     const userId = parseInt(req.headers[userIdHeader]);
 
@@ -255,12 +269,21 @@ app.get("/eventStatuses", async (req, res) => {
     res.json(userObj.getEventStatuses(currCompNumber));
 });
 
-// #endregion
+app.get("/isAdmin", async (req, res) => {
+    if (!sentFromClient(req)) {
+        res.redirect("/");
+        return;
+    }
 
+    const wcaId = req.headers[wcaIdHeader];
+    if (!wcaId) {
+        res.status(400).json(errorObject("WCA ID not sent."));
+        return;
+    }
 
-// #region other request handling
+    res.json({ isAdmin: ADMINS_LIST.includes(wcaId) });
+});
 
-// the user requests
 app.get("/wca-me", async (req, res) => {
     const userData = await retrieveWCAMe(req);
     if (userData)                   res.json(userData);
@@ -308,7 +331,6 @@ app.get("/authenticateRefreshToken", async (req, res) => {
     // send back the new token data
     res.json(tokenData);
 });
-
 
 // get a source file
 app.get("/src/*", (req, res) => {

@@ -83,12 +83,17 @@ let _isLoggedIn = false;
 const isLoggedIn = () => _isLoggedIn;
 function setLoggedInState(state) { _isLoggedIn = state; };
 
+// store the login data received from the WCA API token
 // tokenData = response from WCA API
 function storeLoginData(tokenData) {
+    if (!tokenData)
+        return;
+
     localStorage.setItem(accessTokenStorage, tokenData.access_token);
     localStorage.setItem(tokenExpireStorage, new Date().getTime() + 1000 * tokenData.expires_in);
     localStorage.setItem(refreshTokenStorage, tokenData.refresh_token);
     setCookie(loggedInCookie, "true", 1000 * tokenData.expires_in);
+    setLoggedInState(true);
 }
 
 function clearLoginData() {
@@ -97,6 +102,7 @@ function clearLoginData() {
     localStorage.removeItem(refreshTokenStorage);
     sessionStorage.removeItem(wcaMeStorage);
     deleteCookie(loggedInCookie);
+    setLoggedInState(false);
 }
 
 // has the saved token expired
@@ -110,12 +116,31 @@ const hasTokenExpired = () => {
 
 // #endregion
 
+// #region Admin Permissions
+
+// update the admin permissions using the WCA API token data
+// forces wca data to fetch, and fetches admin perms from the server.
+async function getAdminPerms() {
+    const wcaIdHeader = "wca-id";
+    const wcaMeData = await getWcaMe(true);
+    if (!wcaMeData)
+        return false;
+
+    const headers = { };
+    headers[wcaIdHeader] = wcaMeData.wca_id;
+    const res = await sendRequest("/isAdmin", { headers: headers });
+    return res.isAdmin;
+}
+
+// #endregion
+
 // #region WCA me handling
 
 function hasStoredWcaMeData() {
     return sessionStorage.getItem(wcaMeStorage) != null;
 }
 
+// retrieves WCA Me data (object) using data the website has.
 // automatically disconnects in case of an error
 async function getWcaMe(forceFetch = false) {
     if (!isLoggedIn())
@@ -203,7 +228,7 @@ if (!hasTokenExpired() && localStorage.getItem(accessTokenStorage)) {
     _invokePageLoad();
 }
 else if (localStorage.getItem(refreshTokenStorage)) {
-    sendRequest("/authenticateRefreshToken").then(res => {
+    sendRequest("/authenticateRefreshToken").then(async (res) => {
         if (res.error) {
             clearLoginData();
             setLoadingState(finishSetupLoadingState);
@@ -230,4 +255,10 @@ else {
 async function sleep(ms) {
     return await new Promise(resolve => setTimeout(resolve, ms));
 }
+// #endregion
+
+// #region HTML Common Attribute
+
+const hiddenAttribute = "hidden";
+
 // #endregion

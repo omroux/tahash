@@ -34,7 +34,7 @@
     }
 }
 
-#logout_btn {
+.Logout-Btn {
     transition: transform 0.1s ease-in-out, width 0.15s ease-in-out, background-color 0.1s ease-in-out;
 
     display: flex;
@@ -74,6 +74,18 @@
         text-align: center;
         font-weight: bolder;
         font-size: 150%;
+    }
+}
+
+.DashboardBtnContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.DashboardBtn {
+    &[hidden] {
+        display: none;
     }
 }
 

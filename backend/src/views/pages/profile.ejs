@@ -1,6 +1,9 @@
 <h1 class="Title">פרופיל</h1>
 
-<!-- Make this a display: flex, with a gap. (instead of using <br>s), and add styling. -->
+<div class="DashboardBtnContainer">
+    <button class="DashboardBtn Generic-Button No-Wrap" id="dashboardBtn" hidden>לוח בקרה</button>
+</div>
+
 <div class="Data-Container">
     <!-- Name -->
     <div class="User-Property">
@@ -20,20 +23,9 @@
         <a href="" id="wca_profile_link"><img src="" id="wca_img" alt="wca image" width="200vw"></a>
     </div>
 
-    <div id="logout_btn">
+    <div class="Logout-Btn" id="logout_btn">
         <p id="logout_txt">התנתק</p>
     </div>
 </div>
-
-<!-- TODO: this might be cool to add instead of redirect to login -->
-<!--<div id="data_display">-->
-<!-- --This div for the data display -- -->
-<!--</div>-->
-<!--<div id="no_data" hidden>-->
-<!--    <p class="Paragraph">לא נמצאו נתונים.</p>-->
-<!--    <a href="/login">-->
-<!--        <button>התחברות.</button>-->
-<!--    </a>-->
-<!--</div>-->
 
 <script src="src/scripts/pages/profile.js"></script>

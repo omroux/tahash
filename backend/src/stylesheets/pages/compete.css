@@ -1,7 +1,4 @@
 :root {
-    --button-bg: rgb(173, 216, 230);
-    --button-hover-bg: rgb(160, 200, 210);
-    --button-disabled-bg: rgb(160, 190, 210);
     --button-selected-bg: rgb(134, 116, 227);
     --preview-hidden-color: rgb(46, 45, 45);
     --panel-bg: rgba(153, 153, 153, 0.25);
@@ -27,7 +24,7 @@
     background-color: var(--button-bg);
 
     border: 2px solid black;
-    border-radius: 10px;
+    border-radius: var(--button-border-radius);
 
     font-size: 180%;
 

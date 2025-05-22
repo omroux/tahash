@@ -44,7 +44,6 @@ const fmcSolutionErrorLbl = isFMC ? document.getElementById("fmcSolutionErrorLbl
 
 const showPreviewAttribute = "showPreview";
 const canEditAttribute = "canEdit";
-const hiddenAttribute = "hidden";
 const changedAttribute = "changed";
 const hideImagesAttribute = "hideImages";
 

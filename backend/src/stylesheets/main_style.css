@@ -5,6 +5,11 @@
     --button-border-radius: 10px;
     --bg-header: #0057E1;
     --bg-body: lightgray;
+
+    /* buttons */
+    --button-bg: rgb(173, 216, 230);
+    --button-hover-bg: rgb(160, 200, 210);
+    --button-disabled-bg: rgb(160, 190, 210);
 }
 
 * {
@@ -60,6 +65,40 @@ body {
 
 .Underline {
     text-decoration: underline;
+}
+
+/* a div with innerText */
+.Generic-Button {
+    transition: scale 0.075s, background-color 0.1s;
+    transition-timing-function: ease-in;
+
+    background-color: var(--button-bg);
+
+    border: 2px solid black;
+    border-radius: var(--button-border-radius);
+
+    font-size: 180%;
+
+    padding: 2%;
+
+    &:not(:disabled) {
+        cursor: pointer;
+    }
+
+    &:hover:not(:disabled) {
+        transition-timing-function: ease-out;
+        background-color: var(--button-hover-bg);
+    }
+
+    &:disabled {
+        opacity: 60%;
+        background-color: var(--button-disabled-bg);
+    }
+}
+
+/* force a single line */
+.No-Wrap {
+    white-space: nowrap;
 }
 
 /* #region Spinner-Styling */
@@ -121,6 +160,8 @@ body {
         transform: scaleY(-1) rotate(-135deg);
     }
 }
+
+/* #endregion */
 
 @keyframes fadeIn {
     to { opacity: 1; }

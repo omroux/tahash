@@ -10,15 +10,16 @@
         window.location = "/login";
     }
     else {
-        sendRequest("/authenticateWithCode", { headers: { "auth-code": codeValue } }).then(res => {
-        if (res.error) {
-            postLog("Error in authentication: \"" + res.error + "\". Redirecting...");
-            window.location = "/login";
-            return;
-        }
+        sendRequest("/authenticateWithCode", { headers: { "auth-code": codeValue } }).then(async (res) => {
+            if (res.error) {
+                postLog("Error in authentication: \"" + res.error + "\". Redirecting...");
+                window.location = "/login";
+                return;
+            }
 
-        storeLoginData(res);
-        window.location = "/profile";
-    })
+            storeLoginData(res);
+            await updateAdminPerms();
+            window.location = "/profile";
+        });
     }
 </script>

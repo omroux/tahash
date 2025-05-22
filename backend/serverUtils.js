@@ -9,13 +9,11 @@ import { UserManager } from './src/scripts/backend/database/users/UserManager.js
 
 
 // -- General constants/properties
+export const ADMINS_LIST = [ "2019SAHA01", "2022STON03", "2019KEHI01" ];
 export const authTokenCookie = "authToken";
 export const refreshTokenCookie = "refreshToken";
 export const loggedInCookie = "loggedIn";
 export const __dirname = path.dirname(new URL(import.meta.url).pathname);
-
-// config data property
-let _configData = null;
 
 // only update hostname if it hasn't been set yet
 let _hostname = null;
@@ -254,5 +252,9 @@ export async function initDatabase() {
 
     return _tahashDb;
 }
+
+// #endregion
+
+// #region admin dashboard
 
 // #endregion

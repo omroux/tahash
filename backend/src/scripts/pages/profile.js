@@ -1,4 +1,5 @@
 const logoutBtn = document.querySelector("#logout_btn");
+const dashboardBtn = document.getElementById("dashboardBtn");
 let wcaMeData;
 
 // update wca data on page
@@ -27,20 +28,19 @@ onPageLoad(async () => {
         if (!wcaMeData) {
             window.location = "/login";
             return;
-        }
+        }    
     }
     else
         wcaMeData = await getWcaMe();
 
-    setLoadingState(false);
-
-    if (!getCookie(loggedInCookie)) {
-        clearLoginData();
-        window.location = "/login";
-        return;
-    }
 
     updateWcaData();
+    setLoadingState(false);
+
+    getAdminPerms().then(isAdmin => {
+        if (isAdmin)    dashboardBtn.removeAttribute(hiddenAttribute);
+        else            dashboardBtn.parentElement.removeChild(dashboardBtn);
+    }); 
 });
 
 logoutBtn.onclick = () => {
