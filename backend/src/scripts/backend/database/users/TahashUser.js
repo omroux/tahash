@@ -1,3 +1,5 @@
+import { isFullPackedTimesArr } from "../../utils/timesUtils.js";
+
 export class TahashUser {
     #manager;
     userId = -1; // wca account id
@@ -65,18 +67,16 @@ export class TahashUser {
             return;
         }
 
-        let found = false;
-        for (let i = 0; i < compResults.length; i++) {
-            if (compResults[i].eventId == eventId) {
-                compResults[i].times = times;
-                found = true;
-                break;
-            }
+        let eventIndex = compResults.findIndex(r => r.eventId == eventId);
+        if (eventIndex >= 0)
+            compResults[eventIndex].times = times;
+        else { // first time this event was submitted by the user to the competition
+            compResults.push({ eventId: eventId, times: times });
+            eventIndex = 0;
         }
 
-        if (!found) // first time this event was submitted by the user to the competition
-            compResults.push({ eventId: eventId, times: times });
-        this.setCompResults(compResults)
+        compResults[eventIndex].finished = isFullPackedTimesArr(results[eventIndex].times);
+        this.setCompResults(compResults);
     }
 
     // get the times object for an event at a competition
@@ -92,28 +92,19 @@ export class TahashUser {
 
     // check if the user finished an event (submitted a full result) in a competition
     finishedEvent(compNumber, eventId) {
-        const times = this.getEventTimes(compNumber, eventId);
-        if (!times) return false;
-        return times.find(t => t.centis <= 0) == null;
+        return isFullPackedTimesArr(this.getEventTimes(compNumber, eventId));
     }
 
-    // returns [ eventId: status ]
+    // returns { eventId: status }
     getEventStatuses(compNumber) {
-        const statuses = {};
-        const results = this.getCompResults(compNumber);
+        const statuses = { };
+        const results = this.getCompResults(compNumber) ?? [];
 
-        if (results) {
-            for (let i = 0; i < results.length; i++) {
-                statuses[results[i].eventId] = finishedEvent(results[i].times) ? "finished" : "unfinished";
-            }
+        for (let i = 0; i < results.length; i++) {
+            statuses[results[i].eventId] = isFullPackedTimesArr(results[i].times) ? "finished" : "unfinished";
         }
 
         return statuses;
-
-        // given times arr returns whether the user finished the event
-        function finishedEvent(times) {
-            return (times[times.length - 1].centis > 0) || (times[times.length - 1].extraArgs != null); // if the last time was submitted the event is finished
-        }
     }
 }
 

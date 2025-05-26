@@ -109,6 +109,12 @@ export function isFullTimesArr(arr) {
     return arr.some(a => !a.timesObj);
 }
 
+// given a packed times arr returns whether the user finished the event
+export function isFullPackedTimesArr(packedTimes) {
+    // if the last time was submitted the event is finished
+    return packedTimes && ((packedTimes[packedTimes.length - 1].centis > 0) || (packedTimes[packedTimes.length - 1].extraArgs != null));
+}
+
 export function getDisplayTime(timesObj) {
     if (timesObj == null)
         return "-";
