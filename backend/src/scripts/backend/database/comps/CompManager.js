@@ -14,7 +14,6 @@ export class CompManager {
     // initialize comps collection if it's empty
     async initComps() {
         const count = await this.#collection.countDocuments({}, { limit: 1 });
-        console.log("There are", count, "comps in the database.");
         if (count > 0) return;
 
         console.log("Initializing empty comp...");

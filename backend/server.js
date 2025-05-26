@@ -183,6 +183,13 @@ app.get("/compete/:eventId", async (req, res) => {
             eventIconsSrc ]);
 });
 
+app.get("/admin-dashboard", async (req, res) => {
+    renderPage(req,
+                res,
+                "/admin-dashboard.ejs",
+                { title: "לוח בקרה", loading: true });
+});
+
 // #endregion
 
 
