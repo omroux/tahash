@@ -1,3 +1,30 @@
+:root {
+    --box-finished-color: rgba(45, 226, 70, 0.2);
+    --box-finished-hover-color: hsla(128, 76%, 53%, 0.2);
+    --box-finished-click-color: hsla(130, 85%, 60%, 0.4);
+
+    --box-unfinished-color: rgba(214, 236, 116, 0.4);
+    --box-unfinished-hover-color: hsla(68, 52%, 65%, 0.4);
+    --box-unfinished-click-color: hsla(65, 81%, 30%, 0.5);
+}
+
+.Event-Select-Box {
+    /* background color */
+    &[status="finished"] { background-color: var(--box-finished-color); }
+    &[status="unfinished"] { background-color: var(--box-unfinished-color); }
+
+    &:hover {
+        &[status="finished"] { background-color: var(--box-finished-hover-color); }
+        &[status="unfinished"] { background-color: var(--box-unfinished-hover-color); }
+    }
+
+    /* on click */
+    &:active {
+        &[status="finished"] { background-color: var(--box-finished-click-color); }
+        &[status="unfinished"] { background-color: var(--box-unfinished-click-color); }
+    }
+}
+
 .Comp-Number-Title {
     text-align: center;
     margin-top: 0;

@@ -198,6 +198,8 @@ app.get("/admin-dashboard", async (req, res) => {
             eventIconsSrc ]);
 });
 
+app.get("/admin-dashboard/manage-comp?:")
+
 // #endregion
 
 

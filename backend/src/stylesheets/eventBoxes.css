@@ -4,14 +4,6 @@
 
     --box-hover-color: rgba(100, 100, 100, 0.2);
     --box-click-color: rgba(90, 90, 90, 0.3);
-    
-    --box-finished-color: rgba(45, 226, 70, 0.2);
-    --box-finished-hover-color: rgba(45, 226, 70, 0.2);
-    --box-finished-click-color: rgba(90, 90, 90, 0.3);
-
-    --box-unfinished-color: rgba(214, 236, 116, 0.4);
-    --box-unfinished-hover-color: rgba(199, 212, 117, 0.4);
-    --box-unfinished-click-color: rgba(219, 234, 56, 0.5);
 }
 
 /* container of event boxes */
@@ -40,10 +32,6 @@
     padding-top: 1%;
     padding-bottom: 1%;
 
-    /* background color */
-    &[status="finished"] { background-color: var(--box-finished-color); }
-    &[status="unfinished"] { background-color: var(--box-unfinished-color); }
-
     /*!* flex (center the icon) *!*/
     display: grid;
     place-content: center;
@@ -67,9 +55,6 @@
         rotate: var(--event-box-rot);
         
         background-color: var(--box-hover-color);
-        &[status="finished"] { background-color: var(--box-finished-hover-color); }
-        &[status="unfinished"] { background-color: var(--box-unfinished-hover-color); }
-
 
         & .Cubing-Icon {
             transition: opacity 0.2s ease-out;
@@ -86,9 +71,7 @@
     /* on click */
     &:active {
         transition: background-color 0.1s;
-        &[status="finished"] { background-color: var(--box-finished-click-color); }
-        &[status="unfinished"] { background-color: var(--box-unfinished-click-color); }
-        &:not([status="finished"]):not([status="unfinished"]) { background-color: var(--box-click-color); }
+        background-color: var(--box-click-color);
     }
 }
 

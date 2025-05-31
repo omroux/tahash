@@ -1,3 +1,5 @@
+import { resizeEventBoxes } from "/src/scripts/backend/utils/eventBoxesUtils.js";
+
 onPageLoad(async () => {
     const isAdmin = await getAdminPerms();
     if (!isAdmin) {
@@ -5,7 +7,11 @@ onPageLoad(async () => {
         return;
     }
 
-    
+
 
     setLoadingState(false);
 });
+
+function addEventBox(eventImg) {
+    
+}
