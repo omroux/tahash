@@ -184,10 +184,15 @@ app.get("/compete/:eventId", async (req, res) => {
 });
 
 app.get("/admin-dashboard", async (req, res) => {
+    const currComp = await compManager().getCurrentComp();
+    
     renderPage(req,
-                res,
-                "/admin-dashboard.ejs",
-                { title: "לוח בקרה", loading: true });
+        res,
+        "/admin-dashboard.ejs",
+        { title: "לוח בקרה", loading: true },
+        {
+            compNumber: currComp.compNumber
+        });
 });
 
 // #endregion

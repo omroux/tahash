@@ -1,20 +1,3 @@
-:root {
-    --font-size: 0;
-    --event-box-rot: 3deg;
-
-    --box-hover-color: rgba(100, 100, 100, 0.2);
-    --box-click-color: rgba(90, 90, 90, 0.3);
-    
-    --box-finished-color: rgba(45, 226, 70, 0.2);
-    --box-finished-hover-color: rgba(45, 226, 70, 0.2);
-    --box-finished-click-color: rgba(90, 90, 90, 0.3);
-
-    --box-unfinished-color: rgba(214, 236, 116, 0.4);
-    --box-unfinished-hover-color: rgba(199, 212, 117, 0.4);
-    --box-unfinished-click-color: rgba(219, 234, 56, 0.5);
-}
-
-
 /* container of event boxes */
 .Event-Select-Container {
     /* size */
@@ -134,11 +117,4 @@
 
     transition: opacity 0.15s ease-in;
     opacity: 0;
-}
-
-.Comp-Number-Title {
-    text-align: center;
-    margin-top: 0;
-    position: relative;
-    top: -10px;
 }
