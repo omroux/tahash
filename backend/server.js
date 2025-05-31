@@ -36,6 +36,7 @@ import { getEventById } from "./src/scripts/backend/database/CompEvent.js";
 
 
 // general setup
+const eventIconsSrc = "https://cdn.cubing.net/v0/css/@cubing/icons/css";
 const app = express();  // express app
 config(getEnvConfigOptions()); // configure .env file
 
@@ -129,7 +130,6 @@ app.get("/auth-callback", async (req, res) => {
 // Route for scrambles page
 app.get("/scrambles", async (req, res) => {
     // event icons cdn link
-    const eventIconsSrc = "https://cdn.cubing.net/v0/css/@cubing/icons/css";
     const currComp = await compManager().getCurrentComp();
     
     renderPage(req,
@@ -141,6 +141,7 @@ app.get("/scrambles", async (req, res) => {
             events: currComp.getEventsInfo()
         },
         [ "/src/stylesheets/pages/scrambles.css",
+            "/src/stylesheets/eventBoxes.css",
             eventIconsSrc ]);
 });
 
@@ -150,7 +151,6 @@ app.get("/error", async (req, res) => {
 
 // Route for competing in events
 app.get("/compete/:eventId", async (req, res) => {
-    const eventIconsSrc = "https://cdn.cubing.net/v0/css/@cubing/icons/css";
     const currComp = await compManager().getCurrentComp();
     const loggedIn = isLoggedIn(req);
 
@@ -192,7 +192,10 @@ app.get("/admin-dashboard", async (req, res) => {
         { title: "לוח בקרה", loading: true },
         {
             compNumber: currComp.compNumber
-        });
+        },
+        [ "/src/stylesheets/pages/admin-dashboard.css",
+            "/src/stylesheets/eventBoxes.css",
+            eventIconsSrc ]);
 });
 
 // #endregion

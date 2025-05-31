@@ -75,7 +75,6 @@ export class TahashUser {
             eventIndex = 0;
         }
 
-        compResults[eventIndex].finished = isFullPackedTimesArr(results[eventIndex].times);
         this.setCompResults(compResults);
     }
 
