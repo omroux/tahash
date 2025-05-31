@@ -1,7 +1,7 @@
 :root {
     --box-finished-color: rgba(45, 226, 70, 0.2);
     --box-finished-hover-color: hsla(128, 76%, 53%, 0.2);
-    --box-finished-click-color: hsla(130, 85%, 60%, 0.4);
+    --box-finished-click-color: hsla(130, 85%, 27%, 0.4);
 
     --box-unfinished-color: rgba(214, 236, 116, 0.4);
     --box-unfinished-hover-color: hsla(68, 52%, 65%, 0.4);
