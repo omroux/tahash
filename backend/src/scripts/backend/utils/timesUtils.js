@@ -135,7 +135,7 @@ export function getDisplayTime(timesObj) {
 
 export const DNF_STRING = "DNF";
 
-// getTimesObjStr: convert a valid times obj (with an optional penalty) to a string from
+// getTimesObjStr: convert a valid times obj (with an optional penalty) to string form
 export function getTimesObjStr(timesObj, penalty = Penalties.None) {
     if (!timesObj) return "-";
 
@@ -159,6 +159,7 @@ export function packTimes(allTimes) {
     const packed = [];
     if (!allTimes || !allTimes[0]) return packed;
 
+    console.log(allTimes);
     for (let i = 0; i < allTimes.length; i++) {
         const newPack = { centis: timesObjToCentis(allTimes[i].timesObj),
                         penalty: allTimes[i].penalty };
@@ -201,24 +202,28 @@ export function unpackTimes(packed) {
     }
 
     return allTimes;
-
-    function centisToTimesObj(centis) {
-        if (centis < 0)
-            return null;
-
-        const sec = 100;
-        const min = 60 * sec;
-        const hour = 60 * min;
-        
-        const numHours = Math.floor(centis / hour);
-        centis %= hour;
-        const numMinutes = Math.floor(centis / min);
-        centis %= min;
-        const numSeconds = Math.floor(centis / sec);
-        centis %= sec;
-        return { numHours: numHours, numMinutes: numMinutes, numSeconds: numSeconds, numMillis: centis };
-    }
 }
+
+// convert centiseconds to a times object
+export function centisToTimesObj(centis) {
+    if (centis < 0)
+        return null;
+
+    const sec = 100;
+    const min = 60 * sec;
+    const hour = 60 * min;
+    
+    const numHours = Math.floor(centis / hour);
+    centis %= hour;
+    const numMinutes = Math.floor(centis / min);
+    centis %= min;
+    const numSeconds = Math.floor(centis / sec);
+    centis %= sec;
+    return { numHours: numHours, numMinutes: numMinutes, numSeconds: numSeconds, numMillis: centis };
+}
+
+// convert centiseconds to a regular string form (with an optional penalty)
+export const centisToString = (centis, penalty = Penalties.None) => penalty == Penalties.DNF ? DNF_STRING : getTimesObjStr(centisToTimesObj(centis), penalty);
 
 // returns an empty packed times object
 export function getEmptyPackedTimes(compEvent) {
@@ -244,4 +249,14 @@ export function equalTimes(o1, o2) {
         && o1.numSeconds == o2.numSeconds
         && o1.numMinutes == o2.numMinutes
         && o1.numHours == o2.numHours);
+}
+
+// check if a packed times array has a dnf
+export function hasDNF(packedTimes) {
+    for (let i = 0; i < packedTimes.length; i++) {
+        if (packedTimes[i].penalty == Penalties.DNF)
+            return true;
+    }
+
+    return false;
 }

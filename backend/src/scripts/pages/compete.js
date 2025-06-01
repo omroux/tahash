@@ -82,6 +82,13 @@ function updateActiveScr() {
     scrContainers[activeScr].removeAttribute("hidden");
     scrMenuItemContainers[activeScr].setAttribute("active", true);
 
+    if (isMBLD && currTimesObj) {
+        setMBLDPoints(allTimes[activeScr].extraArgs.numAttempt, allTimes[activeScr].extraArgs.numSuccess);
+        validTime = true;
+        // timePreviewLbl.innerText = `${getMBLDPointsString()} ${getTimesObjStr(currTimesObj)}`;
+        // showPreview();
+    }
+    
     if (isFMC) {
         fmcSolutionArr = allTimes[activeScr].extraArgs.fmcSolution;
         solutionInputField.value = fmcSolutionArr.join(" ");
@@ -346,6 +353,7 @@ let validTime = false;
 function updatePreviewLabel() {
     currTimesObj = tryAnalyzeTimes(timeInput.value);
 
+    console.log(currTimesObj);
     let timesObjStr = isFMC
         ? (dnfState ? DNF_STRING : fmcSolutionArr.length)
         : (getTimesObjStr(currTimesObj, dnfState ? Penalties.DNF : (plus2State ? Penalties.Plus2 : Penalties.None)));
@@ -355,10 +363,11 @@ function updatePreviewLabel() {
         return;
     }
 
-    if (isMBLD && !dnfState) {
-        timesObjStr = `${mbldPointsStr}    ${timesObjStr}`;
+    if (isMBLD) {
+        timesObjStr = getTimesObjStr(currTimesObj);
+        const resultStr = `${getMBLDPointsString()}    ${timesObjStr}`;
+        timesObjStr = dnfState ? `${DNF_STRING} (${resultStr})` : resultStr;
     }
-
 
     timePreviewLbl.innerText = timesObjStr;
 
@@ -442,7 +451,7 @@ function getInteractionState() {
 // get this solve's extra args
 function getExtraArgs() {
     return isFMC    ? (_validSolution ? { fmcSolution: fmcSolutionArr } : [])
-                    : (isMBLD ? { numSuccess: 0, numAttempt: 0 } : null);
+                    : (isMBLD ? { numSuccess: numSuccess, numAttempt: numAttempt } : null);
 }
 
 async function submitTime(uploadData = true) {
@@ -460,7 +469,7 @@ async function submitTime(uploadData = true) {
     updateTimeInMenu(activeScr, timePreviewLbl.innerText);
     
     setInteractionState(false, true);
-    
+
     if (uploadData) {
         const wcaMeData = await getWcaMe(true);
         if (!wcaMeData) {
@@ -662,7 +671,17 @@ if (isFMC) {
 }
 
 let totalMBLDPoints = 0;
-let mbldPointsStr = "";
+let numAttempt = 0, numSuccess = 0;
+const getMBLDPointsString = () => `${numSuccess}/${numAttempt}`;
+
+function setMBLDPoints(numAtt, numSucc) {
+    console.log("set", numAtt, numSucc);
+    numAttempt = numAtt;
+    numSuccess = numSucc;
+    totalMBLDPoints = numSucc - (numAtt - numSucc);
+    setDnfState(totalMBLDPoints <= 0);
+}
+
 if (isMBLD) {
     const mbldScrsContainer = document.getElementById("mbldScrsContainer");
     const mbldPreviewAndSubmitContainer = document.getElementById("mbldPreviewAndSubmitContainer");
@@ -773,9 +792,7 @@ if (isMBLD) {
         oneMoreSuccBtn.disabled = numSucc + smallDelta > numScrs;
         fiveMoreSuccBtn.disabled = numSucc + bigDelta > numScrs;
 
-        totalMBLDPoints = numSucc - (numScrs - numSucc);
-        setDnfState(totalMBLDPoints <= 0);
-        mbldPointsStr = `${numSucc}/${numScrs}`;
+        setMBLDPoints(numScrs, numSucc);
         updatePreviewLabel();
     }
 
@@ -790,9 +807,14 @@ if (isMBLD) {
             await sleep(10);
         if (limitations.canEdit) return;
 
-        // load 
-        updateNumScrs(numScrs);
-        await submitNumScrsSelect();
+        // load
+        let att = numAttempt;
+        let succ = numSuccess;
+
+        updateNumScrs(-numScrs + att);
+        await submitNumScrsSelect(); // sets num succ to numScrs
+        updateNumSucc(-numSucc + succ);
+
         attemptTimeLbl.style.display = "none";
         numSuccessesContainer.style.display = "none";
         mbldPreviewAndSubmitContainer.style["border-top"] = "0px solid black";

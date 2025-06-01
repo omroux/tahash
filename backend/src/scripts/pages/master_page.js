@@ -116,24 +116,6 @@ const hasTokenExpired = () => {
 
 // #endregion
 
-// #region Admin Permissions
-
-// update the admin permissions using the WCA API token data
-// forces wca data to fetch, and fetches admin perms from the server.
-async function getAdminPerms() {
-    const wcaIdHeader = "wca-id";
-    const wcaMeData = await getWcaMe(true);
-    if (!wcaMeData)
-        return false;
-
-    const headers = { };
-    headers[wcaIdHeader] = wcaMeData.wca_id;
-    const res = await sendRequest("/isAdmin", { headers: headers });
-    return res.isAdmin;
-}
-
-// #endregion
-
 // #region WCA me handling
 
 function hasStoredWcaMeData() {
@@ -169,8 +151,12 @@ async function getWcaMe(forceFetch = false) {
 // #region Requests Handling
 
 // "global" headers
+const wcaIdHeader = "wca-id";
 const userIdHeader = "user-id";
 const eventIdHeader = "event-id";
+
+// "global" (query) parameters
+const compNumberParameter = "compNumber";
 
 // send a fetch request, specifically to the server
 // path: the local path (e.g. "/home", "/wca-me"...)
@@ -198,6 +184,23 @@ async function sendRequest(path, options = {}) {
         return await Promise.reject(e);
     }
 
+}
+
+// #endregion
+
+// #region Admin Permissions
+
+// update the admin permissions using the WCA API token data
+// forces wca data to fetch, and fetches admin perms from the server.
+async function getAdminPerms() {
+    const wcaMeData = await getWcaMe(true);
+    if (!wcaMeData)
+        return false;
+
+    const headers = { };
+    headers[wcaIdHeader] = wcaMeData.wca_id;
+    const res = await sendRequest("/isAdmin", { headers: headers });
+    return res.isAdmin;
 }
 
 // #endregion

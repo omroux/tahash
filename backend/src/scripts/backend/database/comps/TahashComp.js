@@ -15,7 +15,7 @@ export class TahashComp {
             results: [
                 {
                     userId: uint,
-                    result: str
+                    results: str
                 }
             ]
         }
@@ -29,7 +29,7 @@ export class TahashComp {
             results: [
                 {
                     userId: uint,
-                    result: str
+                    results: str
                 }
             ]
         }
@@ -76,7 +76,7 @@ export class TahashComp {
     }
 
     // returns CompEvent[] of the events of this comp
-    getAllEvents() {
+    getAllEventTypes() {
         const result = [];
 
         for (let i = 0; i < this.data.length; i++) {
@@ -84,6 +84,17 @@ export class TahashComp {
         }
 
         return result;
+    }
+
+    // get the results of all events
+    // returns [ { eventId, results } ]
+    getAllResults() {
+        let allResults = [];
+
+        for (let i = 0; i < this.data.length; i++)
+            allResults.push({ eventId: this.data[i].event.eventId, results: this.data[i].results });
+
+        return allResults;
     }
 
     // returns a copy of the data for a specific event object of an event from this comp by its eventId.
@@ -114,7 +125,7 @@ export class TahashComp {
     // returns an array: [ { eventId, iconName, eventTitle } ]
     getEventsInfo() {
         const events = [];
-        const compEvents = this.getAllEvents();
+        const compEvents = this.getAllEventTypes();
 
         for (let i = 0; i < compEvents.length; i++) {
             events.push({
@@ -125,6 +136,22 @@ export class TahashComp {
         }
 
         return events;
+    }
+
+    // set the results of a user in an event
+    // returns whether updating the result was successful
+    setCompetitorResults(eventId, userId, result) {
+        for (let i = 0; i < this.data.length; i++) {
+            if (this.data[i].event.eventId == eventId) {
+                const newResult = { userId: userId, result: result };
+                if (this.data[i].results) this.data[i].results.push(newResult);
+                else this.data[i].results = [newResult];
+                return true;
+            }
+        }
+
+        // didn't find event
+        return false;
     }
 }
 

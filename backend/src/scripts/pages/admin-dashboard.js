@@ -9,15 +9,22 @@ onPageLoad(async () => {
         window.location = "/";
         return;
     }
-    
-    addEventBox("333", "3x3x3", "event-333");
-    addEventBox("333", "3x3x3", "event-333");
-    addEventBox("333", "3x3x3", "event-333");
-    addEventBox("333", "3x3x3", "event-333");
+
+    const eventsInfo = await sendRequest(`/getCompEvents?${compNumberParameter}=${compNumber}`);
+    if (!eventsInfo || eventsInfo.error) {
+        throwError("Could not retrieve events.", eventsInfo ? `Details: ${eventsInfo.error}` : "");
+        return;
+    }
+
+    for (let i = 0; i < eventsInfo.length; i++) {
+        const currEvent = eventsInfo[i];
+        addEventBox(currEvent.eventId, currEvent.eventTitle, currEvent.iconName, () => { console.log(`Clicked ${currEvent.eventId}`) });
+    }    
+
     setLoadingState(false);
 });
 
-function addEventBox(eventId, eventTitle, eventIconName) {
+function addEventBox(eventId, eventTitle, eventIconName, onclick) {
     // event box
     const eventBoxEl = document.createElement("div");
     eventBoxEl.id = `event-select-${eventId}`;
@@ -34,7 +41,16 @@ function addEventBox(eventId, eventTitle, eventIconName) {
     eventTitleEl.innerText = eventTitle;
     eventBoxEl.appendChild(eventTitleEl);
 
+    // add the new event box to the list
     eventBoxes.push(eventBoxEl);
     resizeEventBoxes([eventBoxEl]);
+
+    // set the onclick event
+    if (onclick)
+        eventBoxEl.onclick = onclick;
+
+    // add it to the dom
     eventSelectContainer.appendChild(eventBoxEl);
+
+    return eventBoxEl;
 }

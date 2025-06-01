@@ -31,13 +31,13 @@ import {
     ADMINS_LIST
 } from "./serverUtils.js";
 import { errorObject } from "./src/scripts/backend/utils/globalUtils.js";
-import { tryAnalyzeTimes, getDisplayTime, getTimesObjStr, packTimes, unpackTimes, Penalties, getEmptyPackedTimes } from "./src/scripts/backend/utils/timesUtils.js"
-import { getEventById } from "./src/scripts/backend/database/CompEvent.js";
+import { tryAnalyzeTimes, getDisplayTime, getTimesObjStr, packTimes, unpackTimes, Penalties, getEmptyPackedTimes, isFullPackedTimesArr } from "./src/scripts/backend/utils/timesUtils.js"
+import { getEventById, getEventResult } from "./src/scripts/backend/database/CompEvent.js";
 
 
 // general setup
-const eventIconsSrc = "https://cdn.cubing.net/v0/css/@cubing/icons/css";
-const app = express();  // express app
+const eventIconsSrc = "https://cdn.cubing.net/v0/css/@cubing/icons/css"; // event icons cdn link
+const app = express(); // express app
 config(getEnvConfigOptions()); // configure .env file
 
 const WEBSITE_PORT = process.env.PORT || 3000;
@@ -129,7 +129,6 @@ app.get("/auth-callback", async (req, res) => {
 
 // Route for scrambles page
 app.get("/scrambles", async (req, res) => {
-    // event icons cdn link
     const currComp = await compManager().getCurrentComp();
     
     renderPage(req,
@@ -228,9 +227,20 @@ app.post("/updateTimes", async (req, res) => {
 
     const currCompNumber = compManager().getCurrentCompNumber();
     const userObj = await userManager().getUserById(userId);
+    if (userObj.finishedEvent(currCompNumber, eventId)) {
+        res.status(400).json(errorObject(`User ${userId} already submitted event ${eventId}`));
+        return;
+    }
+
     userObj.setEventTimes(currCompNumber, eventId, times);
     await userObj.saveToDB();
     res.json({ text: "Saved successfully!" });
+    
+    if (isFullPackedTimesArr(times)) {
+        const currComp = await compManager().getCurrentComp();
+        currComp.setCompetitorResults(eventId, userId, getEventResult(eventId, times));
+        await currComp.saveToDB();
+    }
 });
 
 /*
@@ -299,6 +309,36 @@ app.get("/isAdmin", async (req, res) => {
     }
 
     res.json({ isAdmin: ADMINS_LIST.includes(wcaId) });
+});
+
+const compNumberParameter = "compNumber";
+// /getCompEvents: takes compNumber as a query parameter (?compNumber=)
+app.get("/getCompEvents", async(req, res) => {
+    if (!sentFromClient(req)) {
+        res.redirect("/");
+        return;
+    }
+
+    const compNumberStr = req.query[compNumberParameter];
+    if (isNaN(compNumberStr)) {
+        res.status(400).json(errorObject("Comp number must be a number!"));
+        return;
+    }
+
+    const compNumber = Number(compNumberStr);
+    if (!compNumber) {
+        res.status(404).json(errorObject("No comp number specified"));
+        return;
+    }
+
+    const comp = await compManager().getTahashComp(compNumber);
+
+    if (!comp) {
+        res.status(404).json(errorObject(`Comp with comp number ${compNumber} does not exist.`));
+        return;
+    }
+
+    res.status(200).json(comp.getEventsInfo());
 });
 
 app.get("/wca-me", async (req, res) => {

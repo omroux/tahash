@@ -1,5 +1,6 @@
 import csTimer from "cstimer_module";
 import { getRandomString } from "../utils/globalUtils.js";
+import { centisToString, DNF_STRING, Penalties } from "../utils/timesUtils.js";
 
 // Competition event structure
 class CompEvent {
@@ -107,3 +108,80 @@ const allEvents = WCAEvents.concat({});
 // get event by its id (null if it doesn't exist)
 export const getEventById = (eventId) =>
         allEvents.find(e => e.eventId === eventId) ?? null;
+
+// get the final result of the event (as a string), given the times (e.g. an ao5, mo3, bo3, ...)
+// for multibld, returns { numSuccess, numAttempt, resultStr }
+// returns null if the result couldn't be found
+export function getEventResult(eventId, packedTimes) {
+    const compEvent = getEventById(eventId);
+
+    if (!compEvent)
+        return "INVALID COMP EVENT";
+
+    switch (compEvent.timeFormat) {
+        case TimeFormat.ao5: {
+            const maxDNF = 2;
+
+            let dnfCount = 0;
+            let average = 0;
+            let lowest = packedTimes[0].centis;
+            let highest = packedTimes[0].centis;
+
+            for (let i = 0; i < packedTimes.length; i++) {
+                if (packedTimes[i].penalty == Penalties.DNF) {
+                    dnfCount++;
+                    continue;
+                }
+
+                if (dnfCount >= maxDNF)
+                    return DNF_STRING;
+
+                average += packedTimes[i].centis;
+
+                lowest = Math.min(lowest, packedTimes[i].centis);
+                highest = Math.max(highest, packedTimes[i].centis);
+            }
+
+            if (dnfCount < 1) // don't count highest
+                average -= highest;
+            average -= lowest;
+
+            average /= 5.0; // get the average
+            return centisToString(average);
+        };
+
+        case TimeFormat.mo3: {
+            let mean = 0;
+
+            for (let i = 0; i < packedTimes.length; i++) {
+                if (packedTimes[i].penalty == Penalties.DNF)
+                    return DNF_STRING; // max 1 dnf
+                
+                mean += packedTimes[i].centis;
+            }
+            
+            mean /= 3.0; // get the mean
+            return centisToString(mean);
+        };
+
+        case TimeFormat.bo3: {
+            let best = packedTimes[0].centis;
+
+            for (let i = 1; i < packedTimes.length; i++)
+                best = Math.max(best, packedTimes[i].centis)
+
+            return centisToString(best);
+        };
+
+        case TimeFormat.multi: {
+            const extraArgs = packedTimes[0].extraArgs;
+            return { numAttempt: extraArgs.numAttempt,
+                numSuccess: extraArgs.numSuccess,
+                resultStr: `${extraArgs.numSuccess}/${extraArgs.numSuccess} ${centisToString(packedTimes[0].centis)}` };
+        };
+
+        default: {
+            return "INVALID TIME FORMAT";
+        };
+    }
+}
