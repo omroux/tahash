@@ -146,7 +146,7 @@ export function getEventResult(eventId, packedTimes) {
                 average -= highest;
             average -= lowest;
 
-            average /= 5.0; // get the average
+            average = Math.floor(average / 3); // get the average
             return centisToString(average);
         };
 
@@ -160,7 +160,7 @@ export function getEventResult(eventId, packedTimes) {
                 mean += packedTimes[i].centis;
             }
             
-            mean /= 3.0; // get the mean
+            mean = Math.floor(mean / 3); // get the mean
             return centisToString(mean);
         };
 
@@ -168,7 +168,7 @@ export function getEventResult(eventId, packedTimes) {
             let best = packedTimes[0].centis;
 
             for (let i = 1; i < packedTimes.length; i++)
-                best = Math.max(best, packedTimes[i].centis)
+                best = Math.min(best, packedTimes[i].centis)
 
             return centisToString(best);
         };
