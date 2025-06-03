@@ -137,6 +137,7 @@ app.get("/scrambles", async (req, res) => {
         { title: "Scrambles" },
         {
             compNumber: currComp.compNumber,
+            loading: true,
             events: currComp.getEventsInfo()
         },
         [ "/src/stylesheets/pages/scrambles.css",

@@ -175,9 +175,7 @@ export function getEventResultStr(eventId, packedTimes) {
 
         case TimeFormat.multi: {
             const extraArgs = packedTimes[0].extraArgs;
-            return { numAttempt: extraArgs.numAttempt,
-                numSuccess: extraArgs.numSuccess,
-                resultStr: `${extraArgs.numSuccess}/${extraArgs.numAttempt} ${centisToString(packedTimes[0].centis)}` };
+            return `${extraArgs.numSuccess}/${extraArgs.numAttempt} ${centisToString(packedTimes[0].centis)}`;
         };
 
         default: {

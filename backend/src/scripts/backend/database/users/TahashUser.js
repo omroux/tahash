@@ -83,51 +83,6 @@ export class TahashUser {
         await this.#manager.saveUser(this);
     }
 
-    // get the user's results of a competition by the competition number
-    // returns null if the user hasn't competed in this competition
-    /* getCompResults(compNumber) {
-        const compData = this.data.find((comp) => comp.compNumber == compNumber);
-        return compData ? compData.results : null;
-    }*/
-
-    // set the results of a competition by its competition number
-    // if compResults is null, removes the data of the competition from the user's data
-    /* setCompResults(compNumber, compResults) {
-        for (let i = 0; i < this.data.length; i++) {
-            if (this.data[i].compNumber == compNumber) {
-                if (compResults == null)
-                    this.data.splice(i, 1);
-                else
-                    this.data[i].results = compResults;
-                return;
-            }
-        }
-
-        if (compResults)
-            this.data.push({ compNumber: compNumber, results: compResults });
-    } */
-    
-    // set the times object for an event at a competition
-    // times is an allTimes object
-    // TODO: if times is null remove the user's submition for the event?
-    /*setEventTimes(compNumber, eventId, times) {
-        const compResults = this.getCompResults(compNumber);
-        if (!compResults) { // first event submitted by the user to this competition
-            this.setCompResults(compNumber, [ { eventId: eventId, times: times } ]);
-            return;
-        }
-
-        let eventIndex = compResults.findIndex(r => r.eventId == eventId);
-        if (eventIndex >= 0)
-            compResults[eventIndex].times = times;
-        else { // first time this event was submitted by the user to the competition
-            compResults.push({ eventId: eventId, times: times });
-            eventIndex = 0;
-        }
-
-        this.setCompResults(compResults);
-    }*/
-
     /* set the times object for an event in the current competition.
     times is a packedTimes object of the attempt.
     overwrite: whether to overwrite an event the user already submitted
@@ -158,17 +113,6 @@ export class TahashUser {
         });
     }
 
-    // get the times object for an event at a competition
-    // returns null if the user hasn't competed in this event
-    /*getEventTimes(compNumber, eventId) {
-        const compResults = this.getCompResults(compNumber);
-        if (!compResults)
-            return null;
-
-        const eventResults = compResults.find(r => r.eventId == eventId);
-        return eventResults ? eventResults.times : null;
-    }*/
-
     /* get the times object of an event in the current competition.
     returns a packedTimes object of the attempt */
     getEventTimes(eventId) {
@@ -187,7 +131,7 @@ export class TahashUser {
             if (this.currCompTimes[i].eventId == eventId)
                 return this.currCompTimes[i].finished;
         }
-        
+
         return false;
     }
 
