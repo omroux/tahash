@@ -7,6 +7,7 @@ config(getEnvConfigOptions()); // configure .env file
 
 const appId = process.env.APP_ID;
 const clientSecret = process.env.CLIENT_SECRET;
+const wcaApiPath = "/api/v0";
 export const WCA_AUTH_URL = (hostname) => `https://www.worldcubeassociation.org/oauth/authorize?client_id=${appId}&redirect_uri=${encodeURIComponent(`${hostname}/auth-callback`)}&response_type=code&scope=`;
 
 // send a request to the WCA API, handles the response
@@ -14,7 +15,7 @@ export const WCA_AUTH_URL = (hostname) => `https://www.worldcubeassociation.org/
 // returns:
 //      - if an error occurred, returns an error object
 //      - otherwise, returns the data received as JSON
-async function sendWCARequest(path, options) {
+async function sendWCARequest(path, options = { method: 'GET' }) {
     const reqUrl = `https://www.worldcubeassociation.org${path}`;
     const httpRes = await fetch(reqUrl, options);
     if (!httpRes.ok)
@@ -37,7 +38,14 @@ export async function getUserData(token) {
         headers: { Authorization: `Bearer ${token}` }
     };
 
-    return await sendWCARequest("/api/v0/me", options);
+    return await sendWCARequest(`${wcaApiPath}/me`, options);
+}
+
+// get the "WCA-me" user data of a user, given their user id (number)
+// if an error has occurred, returns an object with a string field called error (api response)
+export async function getUserDataByUserId(userId) {
+    if (!userId || isNaN(userId)) return errorObject("invalid userId");
+    return await sendWCARequest(`${wcaApiPath}/users/${userId}`);
 }
 
 // uses an http request from the wca auth app (wca login page) to fetch an auth token

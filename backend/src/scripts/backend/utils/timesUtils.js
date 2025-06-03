@@ -115,6 +115,7 @@ export function isFullPackedTimesArr(packedTimes) {
     return packedTimes && ((packedTimes[packedTimes.length - 1].centis > 0) || (packedTimes[packedTimes.length - 1].extraArgs != null));
 }
 
+/* convert a times object to string form */
 export function getDisplayTime(timesObj) {
     if (timesObj == null)
         return "-";
@@ -138,6 +139,8 @@ export const DNF_STRING = "DNF";
 // getTimesObjStr: convert a valid times obj (with an optional penalty) to string form
 export function getTimesObjStr(timesObj, penalty = Penalties.None) {
     if (!timesObj) return "-";
+    if (penalty == Penalties.DNF)
+        return DNF_STRING;
 
     let dispTimesObj = Object.assign({}, timesObj);
     if (penalty == Penalties.Plus2) {
@@ -150,7 +153,7 @@ export function getTimesObjStr(timesObj, penalty = Penalties.None) {
             return null;
     }
 
-    return (penalty == Penalties.DNF) ? DNF_STRING : (getDisplayTime(dispTimesObj) + (penalty == Penalties.Plus2 ? "+" : ""));
+    return getDisplayTime(dispTimesObj) + (penalty == Penalties.Plus2 ? "+" : "");
 }
 
 // format a times array to [{centis: <time in centiseconds>, penalty: <penalty>}]
@@ -223,7 +226,16 @@ export function centisToTimesObj(centis) {
 }
 
 // convert centiseconds to a regular string form (with an optional penalty)
-export const centisToString = (centis, penalty = Penalties.None) => penalty == Penalties.DNF ? DNF_STRING : getTimesObjStr(centisToTimesObj(centis), penalty);
+export const centisToString = (centis, penalty = Penalties.None) => getTimesObjStr(centisToTimesObj(centis), penalty);
+
+// convert packedTimes into a display 
+export function packedTimesToStrArr(packedTimes) {
+    const res = [];
+    for (let i = 0; i < packedTimes.length; i++)
+        res.push(centisToString(packedTimes[i].centis, packedTimes[i].penalty));
+
+    return res;
+}
 
 // returns an empty packed times object
 export function getEmptyPackedTimes(compEvent) {

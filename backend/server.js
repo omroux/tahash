@@ -32,7 +32,7 @@ import {
 } from "./serverUtils.js";
 import { errorObject } from "./src/scripts/backend/utils/globalUtils.js";
 import { tryAnalyzeTimes, getDisplayTime, getTimesObjStr, packTimes, unpackTimes, Penalties, getEmptyPackedTimes, isFullPackedTimesArr } from "./src/scripts/backend/utils/timesUtils.js"
-import { getEventById, getEventResult } from "./src/scripts/backend/database/CompEvent.js";
+import { getEventById, getEventResultStr } from "./src/scripts/backend/database/CompEvent.js";
 
 
 // general setup
@@ -197,7 +197,7 @@ app.get("/admin-dashboard", async (req, res) => {
             eventIconsSrc ]);
 });
 
-app.get("/admin-dashboard/manage-comp?:")
+// TODO: app.get("/admin-dashboard/manage-comp?:");
 
 // #endregion
 
@@ -225,20 +225,19 @@ app.post("/updateTimes", async (req, res) => {
         return;
     }
 
-    const currCompNumber = compManager().getCurrentCompNumber();
     const userObj = await userManager().getUserById(userId);
-    if (userObj.finishedEvent(currCompNumber, eventId)) {
+    if (userObj.finishedEvent(eventId)) {
         res.status(400).json(errorObject(`User ${userId} already submitted event ${eventId}`));
         return;
     }
 
-    userObj.setEventTimes(currCompNumber, eventId, times);
+    userObj.setEventTimes(eventId, times);
     await userObj.saveToDB();
     res.json({ text: "Saved successfully!" });
     
-    if (isFullPackedTimesArr(times)) {
+    if (userObj.finishedEvent(eventId)) {
         const currComp = await compManager().getCurrentComp();
-        currComp.setCompetitorResults(eventId, userId, getEventResult(eventId, times));
+        currComp.setCompetitorResults(eventId, userId, times);
         await currComp.saveToDB();
     }
 });
@@ -263,7 +262,6 @@ app.get("/retrieveTimes", async (req, res) => {
     const userId = parseInt(req.headers[userIdHeader]);
     const eventId = req.headers[eventIdHeader];
 
-    const currCompNumber = compManager().getCurrentCompNumber();
     const userObj = await userManager().getUserById(userId);
     const compEvent = getEventById(eventId);
 
@@ -272,7 +270,7 @@ app.get("/retrieveTimes", async (req, res) => {
         return;
     }
 
-    const times = userObj.getEventTimes(currCompNumber, eventId) ?? getEmptyPackedTimes(compEvent);
+    const times = userObj.getEventTimes(eventId) ?? getEmptyPackedTimes(compEvent);
     res.json(times);
 });
 
@@ -290,10 +288,8 @@ app.get("/eventStatuses", async (req, res) => {
     // get header
     const userId = parseInt(req.headers[userIdHeader]);
 
-    const currCompNumber = compManager().getCurrentCompNumber();
-    const userObj = await userManager().getUserById(userId);
-    
-    res.json(userObj.getEventStatuses(currCompNumber));
+    const userObj = await userManager().getUserById(userId);    
+    res.json(userObj.getEventStatuses());
 });
 
 app.get("/isAdmin", async (req, res) => {
@@ -332,7 +328,6 @@ app.get("/getCompEvents", async(req, res) => {
     }
 
     const comp = await compManager().getTahashComp(compNumber);
-
     if (!comp) {
         res.status(404).json(errorObject(`Comp with comp number ${compNumber} does not exist.`));
         return;
@@ -422,8 +417,8 @@ app.listen(WEBSITE_PORT, () => {
 // #region new tahash comp schedule
 
 // Every Monday at 20:01
-cron.schedule('1 20 * * 1', () => {
-    compManager().validateCurrentComp();
+cron.schedule('1 20 * * 1', async () => {
+    await compManager().validateCurrentComp();
 }, { scheduled: true, timezone: "Israel" })/*.start()*/;
 // TODO: uncomment .start() to make cron actually schedule the job
 

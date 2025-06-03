@@ -4,11 +4,13 @@ import { getNewCompSrc, TahashComp } from "./TahashComp.js";
 // Manages the "comps" collection
 export class CompManager {
     #collection;
+    #userManager;
     #_currCompNum = -1;
 
     // Construct a CompManager
-    constructor(compsCollection) {
+    constructor(compsCollection, userManager = null) {
         this.#collection = compsCollection;
+        this.#userManager = userManager;
     }
 
     // initialize comps collection if it's empty
@@ -55,10 +57,11 @@ export class CompManager {
     // force - whether to force accessing the database and comparing the comp number
     async getCurrentComp(force = false) {
         if (force || this.#_currCompNum < 0)
-            this.#_currCompNum = (await this.#collection.find({}, { _id: 0 }).sort({ compNumber: -1 }).limit(1).toArray())[0].compNumber;
+            this.#setCompNumber((await this.#collection.find({}, { _id: 0 }).sort({ compNumber: -1 }).limit(1).toArray())[0].compNumber);
         return await this.getTahashComp(this.#_currCompNum);
     }
 
+    /* get the current comp number */
     getCurrentCompNumber() {
         return this.#_currCompNum;
     }
@@ -68,7 +71,7 @@ export class CompManager {
     // extraEvents - an array of Events
     // force - whether to force creation of a new comp
     async validateCurrentComp(extraEvents = null, endDate = null, force = false) {
-        const currComp = await this.getCurrentComp();
+        const currComp = await this.getCurrentComp(true);
 
         // check if the current comp is still active
         if (!force && currComp.isActive())
@@ -81,7 +84,13 @@ export class CompManager {
         const newComp = new TahashComp(this, src);
         newComp.initScrambles();
         await newComp.saveToDB();
-        this.#_currCompNum += 1;
+        this.#setCompNumber(this.#_currCompNum + 1);
+    }
+
+    #setCompNumber(newCompNumber) {
+        this.#_currCompNum = newCompNumber;
+        if (this.#userManager)
+            this.#userManager.setCompNumber(newCompNumber);
     }
 
     // an array of all the saved comps in the database

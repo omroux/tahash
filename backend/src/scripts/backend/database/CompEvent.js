@@ -112,7 +112,7 @@ export const getEventById = (eventId) =>
 // get the final result of the event (as a string), given the times (e.g. an ao5, mo3, bo3, ...)
 // for multibld, returns { numSuccess, numAttempt, resultStr }
 // returns null if the result couldn't be found
-export function getEventResult(eventId, packedTimes) {
+export function getEventResultStr(eventId, packedTimes) {
     const compEvent = getEventById(eventId);
 
     if (!compEvent)

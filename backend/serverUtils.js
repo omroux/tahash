@@ -241,8 +241,8 @@ export async function initDatabase() {
     _tahashDb = mongoClient.db(tahashDbName);
 
     // get comps and users collections
-    _compManager = new CompManager(_tahashDb.collection(compsCollectionName));
     _userManager = new UserManager(_tahashDb.collection(usersCollectionName));
+    _compManager = new CompManager(_tahashDb.collection(compsCollectionName), _userManager);
 
     // initialize comps collection in case it's empty
     await _compManager.initComps();

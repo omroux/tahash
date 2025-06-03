@@ -1,4 +1,5 @@
-import { WCAEvents } from "../CompEvent.js";
+import { getEmptyPackedTimes } from "../../utils/timesUtils.js";
+import { getEventResultStr, WCAEvents } from "../CompEvent.js";
 
 export class TahashComp {
     #manager;
@@ -15,7 +16,8 @@ export class TahashComp {
             results: [
                 {
                     userId: uint,
-                    results: str
+                    times: packedTimes,
+                    resultStr: str
                 }
             ]
         }
@@ -29,7 +31,8 @@ export class TahashComp {
             results: [
                 {
                     userId: uint,
-                    results: str
+                    times: packedTimes,
+                    resultStr: str
                 }
             ]
         }
@@ -50,6 +53,9 @@ export class TahashComp {
         // "normalize" date to only the date, ignore time of day
         this.startDate?.setHours(0, 0, 0, 0);
         this.endDate?.setHours(0, 0, 0, 0);
+
+        // update the empty currCompTimes array
+        this.getEmptyCurrCompTimes();
     }
 
     // save this TahashComp using the linked CompManager
@@ -140,19 +146,47 @@ export class TahashComp {
 
     // set the results of a user in an event
     // returns whether updating the result was successful
-    setCompetitorResults(eventId, userId, result) {
+    setCompetitorResults(eventId, userId, packedTimes) {
         for (let i = 0; i < this.data.length; i++) {
-            if (this.data[i].event.eventId == eventId) {
-                const newResult = { userId: userId, result: result };
-                if (this.data[i].results) this.data[i].results.push(newResult);
-                else this.data[i].results = [newResult];
-                // console.log("Saved result. new event data:", this.data[i].results);
-                return true;
-            }
+            if (this.data[i].event.eventId != eventId)
+                continue;
+
+            const resultStr = getEventResultStr(eventId, packedTimes);
+            const newResult = {
+                userId: userId,
+                times: packedTimes,
+                resultStr: resultStr };
+            
+            if (this.data[i].results) this.data[i].results.push(newResult);
+            else this.data[i].results = [ newResult ];
+            // console.log("Saved result. new event data:", this.data[i].results);
+            return true;
         }
 
         // didn't find event
         return false;
+    }
+
+    
+    #_emptyCurrCompTimes = null;
+    /* returns a copy of an empty instance of a 'currCompTimes' array
+    if forceUpdate is true, forces to re-generate the currCompTimes array. */
+    getEmptyCurrCompTimes(forceUpdate = false) {
+        if (!forceUpdate && this.#_emptyCurrCompTimes)
+            return this.#_emptyCurrCompTimes.slice(0); // return a copy
+
+        this.#_emptyCurrCompTimes = [];
+        const eventTypes = this.getAllEventTypes();
+
+        for (let i = 0; i < eventTypes.length; i++) {
+            this.#_emptyCurrCompTimes.push({
+                eventId: eventTypes[i].eventId,
+                finished: false,
+                times: getEmptyPackedTimes(eventTypes[i])
+            });
+        }
+
+        return this.#_emptyCurrCompTimes.slice(0); // return a copy
     }
 }
 
