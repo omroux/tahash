@@ -3,18 +3,33 @@ import { isFullPackedTimesArr } from "../../utils/timesUtils.js";
 export class TahashUser {
     #manager;
     userId = -1; // wca account id
-    data;
+    lastComp; // comp number of the last comp the user competed in
+
+    records; // array of the user's records
     /*
-    user data structure:
-    data: [
+    records data structure:
+    records: [
         {
-            compNumber: uint,
-            results: [
-                {
-                    eventId: str,
-                    times: { centis: <time in centiseconds>, penalty: 0|1|2 } (penalty: 0=nothing, 1=+2, 2=dnf)
-                }
-            ]
+            eventId: str,
+            bestResults: { -- different for each event type
+                -- AO5: single, average
+                -- MO3: single, mean
+                -- BO3: single, mean
+                -- Multi: best total points / -1, time of attempt with best score
+            }
+            times: { centis: <time in centiseconds>, penalty: 0|1|2 } (penalty: 0=nothing, 1=+2, 2=dnf)
+        }
+    ]
+    */
+    
+    currCompTimes; // user's results of the last comp the user competed in
+    /*
+    currCompTimes data structure:
+    currCompTimes: [
+        {
+            eventId: str,
+            finished: bool,
+            times: { centis: <time in centiseconds>, penalty: 0|1|2 } (penalty: 0=nothing, 1=+2, 2=dnf)
         }
     ]
     */

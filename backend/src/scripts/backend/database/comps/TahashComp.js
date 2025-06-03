@@ -29,7 +29,8 @@ export class TahashComp {
             results: [
                 {
                     userId: uint,
-                    results: str
+                    times: packedTimes
+                    result: str
                 }
             ]
         }
