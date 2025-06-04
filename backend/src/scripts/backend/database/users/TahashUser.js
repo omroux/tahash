@@ -1,11 +1,20 @@
+import { datediff } from "../../utils/globalUtils.js";
+import { getUserDataByUserId } from "../../utils/apiUtils.js";
 import { isFullPackedTimesArr } from "../../utils/timesUtils.js";
 
+const updateWCADataInterval = 28; /* number of days to wait between updating wca data */
 export class TahashUser {
     /* user manager */
     #manager;
 
     /* the user's wca account id */
     userId;
+
+    /* the user's wca data */
+    wcaData;
+
+    /* epoch number of date of last wca data update */
+    lastUpdatedWcaData;
 
     /* comp number of the last comp the user competed in */
     lastComp;
@@ -54,7 +63,7 @@ export class TahashUser {
     ]
     */
 
-    // src - { userId, lastComp, records, currCompTimes }
+    // src - { userId, wcaData, lastUpdatedWcaData, lastComp, records, currCompTimes }
     constructor(userManager, src) {
         if (!userManager) {
             console.error("Initializing TahashUser with no user manager");
@@ -73,6 +82,8 @@ export class TahashUser {
         }
         this.userId = src.userId;
 
+        this.wcaData = src.wcaData || { name: "NAME", wcaId: "WCA_ID", wcaPhoto: "photo" };
+        this.lastUpdatedWcaData = src.lastUpdatedWcaData || 0;
         this.lastComp = src.lastComp || -1;
         this.records = src.records || [];
         this.currCompTimes = src.currCompTimes || [];
@@ -150,10 +161,23 @@ export class TahashUser {
 
     /* update the user's last comp number,
     and clear the user's saved times if they haven't competed in the current comp */
-    updateCompNumber(newCompNumber) {
-        if (newCompNumber == this.lastComp)
+    updateCompNumber(newCompNumber, force = false) {
+        if (!force && newCompNumber == this.lastComp)
             return;
         this.currCompTimes = [];
         this.lastComp = newCompNumber;
+    }
+
+    // try update the user's wca data
+    // force: whether to force updating
+    // returns whether the data was updated
+    // (data will not update unless enough time has passed)
+    async updateWCAData(force = false) {
+        if (!force && datediff(this.lastUpdatedWcaData, Date.now()) < updateWCADataInterval)
+            return false;
+
+        this.lastUpdatedWcaData = Date.now();
+        this.wcaData = await getUserDataByUserId(this.userId);
+        return true;
     }
 }

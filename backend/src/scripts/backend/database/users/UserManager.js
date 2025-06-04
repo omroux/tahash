@@ -1,4 +1,5 @@
 // Manages the "users" collection
+import { getUserDataByUserId, getWCARecordsOfUser } from "../../utils/apiUtils.js";
 import { TahashUser } from "./TahashUser.js";
 
 export class UserManager {
@@ -11,17 +12,29 @@ export class UserManager {
 
     // Get a user in the database by id.
     // If the user doesn't exist, returns a new (empty) TahashUser object of this manager and with the given id.
-    // if saveIfCreated is true and the user doesn't exist in the database, fetches the user's WCA results and saves the user in the database.
+    // if saveIfCreated is true and the user doesn't exist in the database, fetches the user's WCA data and results and saves the user in the database.
     // if the compNumber is positive, updates the user's comp number
     async getUserById(userId, saveIfCreated = true) {
-        const userSrc = (await this.#collection.findOne({ userId: userId }))
-                ?? { userId: userId,
-                lastComp: -1,
-                records: (saveIfCreated ? (await getWCARecordsOfUser(userId)) : []),
-                currCompTimes: [] };
+        let userSrc = await this.#collection.findOne({ userId: userId });
+        const isNewUser = userSrc == null;
+
+        userSrc ??= { userId: userId }
+        if (isNewUser && saveIfCreated) {
+            userSrc.wcaData = await getUserDataByUserId(userId);
+            userSrc.records = await getWCARecordsOfUser(userId);
+            userSrc.lastUpdatedWcaData = Date.now();
+        }
         
         const newUser = new TahashUser(this, userSrc);
-        newUser.updateCompNumber(this.#_currCompNumber);
+        newUser.updateCompNumber(this.#_currCompNumber, isNewUser);
+
+        if (!isNewUser) {
+            if (await newUser.updateWCAData())
+                await this.saveUser(newUser);
+        }
+
+        if (isNewUser && saveIfCreated)
+            await this.saveUser(newUser);
 
         return newUser;
     }
@@ -35,6 +48,8 @@ export class UserManager {
         return await this.#collection.updateOne({ userId: tahashUser.userId },
             { $set: {
                 userId: tahashUser.userId,
+                wcaData: tahashUser.wcaData,
+                lastUpdatedWcaData: tahashUser.lastUpdatedWcaData,
                 lastComp: tahashUser.lastComp,
                 records: tahashUser.records,
                 currCompTimes: tahashUser.currCompTimes
@@ -47,11 +62,4 @@ export class UserManager {
     setCompNumber(newCompNum) {
         this.#_currCompNumber = newCompNum;
     }
-}
-
-/* returns a "records" array of the user's WCA records */
-// TODO: implement getWCARecordsOfUser
-async function getWCARecordsOfUser(userId) {
-    console.error("getWCARecordsOfUser not implemented");
-    return [];
 }

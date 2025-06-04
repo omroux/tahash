@@ -9,7 +9,6 @@ import cron from "node-cron"
 import {
     fetchToken,
     fetchRefreshToken,
-    getUserData,
     WCA_AUTH_URL
 } from "./src/scripts/backend/utils/apiUtils.js";
 import {
@@ -287,11 +286,11 @@ app.get("/retrieveTimes", async (req, res) => {
     res.json(times);
 });
 
-/*  /eventStatuses
+/*  /eventStatuses get event statuses
     - Input (headers):
         * userId
     - Output (json):
-        * 
+        * [ { eventId: "finished"/"unfinished" } ]
 */
 app.get("/eventStatuses", async (req, res) => {
     if (!sentFromClient(req)) {
@@ -346,6 +345,22 @@ app.get("/getCompEvents", async(req, res) => {
     }
 
     res.status(200).json(comp.getEventsInfo());
+});
+
+/*  /getEventSubmitions: 
+    - Input (headers):
+        * compNumber
+        * eventId
+    - Output (json):
+        * [ { userId, submissionState, times, resultStr } ]
+*/
+app.get("/getEventSubmitions", async (req, res) => {
+    if (!sentFromClient(req)) {
+        res.redirect("/");
+        return;
+    }
+
+    
 });
 
 app.get("/wca-me", async (req, res) => {

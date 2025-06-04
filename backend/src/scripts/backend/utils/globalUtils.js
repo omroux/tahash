@@ -18,3 +18,13 @@ export function getRandomString(len = 8, charSet = null) {
     }
     return randomString;
 }
+
+/**
+ * get the number of days between two dates
+ * Take the difference between the dates and divide by milliseconds per day.
+ * Round to nearest whole number to deal with DST.
+ * solution from https://stackoverflow.com/a/543152
+ */
+export function datediff(first, second) {        
+    return Math.round(Math.abs(second - first) / (1000 * 60 * 60 * 24));
+}

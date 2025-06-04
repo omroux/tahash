@@ -41,11 +41,18 @@ export async function getUserData(token) {
     return await sendWCARequest(`${wcaApiPath}/me`, options);
 }
 
-// get the "WCA-me" user data of a user, given their user id (number)
+// get the "WCA-me" data of a user, given their user id (number)
 // if an error has occurred, returns an object with a string field called error (api response)
 export async function getUserDataByUserId(userId) {
     if (!userId || isNaN(userId)) return errorObject("invalid userId");
-    return await sendWCARequest(`${wcaApiPath}/users/${userId}`);
+    return (await sendWCARequest(`${wcaApiPath}/users/${userId}`)).user;
+}
+
+/* returns a "records" array of the user's WCA records */
+// TODO: implement getWCARecordsOfUser
+export async function getWCARecordsOfUser(userId) {
+    console.error("getWCARecordsOfUser not implemented");
+    return [];
 }
 
 // uses an http request from the wca auth app (wca login page) to fetch an auth token
