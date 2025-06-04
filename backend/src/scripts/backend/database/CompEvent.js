@@ -1,6 +1,6 @@
 import csTimer from "cstimer_module";
 import { getRandomString } from "../utils/globalUtils.js";
-import { centisToString, DNF_STRING, Penalties } from "../utils/timesUtils.js";
+import { centisToString, DNF_STRING, Penalties, getPureCentis } from "../utils/timesUtils.js";
 
 // Competition event structure
 class CompEvent {
@@ -124,67 +124,98 @@ export function getEventResultStr(eventId, packedTimes) {
         return "INVALID COMP EVENT";
 
     switch (compEvent.timeFormat) {
-        case TimeFormat.ao5: {
-            const maxDNF = 2;
+        case TimeFormat.ao5:
+            return calculateAO5(packedTimes);
 
-            let dnfCount = 0;
-            let average = 0;
-            let lowest = packedTimes[0].centis;
-            let highest = packedTimes[0].centis;
+        case TimeFormat.mo3:
+            return eventId == "fmc" ? calculateFMCResult(packedTimes) : calculateMO3(packedTimes);
 
-            for (let i = 0; i < packedTimes.length; i++) {
-                if (packedTimes[i].penalty == Penalties.DNF) {
-                    dnfCount++;
-                    continue;
-                }
+        case TimeFormat.bo3:
+            return calculateBO3(packedTimes);
 
-                if (dnfCount >= maxDNF)
-                    return DNF_STRING;
+        case TimeFormat.multi:
+            return calculateMultiResult(packedTimes);
 
-                average += packedTimes[i].centis;
-
-                lowest = Math.min(lowest, packedTimes[i].centis);
-                highest = Math.max(highest, packedTimes[i].centis);
-            }
-
-            if (dnfCount < 1) // don't count highest
-                average -= highest;
-            average -= lowest;
-
-            average = Math.floor(average / 3); // get the average
-            return centisToString(average);
-        };
-
-        case TimeFormat.mo3: {
-            let mean = 0;
-
-            for (let i = 0; i < packedTimes.length; i++) {
-                if (packedTimes[i].penalty == Penalties.DNF)
-                    return DNF_STRING; // max 1 dnf
-                
-                mean += packedTimes[i].centis;
-            }
-            
-            mean = Math.floor(mean / 3); // get the mean
-            return centisToString(mean);
-        };
-
-        case TimeFormat.bo3: {
-            let best = packedTimes[0].centis;
-
-            for (let i = 1; i < packedTimes.length; i++)
-                best = Math.min(best, packedTimes[i].centis)
-
-            return centisToString(best);
-        };
-
-        case TimeFormat.multi: {
-            const extraArgs = packedTimes[0].extraArgs;
-            return `${extraArgs.numSuccess}/${extraArgs.numAttempt} ${centisToString(packedTimes[0].centis)}`;
-        };
-
-        default: {
+        default:
             return "INVALID TIME FORMAT";
-        };
     }
+}
+
+function calculateAO5(packedTimes) {
+    const maxDNF = 2;
+    const pureCentis = getPureCentis(packedTimes);
+
+    let dnfCount = 0;
+    let average = 0;
+    let lowest = pureCentis[0];
+    let highest = pureCentis[0];
+
+    for (let i = 0; i < packedTimes.length; i++) {
+        if (packedTimes[i].penalty == Penalties.DNF) {
+            dnfCount++;
+            continue;
+        }
+
+        if (dnfCount >= maxDNF)
+            return DNF_STRING;
+
+        average += pureCentis[i];
+
+        lowest = Math.min(lowest, pureCentis[i]);
+        highest = Math.max(highest, pureCentis[i]);
+    }
+
+    if (dnfCount < 1) // don't count highest
+        average -= highest;
+    average -= lowest;
+
+    average = Math.floor(average / 3); // get the average
+    return centisToString(average);
+}
+
+function calculateMO3(packedTimes) {
+    let mean = 0;
+    const pureCentis = getPureCentis(packedTimes);
+
+    for (let i = 0; i < packedTimes.length; i++) {
+        if (packedTimes[i].penalty == Penalties.DNF)
+            return DNF_STRING; // max 1 dnf
+        
+        mean += pureCentis[i];
+    }
+    
+    mean = Math.floor(mean / 3); // get the mean
+    return centisToString(mean);
+}
+
+function calculateBO3(packedTimes) {
+    let best = packedTimes[0].centis;
+
+    for (let i = 1; i < packedTimes.length; i++)
+        best = Math.min(best, packedTimes[i].centis)
+
+    return centisToString(best);
+}
+
+function calculateMultiResult(packedTimes) {
+    const extraArgs = packedTimes[0].extraArgs;
+    return `${extraArgs.numSuccess}/${extraArgs.numAttempt} ${centisToString(packedTimes[0].centis)}`;
+}
+
+function calculateFMCResult(packedTimes) {
+    let mean = 0;
+
+    for (let i = 0; i < packedTimes.length; i++) {
+        if (packedTimes[i].penalty == Penalties.DNF)
+            return DNF_STRING; // max 1 dnf
+
+        if (!packedTimes.extraArgs.fmcSolution) {
+            console.error("ERROR: No FMC solution. Returning -1 (CompEvent.calculateFMCResult)");
+            return -1;
+        }
+        mean += packedTimes.extraArgs.fmcSolution.length;
+    }
+    
+    mean = Math.floor(mean / 3); // get the mean
+    return centisToString(mean);
 }

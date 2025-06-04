@@ -151,7 +151,7 @@ export class TahashUser {
     /* update the user's last comp number,
     and clear the user's saved times if they haven't competed in the current comp */
     updateCompNumber(newCompNumber) {
-        if (newCompNumber <= this.lastComp)
+        if (newCompNumber == this.lastComp)
             return;
         this.currCompTimes = [];
         this.lastComp = newCompNumber;

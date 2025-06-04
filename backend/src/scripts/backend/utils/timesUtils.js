@@ -237,6 +237,20 @@ export function packedTimesToStrArr(packedTimes) {
     return res;
 }
 
+// convert a packed times array to a pure centiseconds array;
+// for +2 - adds to seconds
+// for DNF - sets time to -1
+export function getPureCentis(packedTimes) {
+    const result = [];
+    for (let i = 0; i < packedTimes.length; i++) {
+        result.push(packedTimes[i].penalty == Penalties.DNF ? -1
+                : packedTimes[i].penalty == Penalties.Plus2 ? (packedTimes[i].centis + 200)
+                : packedTimes[i].centis);
+    }
+
+    return result;
+}
+
 // returns an empty packed times object
 export function getEmptyPackedTimes(compEvent) {
     let nTimes = compEvent.getNumScrambles();

@@ -353,7 +353,6 @@ let validTime = false;
 function updatePreviewLabel() {
     currTimesObj = tryAnalyzeTimes(timeInput.value);
 
-    console.log(currTimesObj);
     let timesObjStr = isFMC
         ? (dnfState ? DNF_STRING : fmcSolutionArr.length)
         : (getTimesObjStr(currTimesObj, dnfState ? Penalties.DNF : (plus2State ? Penalties.Plus2 : Penalties.None)));
