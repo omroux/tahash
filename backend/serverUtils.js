@@ -74,7 +74,7 @@ export function renderPage(req, res, filePath, layoutOptions = {}, pageOptions =
 
 
 // render the error page with a specific error
-export function renderError(req, res, error = null) {
+export function renderError(req, res, error) {
     renderPage(req,
         res,
         "error.ejs",
@@ -150,45 +150,11 @@ const fromClientHeader = "from-client";
 // check if a request was sent from a client
 export const sentFromClient = (req) => (req.headers[fromClientHeader] === "true");
 
-
-// retrieve the WCAMe information of a user
-// needs both request and response in order to update the user's cookies. does not send or alter the response.
-// returns:
-//      - if the user was logged in, returns the WCA-Me json object of the user
-//      - if the user wasn't logged in, returns null
-/*export async function retrieveWCAMe(req, res) {
-    // no cookie -> redirect to /login
-    let authToken = tryGetCookie(req, authTokenCookie);
-    if (!authToken)
-        res.clearCookie(authTokenCookie);
-    else {
-        // get the user's data using the access token
-        let userData = await getUserData(authToken.access_token);
-
-        // data received successfully
-        if (userData.me)
-            return userData.me;
-    }
-
-    // generate a new token (with refresh token)
-    let refresh = tryGetCookie(req, refreshTokenCookie);
-    const tokenData = await fetchRefreshToken(refresh?.refresh_token);
-    if (tokenData.error) {
-        clearTokenCookies(res);
-        return null;
-    }
-
-    // store the cookies with the new token
-    storeTokenCookies(res, tokenData);
-
-    // try to use the new refresh token
-    // note: we're not reloading the page in order to avoid an infinite loop of refreshing the page
-    let userData = await getUserData(tokenData.access_token);
-    return userData ? userData.me : null; // automatically null if it doesn't exist
-}*/
-
+const accessTokenHeader = "access-token";
+/* retrieve WCA-me data from an http request.
+    req is a request containing an access token header.
+    returns null if the input was invalid */
 export async function retrieveWCAMe(req) {
-    const accessTokenHeader = "access-token";
     const accessToken = req.headers[accessTokenHeader];
     if (!accessToken)
         return null;
@@ -201,6 +167,30 @@ export async function retrieveWCAMe(req) {
 // optimized function to check whether the user is logged in.
 export const isLoggedIn = (req) => tryGetCookie(req, loggedInCookie, false) != null;
 
+
+// #region Server Request Parsing
+
+// TODO: add functions for reading and parsing headers (as strings and numbers), and utilize them in server.js
+
+/**
+ * get a string query parameter from a request
+ * @param {string[]} query - The list of the queries received in the request (req.query)
+ * @param {string} queryName - The name of the parameter in the query
+ * @returns {?string} The value of the string. Returns undefined if the parameter wasn't found
+ */
+export const getQueryStr = (query, queryName) => query[queryName];
+
+// get a query parameter as a non-negative integer
+// if the number was found and valid returns the number, otherwise returns null
+export function getQueryNumber(query, queryName) {
+    const num = Number(query[queryName]);
+    return isNaN(num) ? null : num;
+}
+
+/* get a number query parameter from a request */
+
+
+// #endregion
 
 // #region Database Management
 

@@ -157,9 +157,6 @@ export class TahashComp {
                 times: packedTimes,
                 resultStr: resultStr };
             
-            if (packedTimes[0].extraArgs)
-                newResult.extraArgs = packedTimes[0].extraArgs;
-            
             if (this.data[i].results) this.data[i].results.push(newResult);
             else this.data[i].results = [ newResult ];
             // console.log("Saved result. new event data:", this.data[i].results);

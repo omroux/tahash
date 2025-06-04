@@ -28,7 +28,8 @@ import {
     userManager,
     getEnvConfigOptions,
     setHostname,
-    ADMINS_LIST
+    ADMINS_LIST,
+    getQueryNumber
 } from "./serverUtils.js";
 import { errorObject } from "./src/scripts/backend/utils/globalUtils.js";
 import { tryAnalyzeTimes, getDisplayTime, getTimesObjStr, packTimes, unpackTimes, Penalties, getEmptyPackedTimes, isFullPackedTimesArr } from "./src/scripts/backend/utils/timesUtils.js"
@@ -183,16 +184,21 @@ app.get("/compete/:eventId", async (req, res) => {
             eventIconsSrc ]);
 });
 
+const compNumberParameter = "comp";
 app.get("/admin-dashboard", async (req, res) => {
-    const currComp = await compManager().getCurrentComp();
-    
+    const compNum = getQueryNumber(req.query, compNumberParameter);
+    if (!compNum || !compManager().compExists(compNum)) {
+        // if the comp number received was invalid, redirect to current comp
+        const currCompNum = await compManager().getCurrentCompNumber();
+        res.redirect(`/admin-dashboard?${compNumberParameter}=${currCompNum}`);
+        return;
+    }
+
     renderPage(req,
         res,
         "/admin-dashboard.ejs",
         { title: "לוח בקרה", loading: true },
-        {
-            compNumber: currComp.compNumber
-        },
+        { compNumber: compNum },
         [ "/src/stylesheets/pages/admin-dashboard.css",
             "/src/stylesheets/eventBoxes.css",
             eventIconsSrc ]);
@@ -211,6 +217,15 @@ const userIdHeader = "user-id";
 const wcaIdHeader = "wca-id";
 const eventIdHeader = "event-id";
 
+/*  /updateTimes:
+    - Input (in json request body):
+        * userId: number
+        * eventId: str
+        * times: packedTimes
+    - Output (json):
+        * status 400 if: user finished event/invalid request
+        * otherwise, status 200
+*/
 app.post("/updateTimes", async (req, res) => {
     if (!sentFromClient(req)) {
         res.redirect("/");
@@ -222,7 +237,7 @@ app.post("/updateTimes", async (req, res) => {
     const times = req.body.times;
     if (!userId || !eventId || !times) {
         console.log("Invalid body for updateTimes. Request:", req);
-        res.json(errorObject("Invalid headers"));
+        res.status(400).json(errorObject("Invalid headers"));
         return;
     }
 
@@ -234,7 +249,7 @@ app.post("/updateTimes", async (req, res) => {
 
     userObj.setEventTimes(eventId, times);
     await userObj.saveToDB();
-    res.json({ text: "Saved successfully!" });
+    res.status(200).json({ text: "Saved successfully!" });
     
     if (userObj.finishedEvent(eventId)) {
         const currComp = await compManager().getCurrentComp();
@@ -243,15 +258,14 @@ app.post("/updateTimes", async (req, res) => {
     }
 });
 
-/*
-    /retrieveTimes:
-        - Input (headers):
-            * sent from client
-            * userId (WCA User ID)
-            * eventId (id of the event to retrieve)
-        - Output (json):
-            * if there was an error, an error object
-            * otherwise, returns an array of the requested user's times
+/*  /retrieveTimes:
+    - Input (headers):
+        * sent from client
+        * userId (WCA User ID)
+        * eventId (id of the event to retrieve)
+    - Output (json):
+        * if there was an error, an error object
+        * otherwise, returns an array of the requested user's times
 */
 app.get("/retrieveTimes", async (req, res) => {
     if (!sentFromClient(req)) {
@@ -275,19 +289,24 @@ app.get("/retrieveTimes", async (req, res) => {
     res.json(times);
 });
 
+/*  /eventStatuses
+    - Input (headers):
+        * userId
+    - Output (json):
+        * 
+*/
 app.get("/eventStatuses", async (req, res) => {
     if (!sentFromClient(req)) {
         res.redirect("/");
         return;
     }
 
-    if (!req.headers[userIdHeader]) {
+    // get header
+    const userId = parseInt(req.headers[userIdHeader]);
+    if (isNaN(userId)) {
         res.status(400).json(errorObject("No user id sent."));
         return;
     }
-
-    // get header
-    const userId = parseInt(req.headers[userIdHeader]);
 
     const userObj = await userManager().getUserById(userId);    
     res.json(userObj.getEventStatuses());
@@ -308,23 +327,16 @@ app.get("/isAdmin", async (req, res) => {
     res.json({ isAdmin: ADMINS_LIST.includes(wcaId) });
 });
 
-const compNumberParameter = "compNumber";
-// /getCompEvents: takes compNumber as a query parameter (?compNumber=)
+// /getCompEvents: takes competition number as a query parameter (?comp=)
 app.get("/getCompEvents", async(req, res) => {
     if (!sentFromClient(req)) {
         res.redirect("/");
         return;
     }
 
-    const compNumberStr = req.query[compNumberParameter];
-    if (isNaN(compNumberStr)) {
-        res.status(400).json(errorObject("Comp number must be a number!"));
-        return;
-    }
-
-    const compNumber = Number(compNumberStr);
+    const compNumber = getQueryNumber(req.query, compNumberParameter);
     if (!compNumber) {
-        res.status(404).json(errorObject("No comp number specified"));
+        res.status(400).json(errorObject(`Invalid comp number ${compNumber}`));
         return;
     }
 

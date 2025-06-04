@@ -156,7 +156,7 @@ const userIdHeader = "user-id";
 const eventIdHeader = "event-id";
 
 // "global" (query) parameters
-const compNumberParameter = "compNumber";
+const compNumberParameter = "comp";
 
 // send a fetch request, specifically to the server
 // path: the local path (e.g. "/home", "/wca-me"...)

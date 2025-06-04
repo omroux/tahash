@@ -4,6 +4,7 @@ const eventSelectContainer = document.getElementById("eventSelectContainer");
 const eventBoxes = [];
 
 onPageLoad(async () => {
+    console.log(window.location);
     const isAdmin = await getAdminPerms();
     if (!isAdmin) {
         window.location = "/";
@@ -19,7 +20,7 @@ onPageLoad(async () => {
     for (let i = 0; i < eventsInfo.length; i++) {
         const currEvent = eventsInfo[i];
         addEventBox(currEvent.eventId, currEvent.eventTitle, currEvent.iconName, () => { console.log(`Clicked ${currEvent.eventId}`) });
-    }    
+    }
 
     setLoadingState(false);
 });

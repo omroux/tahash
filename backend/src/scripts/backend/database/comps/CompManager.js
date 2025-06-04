@@ -40,6 +40,11 @@ export class CompManager {
         }) : null;
     }
 
+    // check if a comp with a comp number exists
+    compExists(compNumber) {
+        return !isNaN(compNumber) && compNumber > 0 && compNumber <= this.getCurrentCompNumber();
+    }
+
     // save a TahashComp to the database by its comp number (if it already exists, just update its values).
     // returns whether the update has been acknowledged (usually true).
     async saveComp(tahashComp) {
