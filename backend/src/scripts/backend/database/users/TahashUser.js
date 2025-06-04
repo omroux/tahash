@@ -10,7 +10,7 @@ export class TahashUser {
     /* the user's wca account id */
     userId;
 
-    /* the user's wca data */
+    /* the user's wca data: { name, wcaId, photoUrl } */
     wcaData;
 
     /* epoch number of date of last wca data update */
@@ -82,7 +82,7 @@ export class TahashUser {
         }
         this.userId = src.userId;
 
-        this.wcaData = src.wcaData || { name: "NAME", wcaId: "WCA_ID", wcaPhoto: "photo" };
+        this.wcaData = getCompactWCAData(src.wcaData || { name: "NAME", wca_id: "WCA_ID", avatar: { url: "photo" } });
         this.lastUpdatedWcaData = src.lastUpdatedWcaData || 0;
         this.lastComp = src.lastComp || -1;
         this.records = src.records || [];
@@ -168,6 +168,12 @@ export class TahashUser {
         this.lastComp = newCompNumber;
     }
 
+    // get the user's wca data in a compact structure:
+    // { userId, name, wcaId, photoUrl }
+    getCompactWCAUserData(includePhoto) {
+        return { userId: this.userId, name: this.wcaData.name, wcaId: this.wcaData.wca_id,  }
+    }
+
     // try update the user's wca data
     // force: whether to force updating
     // returns whether the data was updated
@@ -177,7 +183,13 @@ export class TahashUser {
             return false;
 
         this.lastUpdatedWcaData = Date.now();
-        this.wcaData = await getUserDataByUserId(this.userId);
+        this.wcaData = getCompactWCAData(await getUserDataByUserId(this.userId));
         return true;
     }
+}
+
+// get only the necessary values from a user's wca data
+// returns { wcaId, name, photoUrl }
+export function getCompactWCAData(wcaData) {
+    return { wcaId: wcaData.wca_id, name: wcaData.name, photoUrl: wcaData.avatar ? wcaData.avatar.url : "" }
 }

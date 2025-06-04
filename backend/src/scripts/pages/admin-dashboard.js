@@ -62,5 +62,11 @@ function addEventBox(eventId, eventTitle, eventIconName, onclick) {
 // which event to view
 // if eventId is null, goes back to see all events
 function setEventView(eventId) {
-    
+    if (!eventId) {
+        unhideElement(eventSelectContainer);
+        hideElement(eventResultsContainer);
+        return;
+    }
+
+    // await sendRequest("/");
 }

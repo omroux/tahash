@@ -264,4 +264,7 @@ async function sleep(ms) {
 
 const hiddenAttribute = "hidden";
 
+const hideElement = (element) => element.setAttribute(hiddenAttribute, "");
+const unhideElement = (element) => element.removeAttribute(hiddenAttribute);
+
 // #endregion
