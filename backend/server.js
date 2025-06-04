@@ -184,13 +184,13 @@ app.get("/compete/:eventId", async (req, res) => {
             eventIconsSrc ]);
 });
 
-const compNumberParameter = "comp";
+const compNumberParameterName = "comp-number";
 app.get("/admin-dashboard", async (req, res) => {
-    const compNum = getQueryNumber(req.query, compNumberParameter);
+    const compNum = getQueryNumber(req.query, compNumberParameterName);
     if (!compNum || !compManager().compExists(compNum)) {
         // if the comp number received was invalid, redirect to current comp
         const currCompNum = await compManager().getCurrentCompNumber();
-        res.redirect(`/admin-dashboard?${compNumberParameter}=${currCompNum}`);
+        res.redirect(`/admin-dashboard?${compNumberParameterName}=${currCompNum}`);
         return;
     }
 
@@ -203,8 +203,6 @@ app.get("/admin-dashboard", async (req, res) => {
             "/src/stylesheets/eventBoxes.css",
             eventIconsSrc ]);
 });
-
-// TODO: app.get("/admin-dashboard/manage-comp?:");
 
 // #endregion
 
@@ -328,13 +326,14 @@ app.get("/isAdmin", async (req, res) => {
 });
 
 // /getCompEvents: takes competition number as a query parameter (?comp=)
+// output: (as json) [ { eventId, iconName, eventTitle } ]
 app.get("/getCompEvents", async(req, res) => {
     if (!sentFromClient(req)) {
         res.redirect("/");
         return;
     }
 
-    const compNumber = getQueryNumber(req.query, compNumberParameter);
+    const compNumber = getQueryNumber(req.query, compNumberParameterName);
     if (!compNumber) {
         res.status(400).json(errorObject(`Invalid comp number ${compNumber}`));
         return;

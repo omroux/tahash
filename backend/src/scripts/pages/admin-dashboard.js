@@ -1,17 +1,18 @@
 import { resizeEventBoxes } from "/src/scripts/backend/utils/eventBoxesUtils.js";
 
 const eventSelectContainer = document.getElementById("eventSelectContainer");
+const eventResultsContainer = document.getElementById("eventResultsContainer");
+const backToAllEventsBtn = document.getElementById("backToAllEventsBtn");
 const eventBoxes = [];
 
 onPageLoad(async () => {
-    console.log(window.location);
     const isAdmin = await getAdminPerms();
     if (!isAdmin) {
         window.location = "/";
         return;
     }
 
-    const eventsInfo = await sendRequest(`/getCompEvents?${compNumberParameter}=${compNumber}`);
+    const eventsInfo = await sendRequest(`/getCompEvents?${compNumberParamName}=${compNumber}`);
     if (!eventsInfo || eventsInfo.error) {
         throwError("Could not retrieve events.", eventsInfo ? `Details: ${eventsInfo.error}` : "");
         return;
@@ -19,8 +20,10 @@ onPageLoad(async () => {
 
     for (let i = 0; i < eventsInfo.length; i++) {
         const currEvent = eventsInfo[i];
-        addEventBox(currEvent.eventId, currEvent.eventTitle, currEvent.iconName, () => { console.log(`Clicked ${currEvent.eventId}`) });
+        addEventBox(currEvent.eventId, currEvent.eventTitle, currEvent.iconName, () => { setEventView(currEvent.eventId) });
     }
+
+    backToAllEventsBtn.onclick = () => setEventView(null);
 
     setLoadingState(false);
 });
@@ -54,4 +57,10 @@ function addEventBox(eventId, eventTitle, eventIconName, onclick) {
     eventSelectContainer.appendChild(eventBoxEl);
 
     return eventBoxEl;
+}
+
+// which event to view
+// if eventId is null, goes back to see all events
+function setEventView(eventId) {
+    
 }

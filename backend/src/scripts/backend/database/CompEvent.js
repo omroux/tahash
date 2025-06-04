@@ -56,6 +56,11 @@ class CompEvent {
     getNumScrambles() {
         return getNumScrambles(this.timeFormat);
     }
+
+    // get the event's info. returns { eventId, eventTitle, iconName }
+    getEventInfo() {
+        return { eventId: this.eventId, eventTitle: this.eventTitle, iconName: this.iconName };
+    }
 }
 
 

@@ -1,11 +1,13 @@
 <h2 class="Title">לוח בקרה</h2>
 <h3 class="Sub-Title">תחרות מספר <%- compNumber %></h3>
 
-<div class="Event-Select-Container" id="eventSelectContainer">
-
+<div class="Event-Select-Container" id="eventSelectContainer"></div>
+<div class="Event-Results-Container" id="eventResultsContainer" hidden>
+    <button class="Generic-Button" id="backToAllEventsBtn">hello</button>
 </div>
 
 <script>
-    const compNumber = <%- compNumber %>;
+    const urlParams = new URLSearchParams(window.location.search);
+    const compNumber = urlParams.get(compNumberParamName);
 </script>
 <script type="module" src="src/scripts/pages/admin-dashboard.js"></script>

@@ -1,5 +1,6 @@
 import { getEmptyPackedTimes } from "../../utils/timesUtils.js";
 import { getEventResultStr, WCAEvents } from "../CompEvent.js";
+import { SubmitionState } from "./SubmitionState.js";
 
 export class TahashComp {
     #manager;
@@ -31,6 +32,7 @@ export class TahashComp {
             results: [
                 {
                     userId: uint,
+                    submitionState: SubmitionState,
                     times: packedTimes,
                     resultStr: str
                 }
@@ -85,9 +87,8 @@ export class TahashComp {
     getAllEventTypes() {
         const result = [];
 
-        for (let i = 0; i < this.data.length; i++) {
+        for (let i = 0; i < this.data.length; i++)
             result.push(this.data[i].event);
-        }
 
         return result;
     }
@@ -131,18 +132,28 @@ export class TahashComp {
     // returns an array: [ { eventId, iconName, eventTitle } ]
     getEventsInfo() {
         const events = [];
-        const compEvents = this.getAllEventTypes();
 
-        for (let i = 0; i < compEvents.length; i++) {
-            events.push({
-                eventId: compEvents[i].eventId,
-                iconName: compEvents[i].iconName,
-                eventTitle: compEvents[i].eventTitle
-            });
-        }
+        // populate array
+        for (let i = 0; i < this.data.length; i++)
+            events.push(this.data[i].event.getEventInfo());
 
         return events;
     }
+
+    // get events info and submitions preview
+    // TODO: implement get events info and submitions preview
+    // returns an array: [ { eventId, iconName, eventTitle, submitionsPreview: { numApproved, numRejected, numPending } } ]
+    // getEventsInfoAndSubPreview() {
+    //     const eventsAndDetails = [];
+
+    //     for (let i = 0; i < this.data.length; i++) {
+    //         const infoAndDetails = this.data[i].event.getEventInfo();
+    //         infoAndDetails.submitionsPreview = getSubmitionsPreview(this.data[i]);
+    //         eventsAndDetails.push(infoAndDetails);
+    //     }
+
+    //     return eventsAndDetails;
+    // }
 
     // set the results of a user in an event
     // returns whether updating the result was successful
@@ -155,6 +166,7 @@ export class TahashComp {
             const newResult = {
                 userId: userId,
                 times: packedTimes,
+                submitionState: SubmitionState.Pending,
                 resultStr: resultStr };
             
             if (this.data[i].results) this.data[i].results.push(newResult);
