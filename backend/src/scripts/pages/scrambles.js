@@ -25,7 +25,6 @@ function chooseEvent(eventBoxEl) {
 }
 
 onPageLoad(async () => {
-    setLoadingState(true);
     const wcaMeData = await getWcaMe(true);
     if (!wcaMeData) {
         clearLoginData();

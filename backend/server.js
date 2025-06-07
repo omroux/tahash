@@ -485,7 +485,7 @@ app.get("/src/*", (req, res) => {
 
 // TODO: remove before publishing
 // dev commands
-app.get("/newcomp", async (req, res) => {
+app.get("/newcompp1234", async (req, res) => {
     // validate (create a new one - the last one is not active anymore)
     await compManager().validateCurrentComp(null, null, true);
     res.redirect("/");
