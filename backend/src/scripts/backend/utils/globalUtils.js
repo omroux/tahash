@@ -28,3 +28,15 @@ export function getRandomString(len = 8, charSet = null) {
 export function datediff(first, second) {        
     return Math.round(Math.abs(second - first) / (1000 * 60 * 60 * 24));
 }
+
+/**
+ * Get a the value of an object's parameter as a number.
+ * Returns null if the object was not found or it's not a valid number.
+ * @param {any} obj - The object to look in
+ * @param {string} propertyName - The property's name
+ * @returns {number | null} The property's value
+ */
+export function getNumberValue(obj, propertyName) {
+    const num = Number(obj[propertyName]);
+    return isNaN(num) ? null : num;
+}

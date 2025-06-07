@@ -1,6 +1,6 @@
 import { getEmptyPackedTimes } from "../../utils/timesUtils.js";
 import { getEventResultStr, WCAEvents } from "../CompEvent.js";
-import { SubmitionState } from "./SubmitionState.js";
+import { SubmissionState } from "./SubmissionState.js";
 
 export class TahashComp {
     #manager;
@@ -17,6 +17,7 @@ export class TahashComp {
             results: [
                 {
                     userId: uint,
+                    submissionState: SubmissionState,
                     times: packedTimes,
                     resultStr: str
                 }
@@ -32,7 +33,7 @@ export class TahashComp {
             results: [
                 {
                     userId: uint,
-                    submitionState: SubmitionState,
+                    submissionState: SubmissionState,
                     times: packedTimes,
                     resultStr: str
                 }
@@ -78,9 +79,12 @@ export class TahashComp {
     getCompetitorList() {
     }
 
-    // get the results of an event by its event id
-    // TODO: implement getEventData method
-    getEventResults(eventId) {        
+    // get the submissions for an event by its event id
+    // returns: [ { userId, submissionState, times, resultStr } ]
+    // if the event was not found, returns null
+    getEventSubmissions(eventId) {
+        const eventData = this.getEventDataById(eventId);
+        return eventData ? eventData.results : null;
     }
 
     // returns CompEvent[] of the events of this comp
@@ -140,21 +144,6 @@ export class TahashComp {
         return events;
     }
 
-    // get events info and submitions preview
-    // TODO: implement get events info and submitions preview
-    // returns an array: [ { eventId, iconName, eventTitle, submitionsPreview: { numApproved, numRejected, numPending } } ]
-    // getEventsInfoAndSubPreview() {
-    //     const eventsAndDetails = [];
-
-    //     for (let i = 0; i < this.data.length; i++) {
-    //         const infoAndDetails = this.data[i].event.getEventInfo();
-    //         infoAndDetails.submitionsPreview = getSubmitionsPreview(this.data[i]);
-    //         eventsAndDetails.push(infoAndDetails);
-    //     }
-
-    //     return eventsAndDetails;
-    // }
-
     // set the results of a user in an event
     // returns whether updating the result was successful
     setCompetitorResults(eventId, userId, packedTimes) {
@@ -166,7 +155,7 @@ export class TahashComp {
             const newResult = {
                 userId: userId,
                 times: packedTimes,
-                submitionState: SubmitionState.Pending,
+                submissionState: SubmissionState.Pending,
                 resultStr: resultStr };
             
             if (this.data[i].results) this.data[i].results.push(newResult);
@@ -179,6 +168,34 @@ export class TahashComp {
         return false;
     }
 
+    // update the submission state for a user's submission
+    // returns whether updating was successful
+    updateSubmissionState(eventId, userId, submissionState) {
+        const eventIndex = this.#getEventDataIndex(eventId);
+        if (eventIndex < 0)
+            return false;
+
+        const eventResults = this.data[eventIndex].results;
+        for (let i = 0; i < eventResults.length; i++) {
+            if (eventResults[i].userId == userId) {
+                this.data[eventIndex].results[i].submissionState = submissionState;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // get the event data index by the event's id
+    // returns -1 if the event wasn't found
+    #getEventDataIndex(eventId) {
+        for (let i = 0; i < this.data.length; i++) {
+            if (this.data[i].eventId == eventId)
+                return i;
+        }
+
+        return -1;
+    }
     
     #_emptyCurrCompTimes = null;
     /* returns a copy of an empty instance of a 'currCompTimes' array

@@ -82,7 +82,7 @@ export class TahashUser {
         }
         this.userId = src.userId;
 
-        this.wcaData = getCompactWCAData(src.wcaData || { name: "NAME", wca_id: "WCA_ID", avatar: { url: "photo" } });
+        this.wcaData = src.wcaData || { name: "NAME", wca_id: "WCA_ID", avatar: { url: "photo" } };
         this.lastUpdatedWcaData = src.lastUpdatedWcaData || 0;
         this.lastComp = src.lastComp || -1;
         this.records = src.records || [];
@@ -107,7 +107,7 @@ export class TahashUser {
 
         const finished = isFullPackedTimesArr(times);
 
-        // if a submition of this event already exists, update it
+        // if a submission of this event already exists, update it
         for (let i = 0; i < this.currCompTimes.length; i++) {
             if (this.currCompTimes[i].eventId == eventId) {
                 this.currCompTimes[i].finished = finished;
@@ -171,7 +171,7 @@ export class TahashUser {
     // get the user's wca data in a compact structure:
     // { userId, name, wcaId, photoUrl }
     getCompactWCAUserData(includePhoto) {
-        return { userId: this.userId, name: this.wcaData.name, wcaId: this.wcaData.wca_id,  }
+        return { userId: this.userId, name: this.wcaData.name, wcaId: this.wcaData.wcaId,  }
     }
 
     // try update the user's wca data

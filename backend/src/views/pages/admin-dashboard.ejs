@@ -1,13 +1,32 @@
 <h2 class="Title">לוח בקרה</h2>
 <h3 class="Sub-Title">תחרות מספר <%- compNumber %></h3>
 
+<template id="updateSubmissionStateButtonsTemplate">
+    <div class="Update-Submition-Buttons">
+        <button class="Approve-Submission-Btn">אישור</button>
+        <button class="Reject-Submission-Btn">דחייה</button>
+    </div>
+</template>
+
+<template id="submissionBoxTemplate">
+    <div class="Submission-Box">
+        <span class="Submitter-WCA-Id"></span>
+        <span class="Submitter-Name"></span>
+        <div class="Submission-Times-Container"></div>
+        <div class="Submission-Result"></div>
+        <div class="Submission-Status-Label"></div>
+    </div>
+</template>
+
 <div class="Event-Select-Container" id="eventSelectContainer"></div>
-<div class="Event-Results-Container" id="eventResultsContainer" hidden>
-    <button class="Generic-Button" id="backToAllEventsBtn">hello</button>
+<div class="Submissions-View-Container" id="submissionsViewContainer" hidden>
+    <button class="Generic-Button" id="backToAllEventsBtn">חזור -></button>
+    <div class="Submissions-Container" id="submissionsContainer">
+    </div>
 </div>
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
-    const compNumber = urlParams.get(compNumberParamName);
+    const compNumber = Number(urlParams.get(compNumberParamName));
 </script>
 <script type="module" src="src/scripts/pages/admin-dashboard.js"></script>

@@ -27,12 +27,11 @@ import {
     userManager,
     getEnvConfigOptions,
     setHostname,
-    ADMINS_LIST,
-    getQueryNumber
+    ADMINS_LIST
 } from "./serverUtils.js";
-import { errorObject } from "./src/scripts/backend/utils/globalUtils.js";
+import { errorObject, getNumberValue } from "./src/scripts/backend/utils/globalUtils.js";
 import { tryAnalyzeTimes, getDisplayTime, getTimesObjStr, packTimes, unpackTimes, Penalties, getEmptyPackedTimes, isFullPackedTimesArr } from "./src/scripts/backend/utils/timesUtils.js"
-import { getEventById, getEventResultStr } from "./src/scripts/backend/database/CompEvent.js";
+import { getEventById } from "./src/scripts/backend/database/CompEvent.js";
 
 
 // general setup
@@ -183,13 +182,16 @@ app.get("/compete/:eventId", async (req, res) => {
             eventIconsSrc ]);
 });
 
-const compNumberParameterName = "comp-number";
+const compNumberParamName = "comp-number";
+const eventIdParamName = "event-id";
+// Route for admin dashboard
+// Takes in a comp number query parameter (/admin-dashboard?comp-number=)
 app.get("/admin-dashboard", async (req, res) => {
-    const compNum = getQueryNumber(req.query, compNumberParameterName);
+    const compNum = getNumberValue(req.query, compNumberParamName);
     if (!compNum || !compManager().compExists(compNum)) {
         // if the comp number received was invalid, redirect to current comp
         const currCompNum = await compManager().getCurrentCompNumber();
-        res.redirect(`/admin-dashboard?${compNumberParameterName}=${currCompNum}`);
+        res.redirect(`/admin-dashboard?${compNumberParamName}=${currCompNum}`);
         return;
     }
 
@@ -299,9 +301,9 @@ app.get("/eventStatuses", async (req, res) => {
     }
 
     // get header
-    const userId = parseInt(req.headers[userIdHeader]);
-    if (isNaN(userId)) {
-        res.status(400).json(errorObject("No user id sent."));
+    const userId = getNumberValue(req.headers, userIdHeader);
+    if (!userId) {
+        res.status(400).json(errorObject("No user id sent"));
         return;
     }
 
@@ -332,7 +334,7 @@ app.get("/getCompEvents", async(req, res) => {
         return;
     }
 
-    const compNumber = getQueryNumber(req.query, compNumberParameterName);
+    const compNumber = getNumberValue(req.query, compNumberParamName);
     if (!compNumber) {
         res.status(400).json(errorObject(`Invalid comp number ${compNumber}`));
         return;
@@ -347,20 +349,77 @@ app.get("/getCompEvents", async(req, res) => {
     res.status(200).json(comp.getEventsInfo());
 });
 
-/*  /getEventSubmitions: 
-    - Input (headers):
+/*  /getEventSubmissions: 
+    - Input (query parameters):
         * compNumber
         * eventId
     - Output (json):
-        * [ { userId, submissionState, times, resultStr } ]
+        * [ { userId, userData: { wcaId, name }, submissionState, times, resultStr } ]
 */
-app.get("/getEventSubmitions", async (req, res) => {
+app.get("/getEventSubmissions", async (req, res) => {
     if (!sentFromClient(req)) {
         res.redirect("/");
         return;
     }
 
+    const compNumber = getNumberValue(req.query, compNumberParamName);
+    const eventId = req.query[eventIdParamName];
+
+    if (!compNumber || !eventId) {
+        console.log(req.query);
+        res.status(400).json(errorObject(`Comp number and event id must be included in the request parameters`));
+        return;
+    }
+
+    const comp = await compManager().getTahashComp(compNumber);
+    const submissions = comp.getEventSubmissions(eventId);
     
+    if (!submissions) {
+        res.status(400).json(errorObject(`Event data not found`));
+    }
+
+    // load users' data
+    for (let i = 0; i < submissions.length; i++) {
+        const fullUserData = await userManager().getUserDataById(submissions[i].userId);
+        submissions[i].userData = { wcaId: fullUserData.wcaId, name: fullUserData.name };
+    }
+
+    res.status(200).json(submissions);
+});
+
+/* /updateSubmissionState:
+    - Input (in request body):
+        * compNumber (number)
+        * eventId (string)
+        * userId (number)
+        * submissionState (number)
+    - Output (as json):
+        * errorObject/{ text: successful }
+*/
+app.post("/updateSubmissionState", async (req, res) => {
+    if (!sentFromClient(req)) {
+        res.redirect("/");
+        return;
+    }
+
+    const compNumber = Number(req.body.compNumber);
+    const eventId = req.body.eventId;
+    const userId = Number(req.body.userId);
+    const submissionState = Number(req.body.submissionState);
+
+    if (!compNumber || !eventId || !userId || !submissionState) {
+        console.log(req.body);
+        res.status(400).json(errorObject("/updateSubmissionState must include compNumber, eventId, userId and submissionState values"));
+        return;
+    }
+
+    if (!compManager().compExists(compNumber)) {
+        res.status(400).json(errorObject(`Competition ${compNumber} does not exist`));
+        return;
+    }
+
+    const successful = await compManager().updateSubmissionState(compNumber, eventId, userId, submissionState);
+    res.status(200).json({ successful: successful });
 });
 
 app.get("/wca-me", async (req, res) => {

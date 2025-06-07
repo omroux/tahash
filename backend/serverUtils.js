@@ -167,31 +167,6 @@ export async function retrieveWCAMe(req) {
 // optimized function to check whether the user is logged in.
 export const isLoggedIn = (req) => tryGetCookie(req, loggedInCookie, false) != null;
 
-
-// #region Server Request Parsing
-
-// TODO: add functions for reading and parsing headers (as strings and numbers), and utilize them in server.js
-
-/**
- * get a string query parameter from a request
- * @param {string[]} query - The list of the queries received in the request (req.query)
- * @param {string} queryName - The name of the parameter in the query
- * @returns {?string} The value of the string. Returns undefined if the parameter wasn't found
- */
-export const getQueryStr = (query, queryName) => query[queryName];
-
-// get a query parameter as a non-negative integer
-// if the number was found and valid returns the number, otherwise returns null
-export function getQueryNumber(query, queryName) {
-    const num = Number(query[queryName]);
-    return isNaN(num) ? null : num;
-}
-
-/* get a number query parameter from a request */
-
-
-// #endregion
-
 // #region Database Management
 
 // database variables

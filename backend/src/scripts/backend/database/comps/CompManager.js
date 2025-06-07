@@ -102,6 +102,30 @@ export class CompManager {
     async getAllComps() {
         return await this.#collection.find().project({ _id: 0 }).toArray();
     }
+
+    // update the submission state for a user's submission
+    // returns whether updating was successful
+    async updateSubmissionState(compNumber, eventId, userId, newSubmissionState) {
+        if (!this.compExists(compNumber))
+            return false;
+
+        const res = await this.#collection.updateOne({
+            compNumber: compNumber,
+            "data.eventId": eventId,
+            "data.results.userId": userId
+        },
+        {
+            $set: { "data.$[event].results.$[result].submissionState": newSubmissionState }
+        },
+        {
+            arrayFilters: [
+                { "event.eventId": eventId },
+                { "result.userId": userId }
+            ]
+        });
+
+        return res.matchedCount > 0;
+    }
 }
 
 // get tahash comp data as a database document object data
