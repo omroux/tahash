@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "ts-node server.js"
   },
   "keywords": [],
   "author": "",
@@ -22,5 +22,8 @@
     "node-cron": "^3.0.3",
     "node-fetch": "^3.3.2"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
 }
