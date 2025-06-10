@@ -4,8 +4,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import { config } from "dotenv";
 import { MongoClient, ObjectId } from "mongodb";
-import ms from "ms";
-import cron from "node-cron"
+import cron from "node-cron";
 import {
     fetchToken,
     fetchRefreshToken,
@@ -14,7 +13,6 @@ import {
 import {
     renderPage,
     renderError,
-    storeCookie,
     tryGetCookie,
     authTokenCookie,
     __dirname,

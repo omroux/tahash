@@ -1,9 +1,8 @@
 import fs from 'fs';
 import ejs from 'ejs';
 import path from 'path';
-import ms from 'ms';
 import { fetchRefreshToken, getUserData } from "./src/scripts/backend/utils/apiUtils.js";
-import {MongoClient} from "mongodb";
+import {Db, MongoClient} from "mongodb";
 import { CompManager } from './src/scripts/backend/database/comps/CompManager.js';
 import { UserManager } from './src/scripts/backend/database/users/UserManager.js';
 
@@ -85,49 +84,6 @@ export function renderError(req, res, error) {
 
 // #region Cookie Management
 
-// save a cookie
-// cookieData is a JSON object or a string. (automatically stringifies)
-// leave options null to use default cookieOptions (httpOnly=true, secure=true, sameSite=strict, maxAge=1 day)
-// default value for maxAge is 1 day. maxAge is in milliseconds or in ms format (https://www.npmjs.com/package/ms)
-export function storeCookie(res, cookieName, cookieData, maxAge = null, options = null) {
-    // default cookie options
-    options = options ?? {
-        httpOnly:   true,               // Prevents JavaScript access (helps mitigate XSS)
-        secure:     true,               // Ensures cookie is only sent over HTTPS
-        sameSite:   'Strict',           // Prevents cross-site requests (mitigates CSRF)
-        maxAge:     maxAge ?? 24 * 60 * 60  // Defaults to 1 day
-      };
-
-    // cookieData is not a string
-    if (typeof(cookieData) !== "string")
-        cookieData = JSON.stringify(cookieData);
-
-    res.cookie(cookieName, cookieData, options);
-}
-
-
-// store auth token cookies
-// tokenData is the full json response from the WCA API (assuming there wasn't an error)
-// TODO: remove this and all other cookie management functions (and remove references) (EXCEPT TRYGETCOOKIE)
-export function storeTokenCookies(res, tokenData) {
-    storeCookie(res, authTokenCookie, {
-        access_token:   tokenData.access_token
-    }, ms(tokenData.expires_in + "s"));  // convert to milliseconds
-
-    // store the refresh token for 7 days until the user will be required to generate a new token.
-    storeCookie(res, refreshTokenCookie, { refresh_token:  tokenData.refresh_token }, ms('7d'));
-    // res.setHeader("accessToken", tokenData.accessToken ?? null);
-    // res.setHeader("refreshToken", tokenData.refreshToken ?? null);
-}
-
-
-// clear the authentication token cookies
-export function clearTokenCookies(res) {
-    res.clearCookie(authTokenCookie);
-    res.clearCookie(refreshTokenCookie);
-}
-
-
 // check whether the request contains a specific cookie
 // isJson:  whether to parse the cookie's value to JSON.
 //          When `isJson=true`: if the cookie doesn't exist, or the cookie's value wasn't a JSON, returns null.
@@ -144,7 +100,6 @@ export function tryGetCookie(req, cookieName, isJson = true) {
 }
 
 // #endregion
-
 
 const fromClientHeader = "from-client";
 // check if a request was sent from a client
@@ -174,27 +129,45 @@ const tahashDbName = "tahash";
 const compsCollectionName = "comps";
 const usersCollectionName = "users";
 
-let _tahashDb = null;
-let _compManager = null;
-let _userManager = null;
-export const tahashDB = () => _tahashDb;
-export const compManager = () => _compManager;
-export const userManager = () => _userManager;
+let _tahashDb: Db | null;
+let _compManager: CompManager | null;
+let _userManager: UserManager | null;
 
-// initialize MongoDB and load tahash database
-export async function initDatabase() {
+/**
+ * Get the singleton instance of the current active tahash database.
+ * @returns The singleton instanec of the Db, or `undefined` if it hasn't been initialized yet.
+ */
+export const tahashDB = (): Db | null => _tahashDb;
+
+/**
+ * The current active {@link CompManager}.
+ * @returns {CompManager} The singleton instance of the {@link CompManager}, or `undefined` if it has not been initialized yet.
+ */
+export const compManager = (): CompManager | null => _compManager;
+
+/**
+ * Get the instance of the current active {@link UserManager}.
+ * @returns {UserManager} The singleton instance of the {@link UserManager}, or `undefined` if it has not been initialized yet.
+ */
+export const userManager = (): UserManager | null => _userManager;
+
+/**
+ * Initialize the MongoDB connection, load the database, {@link CompManager} and {@link UserManager}.
+ * @returns {Db} The MongoDB database connected to.
+ */
+export async function initDatabase(): Promise<Db> {
     if (_tahashDb != null) {
         console.warn("database is already initialized.");
         return _tahashDb;
     }
 
     // retrieve mongodb host url
-    const mongoUsername = process.env.MONGO_INITDB_ROOT_USERNAME;
-    const mongoPassword = process.env.MONGO_INITDB_ROOT_PASSWORD;
-    const host = _isContainer ? process.env.MONGO_SERVICE : "localhost";
+    const mongoUsername: string | undefined = process.env.MONGO_INITDB_ROOT_USERNAME;
+    const mongoPassword: string | undefined = process.env.MONGO_INITDB_ROOT_PASSWORD;
+    const host: string | undefined = _isContainer ? process.env.MONGO_SERVICE : "localhost";
 
     // use the credentials, if they exist
-    const hasCredentials = (mongoUsername && mongoPassword);
+    const hasCredentials: boolean = !!(mongoUsername && mongoPassword);
     const mongoUrlPrefix = hasCredentials ? `${mongoUsername}:${mongoPassword}@` : "";
     const mongoUrlParams = hasCredentials ? "?authSource=admin" : "";
 
@@ -202,7 +175,7 @@ export async function initDatabase() {
     const connectionString = `mongodb://${mongoUrlPrefix}${host}:27017/tahash${mongoUrlParams}`;
 
     // connect to Mongo and retrieve database
-    const mongoClient = await MongoClient.connect(connectionString, { connectTimeoutMS: 5000 });
+    const mongoClient: MongoClient = await MongoClient.connect(connectionString, { connectTimeoutMS: 5000 });
     _tahashDb = mongoClient.db(tahashDbName);
 
     // get comps and users collections
@@ -217,9 +190,5 @@ export async function initDatabase() {
 
     return _tahashDb;
 }
-
-// #endregion
-
-// #region admin dashboard
 
 // #endregion
