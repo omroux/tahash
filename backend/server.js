@@ -8,7 +8,8 @@ import cron from "node-cron";
 import {
     fetchToken,
     fetchRefreshToken,
-    WCA_AUTH_URL
+    WCA_AUTH_URL,
+    getUserData
 } from "./src/scripts/backend/utils/apiUtils.js";
 import {
     renderPage,
@@ -17,7 +18,6 @@ import {
     authTokenCookie,
     __dirname,
     sentFromClient,
-    retrieveWCAMe,
     isLoggedIn,
     getHostname,
     initDatabase,
@@ -421,7 +421,9 @@ app.post("/updateSubmissionState", async (req, res) => {
 });
 
 app.get("/wca-me", async (req, res) => {
-    const userData = await retrieveWCAMe(req);
+    const accessTokenStr = req.get(accessTokenHeader)
+
+    const userData = await getUserData(req.get());
     if (userData)                   res.json(userData);
     else if (sentFromClient(req))   res.json(errorObject("error occurred"));
     else                            res.redirect("/login");

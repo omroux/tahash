@@ -1,11 +1,11 @@
 import fs from 'fs';
 import ejs from 'ejs';
 import path from 'path';
-import { fetchRefreshToken, getUserData } from "./src/scripts/backend/utils/apiUtils.js";
 import {Db, MongoClient } from "mongodb";
 import {Request, Response} from "express";
 import { CompManager } from './src/scripts/backend/database/comps/CompManager.js';
 import { UserManager } from './src/scripts/backend/database/users/UserManager.js';
+import { IncomingHttpHeaders } from 'http';
 
 
 // -- General constants/properties
@@ -166,25 +166,20 @@ export function tryGetCookie(req, cookieName, isJson = true) {
 // #endregion
 
 const fromClientHeader = "from-client";
-// check if a request was sent from a client
-export const sentFromClient = (req) => (req.headers[fromClientHeader] === "true");
+
+/**
+ * Check if a request was sent from a client (fetch request from the website).
+ * @param headers The request's {@link IncomingHttpHeaders} object.
+ */
+export const sentFromClient = (req: Request): boolean => (req.get(fromClientHeader) === "true");
 
 const accessTokenHeader = "access-token";
-/* retrieve WCA-me data from an http request.
-    req is a request containing an access token header.
-    returns null if the input was invalid */
-export async function retrieveWCAMe(req) {
-    const accessToken = req.headers[accessTokenHeader];
-    if (!accessToken)
-        return null;
 
-    const userData = await getUserData(accessToken);
-    return userData.me ? userData.me : null;
-}
-
-
-// optimized function to check whether the user is logged in.
-export const isLoggedIn = (req) => tryGetCookie(req, loggedInCookie, false) != null;
+/**
+ * Check whether the user is logged in (using the request's cookie).
+ * @param req The request's {@link Request} object.
+ */
+export const isLoggedIn = (req: Request): boolean => tryGetCookie(req, loggedInCookie, false) != null;
 
 // #region Database Management
 
