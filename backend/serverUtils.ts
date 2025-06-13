@@ -77,9 +77,21 @@ export function getEnvConfigOptions(): { path?: string } {
 
 // #region Page Rendering
 
-// filePath = the page's file path *inside* src/views/pages, including .ejs extension. (src/views/pages/:filePath)
-// stylesheets = *string[]* paths to extra css stylesheets (complete path)
-export function renderPage(req, res, filePath, layoutOptions = {}, pageOptions = {}, stylesheets = []) {
+/**
+ * Render a page given the path to its `.ejs` file.
+ * @param req The request's {@link Request} object.
+ * @param res The request's {@link Response} object.
+ * @param filePath The page's `.ejs` file path *inside* src/views/pages, including the .ejs extension - `"src/views/pages/:filePath"`.
+ * @param layoutOptions Options for the layout `.ejs` file.
+ * @param pageOptions Options for the page's `.ejs` file.
+ * @param stylesheets Paths to extra CSS stylesheets (complete path).
+ */
+export function renderPage(req: Request,
+        res: Response,
+        filePath: string,
+        layoutOptions?: { title?: string, loading?: boolean },
+        pageOptions?: object,
+        stylesheets?: string[]): void {
     // redirect to lowercase page request (not really necessary, but better to have)
     const pathname = req.url;
     if (pathname.toLowerCase() !== pathname) {
@@ -87,33 +99,43 @@ export function renderPage(req, res, filePath, layoutOptions = {}, pageOptions =
         return;
     }
 
-    // render the file
+    // render the file, async
     (async () => {
-        pageOptions.loggedIn = isLoggedIn(req);
-        ejs.renderFile(path.join(__dirname, "src/views/pages/", filePath), pageOptions ?? {}, async (err, str) => {
+        pageOptions ??= {};
+        const pgOpts = {
+            ...pageOptions,
+            loggedIn: isLoggedIn(req)
+        };
+
+        ejs.renderFile(path.join(__dirname, "src/views/pages/", filePath), pgOpts, async (err, str) => {
             if (err) {
                 console.error(`Error occurred receiving ${filePath} page.\nDetails:`, err);
                 res.status(404).send(err);
                 return;
             }
+
+            // construct layout options
             layoutOptions = layoutOptions ?? {};
-            layoutOptions.content = str;
-            layoutOptions.stylesheets = stylesheets ?? [];
-    
-            // first try to get the auth token cookie. if it exists, the user is logged in.
-            layoutOptions.loggedIn = pageOptions.loggedIn;
-    
-            // comp number in header
-            layoutOptions.compNumber = compManager().getCurrentCompNumber();
-    
-            res.render("layout.ejs", layoutOptions);
+            const layOpts = {
+                ...layoutOptions,
+                content: str,
+                stylesheets: stylesheets,
+                loggedIn: pgOpts.loggedIn,
+                compNumber: compManager()?.getCurrentCompNumber() /* comp number in header */
+            };
+
+            res.render("layout.ejs", layOpts);
         });
     })();
 }
 
-
-// render the error page with a specific error
-export function renderError(req, res, error) {
+/**
+ * Render the error page with a specific error.
+ * @param req The request's {@link Request} object.
+ * @param res The request's {@link Response} object.
+ * @param error An error respresented as any object (most useful as string).
+ */
+export function renderError(req: Request, res: Response, error: any = "שגיאה כללית."): void {
     renderPage(req,
         res,
         "error.ejs",
@@ -171,27 +193,45 @@ const tahashDbName = "tahash";
 const compsCollectionName = "comps";
 const usersCollectionName = "users";
 
-let _tahashDb: Db | null;
-let _compManager: CompManager | null;
-let _userManager: UserManager | null;
+let _tahashDb: Db | undefined;
+let _compManager: CompManager | undefined;
+let _userManager: UserManager | undefined;
 
 /**
  * Get the singleton instance of the current active tahash database.
- * @returns The singleton instanec of the Db, or `undefined` if it hasn't been initialized yet.
+ * @returns The singleton instance of the Db.
+ * @throws {Error} if the Tahash DB has not been initialized.
  */
-export const tahashDB = (): Db | null => _tahashDb;
+export const tahashDB = (): Db => {
+    if (!_tahashDb)
+        throw new Error("Tahash DB is not initialized.");
+    
+    return _tahashDb;
+}
 
 /**
  * The current active {@link CompManager}.
- * @returns {CompManager} The singleton instance of the {@link CompManager}, or `undefined` if it has not been initialized yet.
+ * @returns {CompManager} The singleton instance of the {@link CompManager}.
+ * @throws {Error} if the {@link CompManager} singleton has not been initialized.
  */
-export const compManager = (): CompManager | null => _compManager;
+export const compManager = (): CompManager => {
+    if (!_compManager)
+        throw new Error("Comp manager is not initialized.");
+
+    return _compManager;
+}
 
 /**
  * Get the instance of the current active {@link UserManager}.
- * @returns {UserManager} The singleton instance of the {@link UserManager}, or `undefined` if it has not been initialized yet.
+ * @returns {UserManager} The singleton instance of the {@link UserManager}.
+ * @throws {Error} if the {@link UserManager} singleton has not been initialized.
  */
-export const userManager = (): UserManager | null => _userManager;
+export const userManager = (): UserManager => {
+    if (!_userManager)
+        throw new Error("User manager is not initialized.");
+
+    return _userManager;
+}
 
 /**
  * Initialize the MongoDB connection, load the database, {@link CompManager} and {@link UserManager}.
@@ -199,8 +239,8 @@ export const userManager = (): UserManager | null => _userManager;
  */
 export async function initDatabase(): Promise<Db> {
     if (_tahashDb != null) {
-        console.warn("database is already initialized.");
-        return _tahashDb;
+        console.warn("Database is already initialized.");
+        return tahashDB();
     }
 
     // retrieve mongodb host url
@@ -220,9 +260,11 @@ export async function initDatabase(): Promise<Db> {
     const mongoClient: MongoClient = await MongoClient.connect(connectionString, { connectTimeoutMS: 5000 });
     _tahashDb = mongoClient.db(tahashDbName);
 
-    // get comps and users collections
+    // initialize user manaager
     _userManager = new UserManager(_tahashDb.collection(usersCollectionName));
-    _compManager = new CompManager(_tahashDb.collection(compsCollectionName), _userManager);
+
+    // initialize comp manager
+    _compManager = new CompManager(_tahashDb.collection(compsCollectionName), userManager());
 
     // initialize comps collection in case it's empty
     await _compManager.initComps();
