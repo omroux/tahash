@@ -146,15 +146,18 @@ export function renderError(req: Request, res: Response, error: any = "שגיא�
 // #endregion
 
 
-// #region Cookie Management
-
-// check whether the request contains a specific cookie
-// isJson:  whether to parse the cookie's value to JSON.
-//          When `isJson=true`: if the cookie doesn't exist, or the cookie's value wasn't a JSON, returns null.
-// returns:
-//      - if the cookie doesn't exist, returns null.
-//      - if the cookie exists, returns its value (according to `isJson`)
-export function tryGetCookie(req, cookieName, isJson = true) {
+/**
+ * Check whether the request contains a specific cookie.
+ * @param req The request's {@link Request} object.
+ * @param cookieName The desired cookie's name.
+ * @param isJson Whether to parse the cookie's value to JSON.
+ * @returns 
+ *   - If the cookie does not exist: `null`.
+ *   - If `isJson` is `false`: returns the cookie's raw string value.
+ *   - If `isJson` is `true` and parsing succeeds: returns the parsed JSON value.
+ *   - If `isJson` is `true` but parsing fails: returns `null`.
+ */
+export function tryGetCookie(req: Request, cookieName: string, isJson: boolean = true) {
     const cookieStr = req.cookies[cookieName];
     if (!cookieStr) return null;
     if (!isJson) return cookieStr;
@@ -162,8 +165,6 @@ export function tryGetCookie(req, cookieName, isJson = true) {
     try { return JSON.parse(cookieStr); }
     catch { return null; }
 }
-
-// #endregion
 
 const fromClientHeader = "from-client";
 

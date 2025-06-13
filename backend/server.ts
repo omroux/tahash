@@ -1,9 +1,8 @@
 import path from "path";
 import fs from "fs";
-import express from "express";
+import express, {Request, Response} from "express";
 import cookieParser from "cookie-parser";
 import { config } from "dotenv";
-import { MongoClient, ObjectId } from "mongodb";
 import cron from "node-cron";
 import {
     fetchToken,
@@ -14,8 +13,6 @@ import {
 import {
     renderPage,
     renderError,
-    tryGetCookie,
-    authTokenCookie,
     __dirname,
     sentFromClient,
     isLoggedIn,
@@ -61,7 +58,7 @@ app.use(express.json());
 // #region page routing
 
 // "/" => redirect to home page
-app.get("/", (req, res) => {
+app.get("/", (req: Request, res: Response) => {
     res.redirect("/home");
 });
 
