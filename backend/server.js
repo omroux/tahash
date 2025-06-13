@@ -26,7 +26,7 @@ import {
     getEnvConfigOptions,
     setHostname,
     ADMINS_LIST
-} from "./serverUtils.js";
+} from "./serverUtils.ts";
 import { errorObject, getNumberValue } from "./src/scripts/backend/utils/globalUtils.js";
 import { tryAnalyzeTimes, getDisplayTime, getTimesObjStr, packTimes, unpackTimes, Penalties, getEmptyPackedTimes, isFullPackedTimesArr } from "./src/scripts/backend/utils/timesUtils.js"
 import { getEventById } from "./src/scripts/backend/database/CompEvent.js";

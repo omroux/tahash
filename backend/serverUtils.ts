@@ -2,40 +2,80 @@ import fs from 'fs';
 import ejs from 'ejs';
 import path from 'path';
 import { fetchRefreshToken, getUserData } from "./src/scripts/backend/utils/apiUtils.js";
-import {Db, MongoClient} from "mongodb";
+import {Db, MongoClient } from "mongodb";
+import {Request, Response} from "express";
 import { CompManager } from './src/scripts/backend/database/comps/CompManager.js';
 import { UserManager } from './src/scripts/backend/database/users/UserManager.js';
 
 
 // -- General constants/properties
-export const ADMINS_LIST = [ "2019SAHA01", "2022STON03", "2019KEHI01" ];
-export const authTokenCookie = "authToken";
-export const refreshTokenCookie = "refreshToken";
-export const loggedInCookie = "loggedIn";
+/**
+ * The name of the directory the process is running on
+ */
 export const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
+/**
+ * The list of the WCA IDs of the website's admins
+ */
+export const ADMINS_LIST: string[] = [ "2019SAHA01", "2022STON03", "2019KEHI01" ];
+
+/**
+ * The key of the logged in cookie (whether the user is logged in)
+ */
+export const loggedInCookie = "loggedIn";
+
+// #region Hostname Control
 // only update hostname if it hasn't been set yet
-let _hostname = null;
-export const getHostname = () => _hostname;
-export const setHostname = (hostname) => {
-    if (_hostname) return;
+/**
+ * The hostname the website is running on. Null 
+ */
+let _hostname: string | undefined = undefined;
+
+/**
+ * Get the hostname the website is running on
+ * @returns If the hostname was set, returns the hostname. Otherwise, returns null.
+ */
+export const getHostname = (): string | undefined => _hostname;
+
+/**
+ * Set the website's hostname if it hasn't been set yet.
+ * @param hostname The new hostname
+ */
+export const setHostname = (hostname: string): void => {
+    if (_hostname)
+        return;
 
     console.log(`Setting hostname to '${hostname}'`);
-    return _hostname = hostname;
+    _hostname = hostname;
 };
+// #endregion
 
+// #region Reading Config File
 // config options for reading .env file
-let _envConfigOptions = null;
+/**
+ * Environment file path
+ */
+let _envPath: string | undefined = "";
+
+/**
+ * Whether the process running on a docker container
+ */
 let _isContainer = false; // is the app running on a docker container
-export const getEnvConfigOptions = () => {
-    if (_envConfigOptions)
-        return _envConfigOptions;
+
+/**
+ * Get the config file reading options
+ */
+export function getEnvConfigOptions(): { path?: string } {
+    if (_envPath)
+        return { path: _envPath };
 
     const deployEnvPath = path.join(__dirname + "/../deploy/.env");
     _isContainer = !fs.existsSync(deployEnvPath);
-    return _envConfigOptions = (_isContainer ? { } : { path: deployEnvPath });
+    return  (_isContainer ? { } : { path: deployEnvPath });
 };
+// #endregion
 
+// #region Page Rendering
 
 // filePath = the page's file path *inside* src/views/pages, including .ejs extension. (src/views/pages/:filePath)
 // stylesheets = *string[]* paths to extra css stylesheets (complete path)
@@ -80,6 +120,8 @@ export function renderError(req, res, error) {
         { title: "Error" },
         { error: error });
 }
+
+// #endregion
 
 
 // #region Cookie Management

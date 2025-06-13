@@ -18,7 +18,7 @@
     "express": "^4.21.2",
     "fetch": "^1.1.0",
     "fs": "^0.0.1-security",
-    "mongodb": "^6.13.1",
+    "mongodb": "^6.17.0",
     "node-cron": "^3.0.3",
     "node-fetch": "^3.3.2",
     "path": "^0.12.7"
@@ -26,6 +26,8 @@
   "type": "module",
   "devDependencies": {
     "@types/ejs": "^3.1.5",
+    "@types/express": "^5.0.3",
+    "@types/mongodb": "^4.0.6",
     "@types/node": "^24.0.0",
     "typescript": "^5.8.3"
   }
