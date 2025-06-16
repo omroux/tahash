@@ -4,11 +4,11 @@ export const SubmissionState = Object.freeze({
     Rejected: 2
 });
 
-const SubmissionStateStrMap = {
+const SubmissionStateStrMap = Object.freeze({
     [SubmissionState.Pending]: "Pending",
     [SubmissionState.Approved]: "Approved",
     [SubmissionState.Rejected]: "Rejected"
-};
+});
 
 export const getSubmissionStateStr = (state) =>
     SubmissionStateStrMap[state] ?? "UNDEFINED";

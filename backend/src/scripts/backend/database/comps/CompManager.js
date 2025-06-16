@@ -3,7 +3,7 @@ import { getNewCompSrc, TahashComp } from "./TahashComp.js";
 
 // Manages the "comps" collection
 export class CompManager {
-    #collection: MongoD;
+    #collection;
     #userManager;
     #_currCompNum = -1;
 

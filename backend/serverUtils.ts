@@ -6,13 +6,14 @@ import {Request, Response} from "express";
 import { CompManager } from './src/scripts/backend/database/comps/CompManager.js';
 import { UserManager } from './src/scripts/backend/database/users/UserManager.js';
 import { IncomingHttpHeaders } from 'http';
+import { getHeader, Headers } from './src/scripts/constants/headers.js';
 
 
 // -- General constants/properties
 /**
  * The name of the directory the process is running on
  */
-export const __dirname = path.dirname(new URL(import.meta.url).pathname);
+export const __dirname: string = path.dirname(new URL(import.meta.url).pathname);
 
 /**
  * The list of the WCA IDs of the website's admins
@@ -51,7 +52,6 @@ export const setHostname = (hostname: string): void => {
 // #endregion
 
 // #region Reading Config File
-// config options for reading .env file
 /**
  * Environment file path
  */
@@ -166,15 +166,11 @@ export function tryGetCookie(req: Request, cookieName: string, isJson: boolean =
     catch { return null; }
 }
 
-const fromClientHeader = "from-client";
-
 /**
  * Check if a request was sent from a client (fetch request from the website).
- * @param headers The request's {@link IncomingHttpHeaders} object.
+ * @param req The request's {@link Request} object.
  */
-export const sentFromClient = (req: Request): boolean => (req.get(fromClientHeader) === "true");
-
-const accessTokenHeader = "access-token";
+export const sentFromClient = (req: Request): boolean => (getHeader(req, Headers.FromClient) === "true");
 
 /**
  * Check whether the user is logged in (using the request's cookie).

@@ -125,7 +125,8 @@ export class TahashUser {
     }
 
     /* get the times object of an event in the current competition.
-    returns a packedTimes object of the attempt */
+    returns a packedTimes object of the attempt.
+    if the event was not found, returns null. */
     getEventTimes(eventId) {
         for (let i = 0; i < this.currCompTimes.length; i++) {
             if (this.currCompTimes[i].eventId == eventId)

@@ -8,7 +8,7 @@ import {
     fetchToken,
     fetchRefreshToken,
     WCA_AUTH_URL,
-    getUserData
+    getUserData as getWCAUserData
 } from "./src/scripts/backend/utils/apiUtils.js";
 import {
     renderPage,
@@ -27,6 +27,11 @@ import {
 import { errorObject, getNumberValue } from "./src/scripts/backend/utils/globalUtils.js";
 import { tryAnalyzeTimes, getDisplayTime, getTimesObjStr, packTimes, unpackTimes, Penalties, getEmptyPackedTimes, isFullPackedTimesArr } from "./src/scripts/backend/utils/timesUtils.js"
 import { getEventById } from "./src/scripts/backend/database/CompEvent.js";
+import { Routes } from "./src/scripts/constants/routes.js";
+import { getQueryParam, getQueryParamNumber, QueryParams } from "./src/scripts/constants/queryParams.js";
+import { getHeader, getHeaderNumber, Headers } from "./src/scripts/constants/headers.js";
+import { RequestFields } from "./src/scripts/constants/requestFields.js";
+import { WCAUserData } from "./src/scripts/interfaces/WCAUserData.js";
 
 
 // general setup
@@ -58,12 +63,13 @@ app.use(express.json());
 // #region page routing
 
 // "/" => redirect to home page
-app.get("/", (req: Request, res: Response) => {
-    res.redirect("/home");
+app.get(Routes.Page.HomeRedirect, (req: Request, res: Response) => {
+    res.redirect(Routes.Get.Home);
 });
 
+
 // Route for home
-app.get("/home", async (req, res) => {
+app.get(Routes.Page.Home, async (req, res) => {
     const currComp = await compManager().getCurrentComp();
 
     renderPage(req, res, "home.ejs", { title: "Home" }, 
@@ -77,8 +83,9 @@ app.get("/home", async (req, res) => {
     );
 });
 
+
 // Route for login page
-app.get("/login", async (req, res) => {
+app.get(Routes.Page.Login, async (req, res) => {
     renderPage(
         req,
         res,
@@ -89,8 +96,9 @@ app.get("/login", async (req, res) => {
     );
 });
 
+
 // Route for profile page
-app.get("/profile", async (req, res) => {
+app.get(Routes.Page.Profile, async (req, res) => {
     // the case where the user isn't logged in is handled by profile.js
     renderPage(req,
         res,
@@ -100,29 +108,21 @@ app.get("/profile", async (req, res) => {
         ["/src/stylesheets/pages/profile.css"]);
 });
 
+
 // Automatically redirect to authentication
-app.get("/redirect-to-auth", (req, res) => {
+app.get(Routes.Page.RedirectToAuth, (req, res) => {
     res.redirect(WCA_AUTH_URL(getHostname()));
 });
 
-const hostnameHeader = "hostname";
-app.post("/updateHostname", (req, res) => {
-    if (!sentFromClient(req)) {
-        res.redirect("/");
-        return;
-    }
-
-    setHostname(req.headers[hostnameHeader]);
-    res.status(200).json({ });
-});
 
 // Route for auth-callback
-app.get("/auth-callback", async (req, res) => {
+app.get(Routes.Page.AuthCallback, async (req, res) => {
     renderPage(req, res, "auth-callback.ejs", { title: "Auth Callback", loading: true });
 });
 
+
 // Route for scrambles page
-app.get("/scrambles", async (req, res) => {
+app.get(Routes.Page.Scrambles, async (req, res) => {
     const currComp = await compManager().getCurrentComp();
     
     renderPage(req,
@@ -139,18 +139,28 @@ app.get("/scrambles", async (req, res) => {
             eventIconsSrc ]);
 });
 
-app.get("/error", async (req, res) => {
+
+// Route for error page
+app.get(Routes.Page.Error, async (req, res) => {
     renderError(req, res, errorObject("שגיאה."));
 });
 
-// Route for competing in events
-app.get("/compete/:eventId", async (req, res) => {
+
+/**
+ * GET /compete/:eventId
+ * 
+ * Route for competing in an event.
+ * 
+ * Query Parameters:
+ * - {@link QueryParams.EventId} - The event to compete in
+ */
+app.get(Routes.Page.CompeteEvent, async (req, res) => {
     const currComp = await compManager().getCurrentComp();
     const loggedIn = isLoggedIn(req);
 
     // not logged in -> login
     if (!loggedIn) {
-        res.redirect("/login");
+        res.redirect(Routes.Page.Login);;
         return;
     }
 
@@ -177,16 +187,21 @@ app.get("/compete/:eventId", async (req, res) => {
             eventIconsSrc ]);
 });
 
-const compNumberParamName = "comp-number";
-const eventIdParamName = "event-id";
-// Route for admin dashboard
-// Takes in a comp number query parameter (/admin-dashboard?comp-number=)
-app.get("/admin-dashboard", async (req, res) => {
-    const compNum = getNumberValue(req.query, compNumberParamName);
+
+/**
+ * GET /admin-dashboard
+ * 
+ * Route for admin dashboard page.
+ * 
+ * Query Parameters:
+ * - {@link QueryParams.CompNumber} The comp number to display the dashboard of.
+ */
+app.get(Routes.Page.AdminDashboard, async (req, res) => {
+    const compNum = getNumberValue(req.query, QueryParams.CompNumber);
     if (!compNum || !compManager().compExists(compNum)) {
         // if the comp number received was invalid, redirect to current comp
-        const currCompNum = await compManager().getCurrentCompNumber();
-        res.redirect(`/admin-dashboard?${compNumberParamName}=${currCompNum}`);
+        const currCompNum = compManager().getCurrentCompNumber();
+        res.redirect(`/admin-dashboard?${QueryParams.CompNumber}=${currCompNum}`);
         return;
     }
 
@@ -205,33 +220,61 @@ app.get("/admin-dashboard", async (req, res) => {
 
 // #region other request handling
 
-// the user requests
-
-const userIdHeader = "user-id";
-const wcaIdHeader = "wca-id";
-const eventIdHeader = "event-id";
-
-/*  /updateTimes:
-    - Input (in json request body):
-        * userId: number
-        * eventId: str
-        * times: packedTimes
-    - Output (json):
-        * status 400 if: user finished event/invalid request
-        * otherwise, status 200
-*/
-app.post("/updateTimes", async (req, res) => {
+/**
+ * POST /update-hostname
+ * 
+ * Update the website's hostname.
+ * 
+ * Headers:
+ * - {@link Headers.Hostname} (string): The hostname to set.
+ * 
+ * Response:
+ * - 200 OK: Header not found.
+ * - 404 Not Found: Mandatory header not found.
+ */
+app.post(Routes.Post.UpdateHostname , (req, res) => {
     if (!sentFromClient(req)) {
-        res.redirect("/");
+        res.redirect(Routes.Page.HomeRedirect);
         return;
     }
 
-    const userId = req.body.userId;
-    const eventId = req.body.eventId;
-    const times = req.body.times;
+    const headerVal = getHeader(req, Headers.Hostname);
+    if (!headerVal) {
+        res.status(404).json(errorObject(`Mandatory header "${Headers.Hostname}"!`));
+        return;
+    }
+
+    setHostname(headerVal);
+    res.status(200).json({ });
+});
+
+
+/**
+ * POST /updateTimes
+ * 
+ * Update the user's times in an event.
+ * 
+ * Request Body:
+ * - {@link RequestFields.UserId} (number): The user's user id.
+ * - {@link RequestFields.EventId} (string): The event id to update.
+ * - {@link RequestFields.Times} (packedTimes): The (packed) times to update into.
+ * 
+ * Response:
+ * - 200 OK: JSON - `{ text: "Saved successfully!" }`
+ * - 400 Bad Request: JSON error object with an error (invalid body/user already submitted).
+ */
+app.post(Routes.Post.UpdateTimes, async (req, res) => {
+    if (!sentFromClient(req)) {
+        res.redirect(Routes.Page.HomeRedirect);
+        return;
+    }
+
+    const userId: number | undefined = req.body[RequestFields.UserId];
+    const eventId: string | undefined = req.body;
+    const times = req.body.times; // TODO: packed times
     if (!userId || !eventId || !times) {
         console.log("Invalid body for updateTimes. Request:", req);
-        res.status(400).json(errorObject("Invalid headers"));
+        res.status(400).json(errorObject("Invalid request fields"));
         return;
     }
 
@@ -252,86 +295,133 @@ app.post("/updateTimes", async (req, res) => {
     }
 });
 
-/*  /retrieveTimes:
-    - Input (headers):
-        * sent from client
-        * userId (WCA User ID)
-        * eventId (id of the event to retrieve)
-    - Output (json):
-        * if there was an error, an error object
-        * otherwise, returns an array of the requested user's times
-*/
-app.get("/retrieveTimes", async (req, res) => {
+
+/**
+ * GET /retrieveTimes
+ * 
+ * Get a user's (packed) times of an event.
+ * 
+ * Headers:
+ * - {@link Headers.UserId} (number): The user's id.
+ * - {@link Headers.EventId} (string): The requested event's id.
+ * 
+ * Response:
+ * - 200 OK: Array of the requested packed times in JSON.
+ * - 400 Bad Request: JSON error object with details.
+ * - 404 Not Found: The event was not found. Returns JSON error object.
+ */
+app.get(Routes.Get.RetrieveTimes, async (req, res) => {
     if (!sentFromClient(req)) {
-        res.redirect("/");
+        res.redirect(Routes.Page.HomeRedirect);
         return;
     }
 
-    // get headers
-    const userId = parseInt(req.headers[userIdHeader]);
-    const eventId = req.headers[eventIdHeader];
+    // user id header
+    const userId: number | undefined = getHeaderNumber(req, Headers.UserId);
+    if (!userId) {
+        res.status(400).json(errorObject("Invalid user id"));
+        return;
+    }
+
+    // event id header
+    const eventId: string | undefined = getHeader(req, Headers.EventId);
+    if (!eventId) {
+        res.status(400).json(errorObject("Event id is required"));
+        return;
+    }
 
     const userObj = await userManager().getUserById(userId);
     const compEvent = getEventById(eventId);
 
     if (!compEvent) { // event doesn't exist
-        res.json(errorObject("Invalid event."));
+        res.status(404).json(errorObject("Invalid event"));
         return;
     }
 
     const times = userObj.getEventTimes(eventId) ?? getEmptyPackedTimes(compEvent);
-    res.json(times);
+    res.status(200).json(times);
 });
 
-/*  /eventStatuses get event statuses
-    - Input (headers):
-        * userId
-    - Output (json):
-        * [ { eventId: "finished"/"unfinished" } ]
-*/
-app.get("/eventStatuses", async (req, res) => {
+
+/**
+ * GET /event-statuses
+ * 
+ * Get a user's event statuses in the current competition.
+ * 
+ * Headers:
+ * - {@link Headers.UserId} (number): The user's id.
+ * 
+ * Response:
+ * - 200 OK: JSON of the event statuses - { eventId: status } (Documented in {@link TahashUser})
+ * - 400 Bad Request: JSON error object - No user id sent.
+ */
+app.get(Routes.Get.EventStatuses, async (req, res) => {
     if (!sentFromClient(req)) {
-        res.redirect("/");
+        res.redirect(Routes.Page.HomeRedirect);
         return;
     }
 
     // get header
-    const userId = getNumberValue(req.headers, userIdHeader);
+    const userId = getNumberValue(req.headers, Headers.UserId);
     if (!userId) {
         res.status(400).json(errorObject("No user id sent"));
         return;
     }
 
-    const userObj = await userManager().getUserById(userId);    
-    res.json(userObj.getEventStatuses());
+    const userObj = await userManager().getUserById(userId);
+    res.status(200).json(userObj.getEventStatuses());
 });
 
-app.get("/isAdmin", async (req, res) => {
+/**
+ * GET /is-admin
+ * 
+ * Check if a user is an admin by their WCA id.
+ * 
+ * Headers:
+ * - {@link Headers.WcaId} (string): The user's WCA id.
+ * 
+ * Response (JSON):
+ * - 200 OK: { isAdmin: boolean }
+ * - 400 Bad Request: Error object if the WCA id was not sent.
+ */
+app.get(Routes.Get.IsAdmin, async (req, res) => {
     if (!sentFromClient(req)) {
-        res.redirect("/");
+        res.redirect(Routes.Page.HomeRedirect);
         return;
     }
 
-    const wcaId = req.headers[wcaIdHeader];
+    const wcaId: string | undefined = getHeader(req, Headers.WcaId);
     if (!wcaId) {
         res.status(400).json(errorObject("WCA ID not sent."));
         return;
     }
 
-    res.json({ isAdmin: ADMINS_LIST.includes(wcaId) });
+    res.status(200).json({ isAdmin: ADMINS_LIST.includes(wcaId) });
 });
 
-// /getCompEvents: takes competition number as a query parameter (?comp=)
-// output: (as json) [ { eventId, iconName, eventTitle } ]
-app.get("/getCompEvents", async(req, res) => {
+/**
+ * GET /getCompEvents?comp-number=X
+ * 
+ * Get a competition's events.
+ * 
+ * Query Parameters:
+ * - {@link QueryParams.CompNumber} (number): The competition number.
+ * 
+ * Response (JSON):
+ * - 200 OK: An array [ { eventId: string, iconName: string, eventTitle: string } ].
+ * - 400 Bad Request: Error object if the comp number was invalid.
+ * - 404 Not Found: Error object if the requested comp was not found.
+ */
+app.get(Routes.Get.GetCompEvents, async(req, res) => {
     if (!sentFromClient(req)) {
-        res.redirect("/");
+        res.redirect(Routes.Page.HomeRedirect);
         return;
     }
 
-    const compNumber = getNumberValue(req.query, compNumberParamName);
+    // comp number parameter
+    const compNumber: number | undefined = getQueryParamNumber(req, QueryParams.CompNumber);
     if (!compNumber) {
-        res.status(400).json(errorObject(`Invalid comp number ${compNumber}`));
+        res.status(400).json(errorObject("Required comp number as a query parameter"));
         return;
     }
 
@@ -344,24 +434,30 @@ app.get("/getCompEvents", async(req, res) => {
     res.status(200).json(comp.getEventsInfo());
 });
 
-/*  /getEventSubmissions: 
-    - Input (query parameters):
-        * compNumber
-        * eventId
-    - Output (json):
-        * [ { userId, userData: { wcaId, name }, submissionState, times, resultStr } ]
-*/
-app.get("/getEventSubmissions", async (req, res) => {
+/**
+ * GET /get-event-submissions
+ * 
+ * Get submissions for an event of a competition.
+ * 
+ * Query Parameters:
+ * - {@link QueryParams.CompNumber} (number): The desired competition's number.
+ * - {@link QueryParams.EventId} (string): The desired event's id.
+ * 
+ * Response (JSON):
+ * - 200 OK: An array [ { userId, userData: { wcaId, name }, submissionState, times, resultStr } ]
+ * - 400 Bad Request: Error object with details.
+ * - 404 Not Found: Error object - the requested event was not found.
+ */
+app.get(Routes.Get.GetEventSubmissions, async (req, res) => {
     if (!sentFromClient(req)) {
-        res.redirect("/");
+        res.redirect(Routes.Page.HomeRedirect);
         return;
     }
 
-    const compNumber = getNumberValue(req.query, compNumberParamName);
-    const eventId = req.query[eventIdParamName];
+    const compNumber: number | undefined = getQueryParamNumber(req, QueryParams.CompNumber);
+    const eventId: string | undefined = getQueryParam(req, QueryParams.EventId);
 
     if (!compNumber || !eventId) {
-        console.log(req.query);
         res.status(400).json(errorObject(`Comp number and event id must be included in the request parameters`));
         return;
     }
@@ -370,7 +466,8 @@ app.get("/getEventSubmissions", async (req, res) => {
     const submissions = comp.getEventSubmissions(eventId);
     
     if (!submissions) {
-        res.status(400).json(errorObject(`Event data not found`));
+        res.status(404).json(errorObject(`Event data not found`));
+        return;
     }
 
     // load users' data
@@ -382,18 +479,24 @@ app.get("/getEventSubmissions", async (req, res) => {
     res.status(200).json(submissions);
 });
 
-/* /updateSubmissionState:
-    - Input (in request body):
-        * compNumber (number)
-        * eventId (string)
-        * userId (number)
-        * submissionState (number)
-    - Output (as json):
-        * errorObject/{ text: successful }
-*/
-app.post("/updateSubmissionState", async (req, res) => {
+
+/**
+ * GET /update-submission-state
+ * 
+ * Update a user's submission's state for an event.
+ * 
+ * Request Fields:
+ * - {@link RequestFields.CompNumber} (number): The submission's competition's number.
+ * - {@link RequestFields.EventId} (string): The submission's event's id.
+ * - {@link RequestFields.SubmissionState} (SubmissionState): The new submission state.
+ * 
+ * Response (json):
+ * - 200 OK: { successful: boolean } - whether updating was successful.
+ * - 400 Bad Request: Error object with details.
+ */
+app.post(Routes.Post.UpdateSubmissionState, async (req, res) => {
     if (!sentFromClient(req)) {
-        res.redirect("/");
+        res.redirect(Routes.Page.HomeRedirect);
         return;
     }
 
@@ -417,59 +520,121 @@ app.post("/updateSubmissionState", async (req, res) => {
     res.status(200).json({ successful: successful });
 });
 
-app.get("/wca-me", async (req, res) => {
-    const accessTokenStr = req.get(accessTokenHeader)
 
-    const userData = await getUserData(req.get());
-    if (userData)                   res.json(userData);
-    else if (sentFromClient(req))   res.json(errorObject("error occurred"));
-    else                            res.redirect("/login");
+/**
+ * GET /wca-user-data
+ * 
+ * Get a user's WCA user data ({@link WCAUserData}).
+ * 
+ * Headers:
+ * - {@link Headers.AccessToken} (string): The user's WCA access token.
+ * 
+ * Response (JSON):
+ * - 400 Bad Request: Error object with details.
+ * - 200 OK: The user's {@link WCAUserData}.
+ */
+app.get(Routes.Get.WCAUserData, async (req, res) => {
+    if (!sentFromClient(req)) {
+        res.redirect(Routes.Page.HomeRedirect);
+        return;
+    }
+
+    const accessToken: string | undefined = getHeader(req, Headers.AccessToken);
+    if (!accessToken) {
+        res.status(400).json(errorObject("Access token header is required"));
+        return;
+    }
+
+    const userData: WCAUserData = await getWCAUserData(accessToken);
+    if (userData)                   res.status(200).json(userData);
+    else if (sentFromClient(req))   res.status(400).json(errorObject("error occurred"));
+    else                            res.redirect(Routes.Page.Login);;
 });
 
-app.get("/authenticateWithCode", async (req, res) => {
-    const authCodeHeader = "auth-code";
-    const authCode = req.headers[authCodeHeader];
+/**
+ * GET /auth-with-code
+ * 
+ * Authenticate with an auth code.
+ * 
+ * Headers:
+ * - {@link Headers.AuthCode} (string): The authentication code to use.
+ * 
+ * Response:
+ * - 400 Bad Request: Error object with details.
+ * - 200 OK: The token data received (response from the WCA API).
+ */
+app.get(Routes.Get.AuthenticateWithCode, async (req, res) => {
+    if (!sentFromClient(req)) {
+        res.redirect(Routes.Page.HomeRedirect);
+        return;
+    }
+
+    const authCode: string | undefined = getHeader(req, Headers.AuthCode);
     if (!authCode) {
-        if (sentFromClient(req))    res.json(errorObject("No code received."));
-        else                        res.redirect("/");
+        res.status(400).json(errorObject("Auth code header is required"));
         return;
     }
 
     // fetch token in callback
     const tokenData = await fetchToken(authCode);
     if (tokenData.error) {
-        if (sentFromClient(req))    res.json(errorObject("Authentication Error."));
-        else                        res.redirect("/");
+        res.status(400).json(errorObject(`Authentication error - "${tokenData}"`));
         return;
     }
 
     // send back the new token data
-    res.json(tokenData);
+    res.status(200).json(tokenData);
 });
 
-app.get("/authenticateRefreshToken", async (req, res) => {
-    const refreshTokenHeader = "refresh-token";
-    const refreshToken = req.headers[refreshTokenHeader];
+
+/**
+ * GET /auth-refresh-token
+ * 
+ * Authenticate with a refresh token.
+ * 
+ * Headers:
+ * - {@link Headers.RefreshToken} (string): The refresh token to use.
+ * 
+ * Response:
+ * - 400 Bad Request: Error object with details.
+ * - 200 OK: The token data received (resposne from the WCA API).
+ */
+app.get(Routes.Get.AuthenticateRefreshToken, async (req, res) => {
+    if (!sentFromClient(req)) {
+        res.redirect(Routes.Page.HomeRedirect);
+        return;
+    }
+
+    const refreshToken: string | undefined = getHeader(req, Headers.RefreshToken);
     if (!refreshToken) {
-        if (sentFromClient(req))    res.json(errorObject("No refresh token received."));
-        else                        res.redirect("/");
+        res.status(400).json(errorObject("Refresh token header is required"));
         return;
     }
 
     const tokenData = await fetchRefreshToken(refreshToken);
     if (tokenData.error) {
-        if (sentFromClient(req))    res.json(errorObject("Refresh token error"));
-        else                        res.redirect("/");
+        res.status(400).json(errorObject(`Refresh token error - "${tokenData.error}"`));
         return;
     }
 
     // send back the new token data
-    res.json(tokenData);
+    res.status(200).json(tokenData);
 });
 
-// get a source file
-app.get("/src/*", (req, res) => {
-    const filePath = path.resolve(path.join(__dirname, req.url));
+const srcPrefix = "/src";
+const distPrefix = "/dist";
+/**
+ * GET /src/*
+ * 
+ * Get a source file.
+ * 
+ * The given path is the path to the file in the source code.
+ * This handler aliases /src/* into /dist/* in the compiled source.
+ */
+app.get(`${srcPrefix}/*`, (req, res) => {
+    // alias /src/* -> /dist/*
+    const distPath = `${distPrefix}${req.url.substring(srcPrefix.length)}`;
+    const filePath = path.resolve(path.join(__dirname, distPath));
 
     // if the requested file doesn't exist, return a 404
     if (!fs.existsSync(filePath)) {
@@ -485,7 +650,7 @@ app.get("/src/*", (req, res) => {
 app.get("/newcompp1234", async (req, res) => {
     // validate (create a new one - the last one is not active anymore)
     await compManager().validateCurrentComp(null, null, true);
-    res.redirect("/");
+    res.redirect(Routes.Page.HomeRedirect);
 });
 
 // #endregion

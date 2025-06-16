@@ -1,27 +1,46 @@
-import fetch from 'node-fetch'
+import fetch, { RequestInit, Response } from "node-fetch";
 import {errorObject} from "./globalUtils.js";
 import { config } from "dotenv";
 import { getEnvConfigOptions, getHostname } from "../../../../serverUtils.js";
+import { getEnv } from "./env.js";
 
 config(getEnvConfigOptions()); // configure .env file
 
-const appId = process.env.APP_ID;
-const clientSecret = process.env.CLIENT_SECRET;
+/**
+ * WCA OAuth application id (environment variable)
+ */
+const appId = getEnv("APP_ID"); // TODO: env
+
+/**
+ * WCA Application Secret
+ */
+const clientSecret = getEnv("CLIENT_SECRET"); // TODO: env
+
+/**
+ * WCA Api Path
+ */
 const wcaApiPath = "/api/v0";
-export const WCA_AUTH_URL = (hostname) => `https://www.worldcubeassociation.org/oauth/authorize?client_id=${appId}&redirect_uri=${encodeURIComponent(`${hostname}/auth-callback`)}&response_type=code&scope=`;
+export const WCA_AUTH_URL = (hostname: string): string => `https://www.worldcubeassociation.org/oauth/authorize?client_id=${appId}&redirect_uri=${encodeURIComponent(`${hostname}/auth-callback`)}&response_type=code&scope=`;
 
 // send a request to the WCA API, handles the response
 // location: the path for the request url (e.g "/oauth/token")
 // returns:
 //      - if an error occurred, returns an error object
 //      - otherwise, returns the data received as JSON
-async function sendWCARequest(path, options = { method: 'GET' }) {
+
+/**
+ * sends a request to the WCA API. handles the response
+ * @param path The path for the request url (e.g "/oauth/token").
+ * @param options 
+ * @returns 
+ */
+async function sendWCARequest(path: string, options: RequestInit = { method: 'GET' }) {
     const reqUrl = `https://www.worldcubeassociation.org${path}`;
-    const httpRes = await fetch(reqUrl, options);
+    const httpRes: Response = await fetch(reqUrl, options);
     if (!httpRes.ok)
         return errorObject(`HTTP Error: "${httpRes.statusText}"`);
 
-    const data = await httpRes.json();
+    const data: any = (await httpRes.json());
     if (data.error)
         return errorObject(`WCA API Error: "${data.error}" - ${data.error_description}`);
 
