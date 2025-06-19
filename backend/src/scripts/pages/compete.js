@@ -695,7 +695,7 @@ if (isMBLD) {
     let numScrs = minScrs;
 
 
-    // #region Number Of Scrambles Controller
+    // region Number Of Scrambles Controller
     // elements
     const numScrsSelectContainer = document.getElementById("numScramblesSelectContainer");
     const fiveLessScramblesBtn = document.getElementById("fiveLessScramblesBtn");
@@ -771,10 +771,10 @@ if (isMBLD) {
         submitNumScrsBtn.disabled = true;
         await submitNumScrsSelect();
     };
-    // #endregion
+    // endregion
 
     
-    // #region Number Of Successes Controller
+    // region Number Of Successes Controller
     const fiveLessSuccBtn = document.getElementById("fiveLessSuccessesBtn");
     const oneLessSuccBtn = document.getElementById("oneLessSuccessBtn");
     const numSuccAmountLbl = document.getElementById("numSuccessesAmountLbl");
@@ -799,7 +799,7 @@ if (isMBLD) {
     oneLessSuccBtn.onclick = () => updateNumSucc(-smallDelta);
     oneMoreSuccBtn.onclick = () => updateNumSucc(smallDelta);
     fiveMoreSuccBtn.onclick = () => updateNumSucc(bigDelta);
-    // #endregion
+    // endregion
 
     onPageLoad(async () => {
         while (!finishLoad)

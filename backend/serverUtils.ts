@@ -25,8 +25,9 @@ export const ADMINS_LIST: string[] = [ "2019SAHA01", "2022STON03", "2019KEHI01" 
  */
 export const loggedInCookie = "loggedIn";
 
-// #region Hostname Control
-// only update hostname if it hasn't been set yet
+
+// region Hostname Control
+
 /**
  * The hostname the website is running on. Null 
  */
@@ -49,9 +50,10 @@ export const setHostname = (hostname: string): void => {
     console.log(`Setting hostname to '${hostname}'`);
     _hostname = hostname;
 };
-// #endregion
 
-// #region Reading Config File
+// endregion
+
+// region Reading Config File
 /**
  * Environment file path
  */
@@ -73,9 +75,9 @@ export function getEnvConfigOptions(): { path?: string } {
     _isContainer = !fs.existsSync(deployEnvPath);
     return  (_isContainer ? { } : { path: deployEnvPath });
 };
-// #endregion
+// endregion
 
-// #region Page Rendering
+// region Page Rendering
 
 /**
  * Render a page given the path to its `.ejs` file.
@@ -107,7 +109,7 @@ export function renderPage(req: Request,
             loggedIn: isLoggedIn(req)
         };
 
-        ejs.renderFile(path.join(__dirname, "src/views/pages/", filePath), pgOpts, async (err, str) => {
+        await ejs.renderFile(path.join(__dirname, "src/views/pages/", filePath), pgOpts, async (err, str) => {
             if (err) {
                 console.error(`Error occurred receiving ${filePath} page.\nDetails:`, err);
                 res.status(404).send(err);
@@ -133,7 +135,7 @@ export function renderPage(req: Request,
  * Render the error page with a specific error.
  * @param req The request's {@link Request} object.
  * @param res The request's {@link Response} object.
- * @param error An error respresented as any object (most useful as string).
+ * @param error An error represented as any object (most useful as string).
  */
 export function renderError(req: Request, res: Response, error: any = "שגיאה כללית."): void {
     renderPage(req,
@@ -143,7 +145,7 @@ export function renderError(req: Request, res: Response, error: any = "שגיא�
         { error: error });
 }
 
-// #endregion
+// endregion
 
 
 /**
@@ -178,7 +180,7 @@ export const sentFromClient = (req: Request): boolean => (getHeader(req, Headers
  */
 export const isLoggedIn = (req: Request): boolean => tryGetCookie(req, loggedInCookie, false) != null;
 
-// #region Database Management
+// region Database Management
 
 // database variables
 const tahashDbName = "tahash";
@@ -267,4 +269,4 @@ export async function initDatabase(): Promise<Db> {
     return _tahashDb;
 }
 
-// #endregion
+// endregion

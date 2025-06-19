@@ -24,8 +24,8 @@ import {
     setHostname,
     ADMINS_LIST
 } from "./serverUtils.js";
-import { errorObject, getNumberValue } from "./src/scripts/backend/utils/globalUtils.js";
-import { tryAnalyzeTimes, getDisplayTime, getTimesObjStr, packTimes, unpackTimes, Penalties, getEmptyPackedTimes, isFullPackedTimesArr } from "./src/scripts/backend/utils/timesUtils.js"
+import { errorObject } from "./src/scripts/backend/utils/globalUtils.js";
+import { tryAnalyzeTimes, getDisplayTime, formatTimeWithPenalty, packResults, unpackTimes, Penalties, getEmptyPackedTimes, isFullPackedTimesArr } from "./src/scripts/backend/utils/timeUtils.js"
 import { getEventById } from "./src/scripts/backend/database/CompEvent.js";
 import { Routes } from "./src/scripts/constants/routes.js";
 import { getQueryParam, getQueryParamNumber, QueryParams } from "./src/scripts/constants/queryParams.js";
@@ -60,11 +60,11 @@ app.use(cookieParser());
 app.use(express.json());
 
 
-// #region page routing
+// region page routing
 
 // "/" => redirect to home page
 app.get(Routes.Page.HomeRedirect, (req: Request, res: Response) => {
-    res.redirect(Routes.Get.Home);
+    res.redirect(Routes.Page.Home);
 });
 
 
@@ -197,7 +197,7 @@ app.get(Routes.Page.CompeteEvent, async (req, res) => {
  * - {@link QueryParams.CompNumber} The comp number to display the dashboard of.
  */
 app.get(Routes.Page.AdminDashboard, async (req, res) => {
-    const compNum = getNumberValue(req.query, QueryParams.CompNumber);
+    const compNum: number | undefined = getQueryParamNumber(req, QueryParams.CompNumber);
     if (!compNum || !compManager().compExists(compNum)) {
         // if the comp number received was invalid, redirect to current comp
         const currCompNum = compManager().getCurrentCompNumber();
@@ -215,10 +215,10 @@ app.get(Routes.Page.AdminDashboard, async (req, res) => {
             eventIconsSrc ]);
 });
 
-// #endregion
+// endregion
 
 
-// #region other request handling
+// region other request handling
 
 /**
  * POST /update-hostname
@@ -362,9 +362,9 @@ app.get(Routes.Get.EventStatuses, async (req, res) => {
     }
 
     // get header
-    const userId = getNumberValue(req.headers, Headers.UserId);
+    const userId: number | undefined = getHeaderNumber(req, Headers.UserId);
     if (!userId) {
-        res.status(400).json(errorObject("No user id sent"));
+        res.status(400).json(errorObject("User id header must be an integer"));
         return;
     }
 
@@ -653,7 +653,7 @@ app.get("/newcompp1234", async (req, res) => {
     res.redirect(Routes.Page.HomeRedirect);
 });
 
-// #endregion
+// endregion
 
 
 // Start receiving HTTP requests
@@ -662,7 +662,7 @@ app.listen(WEBSITE_PORT, () => {
 });
 
 
-// #region new tahash comp schedule
+// region new tahash comp schedule
 
 // Every Monday at 20:01
 cron.schedule('1 20 * * 1', async () => {
@@ -670,4 +670,4 @@ cron.schedule('1 20 * * 1', async () => {
 }, { scheduled: true, timezone: "Israel" })/*.start()*/;
 // TODO: uncomment .start() to make cron actually schedule the job
 
-// #endregion
+// endregion

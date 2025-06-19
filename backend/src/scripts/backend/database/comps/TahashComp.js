@@ -1,4 +1,4 @@
-import { getEmptyPackedTimes } from "../../utils/timesUtils.js";
+import { getEmptyPackedTimes } from "../../utils/timeUtils.js";
 import { getEventResultStr, WCAEvents } from "../CompEvent.js";
 import { SubmissionState } from "./SubmissionState.js";
 

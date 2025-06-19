@@ -1,6 +1,6 @@
 import csTimer from "cstimer_module";
 import { getRandomString } from "../utils/globalUtils.js";
-import { centisToString, DNF_STRING, Penalties, getPureCentis } from "../utils/timesUtils.js";
+import { centisToString, DNF_STRING, Penalties, getPureCentis } from "../utils/timeUtils.js";
 
 // Competition event structure
 class CompEvent {

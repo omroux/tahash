@@ -30,13 +30,19 @@ export function datediff(first, second) {
 }
 
 /**
- * Get a the value of an object's parameter as a number.
- * Returns null if the object was not found or it's not a valid number.
- * @param {any} obj - The object to look in
- * @param {string} propertyName - The property's name
- * @returns {number | null} The property's value
+ * Check if a string is a number.
+ * @param {string} value The string to check.
+ * @returns Whether the string represents a valid number.
  */
-export function getNumberValue(obj, propertyName) {
-    const num = Number(obj[propertyName]);
-    return isNaN(num) ? null : num;
+export function isNumber(value: string): boolean {
+    return !isNaN(parseFloat(value)) && isFinite(Number(value));
 }
+
+/**
+ * Check if a number is an integer.
+ * @param x The number to check.
+ */
+export function isInteger(x: number): boolean {
+    return x % 1 === 0;
+}
+

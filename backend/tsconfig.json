@@ -6,6 +6,7 @@
     "target": "es6",
     "module": "NodeNext",
     "strict": true,
+    "lib": [ "ES2021", "dom" ],
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true
   },
