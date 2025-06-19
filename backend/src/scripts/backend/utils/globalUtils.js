@@ -25,9 +25,17 @@ export function getRandomString(len = 8, charSet = null) {
  * Round to nearest whole number to deal with DST.
  * solution from https://stackoverflow.com/a/543152
  */
-export function datediff(first, second) {        
+export function datediff(first, second) {
     return Math.round(Math.abs(second - first) / (1000 * 60 * 60 * 24));
 }
+
+/**
+ * Format a number into a string of a certain length (pads with 0s).
+ * @param num The number to format
+ * @param digits The number of digits to pad
+ */
+export const pad = (num: number, digits: number = 2): string =>
+    num.toString().padStart(digits, '0');
 
 /**
  * Check if a string is a number.
