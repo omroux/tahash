@@ -1,9 +1,8 @@
 import csTimer from "cstimer_module";
-import { getRandomString } from "../utils/global-utils.js";
-import { centisToString, DNF_STRING, Penalties, getPureCentis } from "../utils/time-utils.ts";
+import { getRandomString } from "../utils/global-utils.ts";
 
 // Competition event structure
-class CompEvent {
+export class CompEvent {
     eventTitle;     // the event's display name
     eventId;        // the event's id
     scrType;        // csTimer scramble type
