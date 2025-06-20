@@ -1,7 +1,7 @@
-import {isInteger, isNumber, pad} from "../backend/utils/globalUtils.js";
+import {isInteger, isNumber, pad} from "../backend/utils/global-utils.js";
 import {Penalties, Penalty} from "../constants/penalties.js";
-import {centisPerUnit, maxTimeParts, TimeUnit} from "../constants/timeUnit.js";
-import {DNF_STRING, INVALID_TIME_STR, NULL_TIME_CENTIS} from "../backend/utils/timeUtils.js";
+import {centisPerUnit, maxTimeParts, TimeUnit} from "../constants/time-unit.js";
+import {DNF_STRING, INVALID_TIME_STR, NULL_TIME_CENTIS} from "../backend/utils/time-utils.js";
 
 /**
  * Representation of the parts of a solve's time.

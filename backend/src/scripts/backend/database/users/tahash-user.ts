@@ -1,7 +1,7 @@
-import { datediff } from "../../utils/globalUtils.js";
-import { getUserDataByUserId } from "../../utils/apiUtils.js";
-import { isFullPackedTimesArr } from "../../utils/timeUtils.js";
-import { WCAUserData } from "../../../interfaces/WCAUserData.js";
+import { datediff } from "../../utils/global-utils.js";
+import { getUserDataByUserId } from "../../utils/api-utils.js";
+import { isFullPackedTimesArr } from "../../utils/time-utils.js";
+import { WCAUserData } from "../../../interfaces/wca-user-data.js";
 
 const updateWCADataInterval = 28; /* number of days to wait between updating wca data */
 export class TahashUser {

@@ -1,5 +1,5 @@
-import { resizeEventBoxes } from "/src/scripts/backend/utils/eventBoxesUtils.js";
-import { SubmissionState, getSubmissionStateStr } from "/src/scripts/backend/database/comps/SubmissionState.js"
+import { resizeEventBoxes } from "/src/scripts/backend/utils/event-boxes-utils.js";
+import { SubmissionState, getSubmissionStateStr } from "/src/scripts/backend/database/comps/submission-state.js"
 import { centisToString } from "/src/scripts/backend/utils/timesUtils.js";
 
 const eventSelectContainer = document.getElementById("eventSelectContainer");

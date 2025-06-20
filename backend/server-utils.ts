@@ -3,8 +3,8 @@ import ejs from 'ejs';
 import path from 'path';
 import {Db, MongoClient } from "mongodb";
 import {Request, Response} from "express";
-import { CompManager } from './src/scripts/backend/database/comps/CompManager.js';
-import { UserManager } from './src/scripts/backend/database/users/UserManager.js';
+import { CompManager } from './src/scripts/backend/database/comps/comp-manager.js';
+import { UserManager } from './src/scripts/backend/database/users/user-manager.js';
 import { IncomingHttpHeaders } from 'http';
 import { getHeader, Headers } from './src/scripts/constants/headers.js';
 

@@ -1,6 +1,6 @@
-import {packTime, TimeParts} from "./TimeParts.js";
+import {packTime, TimeParts} from "./time-parts.js";
 import {BaseResult} from "./base-result.js";
-import {PackedResult} from "./PackedResult.js";
+import {PackedResult} from "./packed-result.js";
 
 /**
  * Result of a single solve.

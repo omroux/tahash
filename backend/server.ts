@@ -9,7 +9,7 @@ import {
     fetchRefreshToken,
     WCA_AUTH_URL,
     getUserData as getWCAUserData
-} from "./src/scripts/backend/utils/apiUtils.js";
+} from "./src/scripts/backend/utils/api-utils.js";
 import {
     renderPage,
     renderError,
@@ -23,15 +23,15 @@ import {
     getEnvConfigOptions,
     setHostname,
     ADMINS_LIST
-} from "./serverUtils.js";
-import { errorObject } from "./src/scripts/backend/utils/globalUtils.js";
-import { tryAnalyzeTimes, getDisplayTime, formatTimeWithPenalty, packResults, unpackTimes, Penalties, getEmptyPackedTimes, isFullPackedTimesArr } from "./src/scripts/backend/utils/timeUtils.js"
-import { getEventById } from "./src/scripts/backend/database/CompEvent.js";
+} from "./server-utils.js";
+import { errorObject } from "./src/scripts/backend/utils/global-utils.js";
+import { tryAnalyzeTimes, getDisplayTime, formatTimeWithPenalty, packResults, unpackTimes, Penalties, getEmptyPackedTimes, isFullPackedTimesArr } from "./src/scripts/backend/utils/time-utils.js"
+import { getEventById } from "./src/scripts/backend/database/comp-event.js";
 import { Routes } from "./src/scripts/constants/routes.js";
-import { getQueryParam, getQueryParamNumber, QueryParams } from "./src/scripts/constants/queryParams.js";
+import { getQueryParam, getQueryParamNumber, QueryParams } from "./src/scripts/constants/query-params.js";
 import { getHeader, getHeaderNumber, Headers } from "./src/scripts/constants/headers.js";
-import { RequestFields } from "./src/scripts/constants/requestFields.js";
-import { WCAUserData } from "./src/scripts/interfaces/WCAUserData.js";
+import { RequestFields } from "./src/scripts/constants/request-fields.js";
+import { WCAUserData } from "./src/scripts/interfaces/wca-user-data.js";
 
 
 // general setup
@@ -135,7 +135,7 @@ app.get(Routes.Page.Scrambles, async (req, res) => {
             events: currComp.getEventsInfo()
         },
         [ "/src/stylesheets/pages/scrambles.css",
-            "/src/stylesheets/eventBoxes.css",
+            "/src/stylesheets/event-boxes.css",
             eventIconsSrc ]);
 });
 
@@ -211,7 +211,7 @@ app.get(Routes.Page.AdminDashboard, async (req, res) => {
         { title: "לוח בקרה", loading: true },
         { compNumber: compNum },
         [ "/src/stylesheets/pages/admin-dashboard.css",
-            "/src/stylesheets/eventBoxes.css",
+            "/src/stylesheets/event-boxes.css",
             eventIconsSrc ]);
 });
 

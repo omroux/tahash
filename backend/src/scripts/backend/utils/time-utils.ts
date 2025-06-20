@@ -1,7 +1,7 @@
-import { centisPerUnit, maxTimeParts, TimeUnit } from "../../constants/timeUnit.js";
-import { PackedResult } from "../../interfaces/PackedResult.js";
-import { SolveResult } from "../../interfaces/SolveResult.js";
-import {formatTimeParts, formatTimeWithPenalty, TimeParts} from "../../interfaces/TimeParts.js";
+import { centisPerUnit, maxTimeParts, TimeUnit } from "../../constants/time-unit.js";
+import { PackedResult } from "../../interfaces/packed-result.js";
+import { SolveResult } from "../../interfaces/solve-result.js";
+import {formatTimeParts, formatTimeWithPenalty, TimeParts} from "../../interfaces/time-parts.js";
 import {Penalty} from "../../constants/penalties.js";
 
 /**

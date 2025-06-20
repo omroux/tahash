@@ -1,7 +1,7 @@
 // Manages the "users" collection
-import { getUserDataByUserId, getWCARecordsOfUser } from "../../utils/apiUtils.js";
-import { TahashUser } from "./TahashUser.js";
-import { getCompactWCAData } from "./TahashUser.js";
+import { getUserDataByUserId, getWCARecordsOfUser } from "../../utils/api-utils.ts";
+import { TahashUser } from "./tahash-user.ts";
+import { getCompactWCAData } from "./tahash-user.ts";
 
 export class UserManager {
     #collection;

@@ -1,8 +1,8 @@
-import { ExtraArgs } from "./ExtraArgs.js";
+import { ExtraArgs } from "./extra-args.js";
 import {Penalties, Penalty} from "../constants/penalties.js";
-import {maxTimeParts, TimeUnit} from "../constants/timeUnit.js";
-import {unpackTime} from "../backend/utils/timeUtils.js";
-import {formatTimeParts, formatTimeWithPenalty} from "./TimeParts.js";
+import {maxTimeParts, TimeUnit} from "../constants/time-unit.js";
+import {unpackTime} from "../backend/utils/time-utils.js";
+import {formatTimeParts, formatTimeWithPenalty} from "./time-parts.js";
 
 /**
  * Packed result - smaller size.

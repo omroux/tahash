@@ -1,3 +1,5 @@
+import {PackedResult} from "./packed-result.js";
+
 export interface UserRecords {
     eventId: string;
 
@@ -27,5 +29,5 @@ export interface UserRecords {
     bestResults: object;
     
     // the full attempt
-    times: ; // TODO: packed times
+    times: PackedResult;
 }

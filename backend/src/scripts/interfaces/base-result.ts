@@ -1,5 +1,5 @@
 import {Penalties, Penalty} from "../constants/penalties.js";
-import {ExtraArgs} from "./ExtraArgs.js";
+import {ExtraArgs} from "./extra-args.js";
 
 /**
  * Represents the result of a solve without the time.
