@@ -1,6 +1,6 @@
 import { getEmptyPackedTimes } from "../../utils/time-utils.ts";
 import { getEventResultStr, WCAEvents } from "../comp-event.ts";
-import { SubmissionState } from "./submission-state.js";
+import { SubmissionState } from "./submission-state.ts";
 
 export class TahashComp {
     #manager;
