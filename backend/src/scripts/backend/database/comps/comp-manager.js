@@ -1,4 +1,4 @@
-import { getEventById } from "../comp-event.js";
+import { getEventById } from "../comp-event.ts";
 import { getNewCompSrc, TahashComp } from "./tahash-comp.js";
 
 // Manages the "comps" collection

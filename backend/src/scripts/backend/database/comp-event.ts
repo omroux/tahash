@@ -1,31 +1,78 @@
 import csTimer from "cstimer_module";
-import { getRandomString } from "../utils/global-utils.ts";
+import {NumScrambles, TimeFormat} from "../../constants/time-formats.ts";
+import {ExtraArgs} from "../../interfaces/extra-args.js";
+import {getRandomString} from "../utils/global-utils.js";
+import {EventDisplayInfo} from "../../interfaces/event-display-info.js";
 
 // Competition event structure
-export class CompEvent {
-    eventTitle;     // the event's display name
-    eventId;        // the event's id
-    scrType;        // csTimer scramble type
-    iconName;       // name of the event's icon in the icon "database"
-    timeFormat;         // the format of the event (e.g. ao5, bo3, ...)
-    emptyExtraArgs;   // does the event have extra arguments (solution for fmc, ...)
-    scrLenExp;      // scramble length expectancy
-    scrLenRadius;   // scramble length variance (radius)
+export class CompEvent<ArgsType = undefined> {
+    /**
+     * The event's display name.
+     */
+    eventTitle: string;
 
-    // scrambleExp - the expected length of the scramble. (negative/0 -> default value)
-    constructor(eventTitle, eventId, scrType, iconName, resultFormat, scrLenExp = 0, scrLenRadius = 0, emptyExtraArgs = null) {
+    /**
+     * The event's id.
+     */
+    eventId: string;
+
+    /**
+     * The event's csTimer scramble type.
+     */
+    scrType: string;
+
+    /**
+     * The name of the event's icon in the icon library.
+     */
+    iconName: string;
+
+    /**
+     * The {@link TimeFormat} of the event.
+     */
+    timeFormat: TimeFormat;
+
+    /**
+     * The submission's extra arguments.
+     * May be undefined if no extra arguments are needed.
+     */
+    emptyExtraArgs?: ArgsType;
+
+    /**
+     * The expected length for the scramble.
+     */
+    scrLenExp: number = 0;
+
+    /**
+     * Scramble length variance (radius).
+     */
+    scrLenRadius: number = 0;
+
+    /**
+     * Construct a competition event.
+     * @param eventTitle The event's display name.
+     * @param eventId The event's id.
+     * @param scrType The event's csTimer scramble type.
+     * @param iconName The name of the event's icon in the icon library.
+     * @param resultFormat The {@link TimeFormat} of the event.
+     * @param scrLenExp The expected length for the scramble (negative/0 -> default csTimer value).
+     * @param scrLenRadius Scramble length variance/radius.
+     * @param emptyExtraArgs The submission's extra arguments. May be undefined if no extra arguments are needed.
+     */
+    constructor(eventTitle: string, eventId: string, scrType: string, iconName: string, resultFormat: TimeFormat, scrLenExp: number = 0, scrLenRadius: number = 0, emptyExtraArgs?: ArgsType) {
         this.eventTitle =   eventTitle;
         this.eventId =      eventId;
         this.scrType =      scrType;
         this.iconName =     iconName;
         this.timeFormat =   resultFormat;
-        this.emptyExtraArgs = emptyExtraArgs;
         this.scrLenExp =    scrLenExp;
         this.scrLenRadius = Math.abs(scrLenRadius);
+        this.emptyExtraArgs = emptyExtraArgs;
     }
 
-    // get the length of the scramble
-    getScrambleLength() {
+    /**
+     * Generate the length of a scramble.
+     */
+    getScrambleLength(): number {
         return this.scrLenExp <= 0
                 ? 0
                 : this.scrLenRadius <= 0
@@ -34,15 +81,17 @@ export class CompEvent {
                     : Math.abs(Math.floor(Math.random() * (2 * this.scrLenRadius)) + (this.scrLenExp - this.scrLenRadius));
     }
 
-    // returns a string[] with scrambles for this event
-    generateScrambles() {
+    /**
+     * Get a string[] with scrambles for this event.
+     */
+    generateScrambles(): string[] {
         const num = this.getNumScrambles();
 
         // generate seed instead of scrambles
         if (num < 0)
             return [ getRandomString() ];
 
-        let result = [];
+        let result: string[] = [];
         for (let i = 0; i < num; i++) {
             const len = this.getScrambleLength();
             result.push(csTimer.getScramble(this.scrType, len));
@@ -51,39 +100,34 @@ export class CompEvent {
         return result;
     }
 
-    // get the number of scrambles for a round of the event
-    getNumScrambles() {
+    /**
+     * Get the number of scrambles for a round of the event.
+     */
+    getNumScrambles(): number {
         return getNumScrambles(this.timeFormat);
     }
 
-    // get the event's info. returns { eventId, eventTitle, iconName }
-    getEventInfo() {
+    /**
+     * Get the event's info.
+     * @return The format { eventId, eventTitle, iconName }.
+     */
+    getEventInfo(): EventDisplayInfo {
         return { eventId: this.eventId, eventTitle: this.eventTitle, iconName: this.iconName };
     }
 }
 
-
-export const TimeFormat = Object.freeze({
-    ao5: "ao5",
-    mo3: "mo3",
-    bo3: "bo3",
-    multi: "multi"
-});
-
-// -1 -> generate seed
-const numScrambles = Object.freeze({
-    ao5: 5,
-    mo3: 3,
-    bo3: 3,
-    multi: -1
-});
-
-// get the number of scrambles for a TimeFormat
-export const getNumScrambles = timeFormat => numScrambles[timeFormat];
+/**
+ * Get the number of scrambles for a {@link TimeFormat}.
+ */
+export function getNumScrambles(timeFormat: TimeFormat) {
+    return NumScrambles[timeFormat];
+}
 
 
-// official WCA events (CompEvent[])
-export const WCAEvents = [
+/**
+ * Official WCA events ({@param CompEvent}[]).
+ */
+export const WCAEvents: Readonly<CompEvent<any>[]> = [
     // -- WCA Events --
     //              Title       Id          ScrType     Icon            Format              scrLenExp   scrLenRadius    emptyExtraArgs
     new CompEvent(  "3x3x3",    "333",      "333",      "event-333",    TimeFormat.ao5),
@@ -106,12 +150,18 @@ export const WCAEvents = [
 ];
 Object.freeze(WCAEvents);
 
-// all possible events in Tahash
-const allEvents = WCAEvents.concat({});
+/**
+ * All possible events in Tahash.
+ */
+const allEvents = WCAEvents.concat([]);
 
-// get event by its id (null if it doesn't exist)
-export const getEventById = (eventId) =>
-        allEvents.find(e => e.eventId === eventId) ?? null;
+/**
+ * Get a {@link CompEvent} by its id (null if it doesn't exist).
+ * @param eventId
+ */
+export function getEventById(eventId: string): CompEvent<any> | null {
+    return allEvents.find(e => e.eventId === eventId) ?? null;
+}
 
 // get the final result of the event (as a string), given the times (e.g. an ao5, mo3, bo3, ...)
 // for multibld, returns { numSuccess, numAttempt, resultStr }
