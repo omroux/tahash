@@ -10,37 +10,37 @@ export class CompEvent<ArgsType = undefined> {
     /**
      * The event's display name.
      */
-    eventTitle: string;
+    public readonly eventTitle: string;
 
     /**
      * The event's id.
      */
-    eventId: string;
+    public readonly eventId: string;
 
     /**
      * The event's csTimer scramble type.
      */
-    scrType: string;
+    public readonly scrType: string;
 
     /**
      * The name of the event's icon in the icon library.
      */
-    iconName: string;
+    public readonly iconName: string;
 
     /**
      * The {@link TimeFormat} of the event.
      */
-    timeFormat: TimeFormat;
+    public readonly timeFormat: TimeFormat;
 
     /**
      * The expected length for the scramble.
      */
-    scrLenExp: number = 0;
+    public readonly scrLenExp: number = 0;
 
     /**
      * Scramble length variance (radius).
      */
-    scrLenRadius: number = 0;
+    public readonly scrLenRadius: number = 0;
 
     /**
      * Construct a competition event.
@@ -52,7 +52,7 @@ export class CompEvent<ArgsType = undefined> {
      * @param scrLenExp The expected length for the scramble (negative/0 -> default csTimer value).
      * @param scrLenRadius Scramble length variance/radius.
      */
-    constructor(eventTitle: string, eventId: string, scrType: string, iconName: string, resultFormat: TimeFormat, scrLenExp: number = 0, scrLenRadius: number = 0) {
+    public constructor(eventTitle: string, eventId: string, scrType: string, iconName: string, resultFormat: TimeFormat, scrLenExp: number = 0, scrLenRadius: number = 0) {
         this.eventTitle =   eventTitle;
         this.eventId =      eventId;
         this.scrType =      scrType;
@@ -65,7 +65,7 @@ export class CompEvent<ArgsType = undefined> {
     /**
      * Generate the length of a scramble.
      */
-    getScrambleLength(): number {
+    public getScrambleLength(): number {
         return this.scrLenExp <= 0
                 ? 0
                 : this.scrLenRadius <= 0
@@ -77,7 +77,7 @@ export class CompEvent<ArgsType = undefined> {
     /**
      * Get a string[] with scrambles for this event.
      */
-    generateScrambles(): string[] {
+    public generateScrambles(): string[] {
         const num = this.getNumScrambles();
 
         // generate seed instead of scrambles
@@ -96,24 +96,17 @@ export class CompEvent<ArgsType = undefined> {
     /**
      * Get the number of scrambles for a round of the event.
      */
-    getNumScrambles(): number {
-        return getNumScrambles(this.timeFormat);
+    public getNumScrambles(): number {
+        return NumScrambles[this.timeFormat];
     }
 
     /**
      * Get the event's info.
      * @return The format { eventId, eventTitle, iconName }.
      */
-    getEventInfo(): EventDisplayInfo {
+    public getEventInfo(): EventDisplayInfo {
         return { eventId: this.eventId, eventTitle: this.eventTitle, iconName: this.iconName };
     }
-}
-
-/**
- * Get the number of scrambles for a {@link TimeFormat}.
- */
-export function getNumScrambles(timeFormat: TimeFormat) {
-    return NumScrambles[timeFormat];
 }
 
 

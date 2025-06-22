@@ -1,16 +1,59 @@
 import { getEventById } from "../comp-event.ts";
 import { getNewCompSrc, TahashComp } from "./tahash-comp.js";
+import {Collection, Document} from "mongodb";
+import type {UserManager} from "../users/user-manager.js";
 
-// Manages the "comps" collection
+/**
+ * A singleton to manage the "comps" collection.
+ */
 export class CompManager {
-    #collection;
-    #userManager;
-    #_currCompNum = -1;
+    /**
+     * The singleton instance of {@link CompManager}.
+     */
+    private static instance: CompManager | undefined;
+    private static collection: Collection;
 
-    // Construct a CompManager
-    constructor(compsCollection, userManager = null) {
-        this.#collection = compsCollection;
-        this.#userManager = userManager;
+    private static currCompNum: number = -1;
+
+    /**
+     * Construct a {@link CompManager}.
+     * @param compsCollection The MongoDB {@link Collection} of the comps.
+     */
+    private constructor(compsCollection: Collection) {
+        if (CompManager.instance !== undefined)
+            throw new Error("Attempted to instantiate a new singleton instance of CompManager where an instance already exists.");
+
+        CompManager.collection = compsCollection;
+        CompManager.instance = this;
+    }
+
+    /**
+     * Create an instance of the {@link CompManager} singleton.
+     * @param compsCollection The MongoDB {@link Collection} of the comps.
+     */
+    public static async init(compsCollection: Collection) {
+        if (CompManager.instance !== null)
+            throw new Error("CompManager instance already exists. Use CompManager.getInstance() instead.");
+
+        CompManager.instance = new CompManager(compsCollection);
+
+        // initialize comps collection if it's empty
+        const count = await CompManager.collection.countDocuments({}, { limit: 1 });
+        if (count == 0) {
+            console.log("Comps database is empty. Initializing empty comp...");
+
+            // save an empty comp with compNumber 0
+            await saveComp
+        }
+    }
+
+    /**
+     * Get the singleton instance of the {@link CompManager}.
+     */
+    public static getInstance(): CompManager {
+        if (!CompManager.instance)
+            throw new Error("CompManager not initialized. Call init() first.");
+        return CompManager.instance;
     }
 
     // initialize comps collection if it's empty

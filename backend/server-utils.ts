@@ -255,6 +255,7 @@ export async function initDatabase(): Promise<Db> {
     _tahashDb = mongoClient.db(tahashDbName);
 
     // initialize user manaager
+    const a = _tahashDb.collection(usersCollectionName);
     _userManager = new UserManager(_tahashDb.collection(usersCollectionName));
 
     // initialize comp manager
