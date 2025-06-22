@@ -6,7 +6,7 @@ import {PackedResult} from "./packed-result.js";
  * Result of a single solve.
  * Represents the solve's result.
  */
-export interface SolveResult extends BaseResult {
+export interface SolveResult<ArgsType = undefined> extends BaseResult<ArgsType> {
     /**
      * The time of the solve.
      */

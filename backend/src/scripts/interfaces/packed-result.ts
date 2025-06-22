@@ -3,25 +3,16 @@ import {Penalties, Penalty} from "../constants/penalties.js";
 import {maxTimeParts, TimeUnit} from "../constants/time-unit.js";
 import {unpackTime} from "../backend/utils/time-utils.js";
 import {formatTimeParts, formatTimeWithPenalty} from "./time-parts.js";
+import {BaseResult} from "./base-result.js";
 
 /**
  * Packed result - smaller size.
  */
-export interface PackedResult {
+export interface PackedResult<ArgsType = undefined> extends BaseResult<ArgsType> {
     /**
      * The time of the solve represented in centiseconds.
      */
     centis: number;
-
-    /**
-     * The {@link Penalty} of the solve.
-     */
-    penalty: Penalty;
-
-    /**
-     * Extra arguments of the solve (undefined if there aren't any).
-     */
-    extraArgs: ExtraArgs;
 }
 
 /**
@@ -30,7 +21,7 @@ export interface PackedResult {
  * @param penalty The {@link Penalty} to apply.
  * @return The number of centiseconds that yields after applying the penalty.
  */
-function applyPenaltyCentis(centis: number, penalty: Penalty = Penalties.None): number {
+export function applyPenaltyCentis(centis: number, penalty: Penalty = Penalties.None): number {
     return penalty == Penalties.Plus2
         ? (centis + 2 * maxTimeParts[TimeUnit.Centis])
         : centis;
@@ -84,4 +75,18 @@ export const formatCentis = (centis: number): string =>
 export const formatCentisWithPenalty = (centis: number, penalty: Penalty): string =>
     formatTimeWithPenalty(unpackTime(centis), penalty);
 
+/**
+ * Convert a {@link PackedResult} into a centiseconds value, including penalty.
+ * @param packedResult
+ */
+export function getPureCentis(packedResult: PackedResult): number {
+    return applyPenaltyCentis(packedResult.centis, packedResult.penalty);
+}
 
+/**
+ * Convert each element in a {@link PackedResult}[] to pure centiseconds.
+ * @return The respective array of centiseconds.
+ */
+export function getPureCentisArr(results: PackedResult[]): number[] {
+    return results.map((r) => getPureCentis(r));
+}

@@ -4,7 +4,7 @@ import {ExtraArgs} from "./extra-args.js";
 /**
  * Represents the result of a solve without the time.
  */
-export interface BaseResult {
+export interface BaseResult<ArgsType = undefined> {
     /**
      * The penalty of the solve.
      */
@@ -13,7 +13,7 @@ export interface BaseResult {
     /**
      * Extra arguments of the solve (undefined if there aren't any).
      */
-    extraArgs: ExtraArgs;
+    extraArgs: ArgsType;
 }
 
 /**

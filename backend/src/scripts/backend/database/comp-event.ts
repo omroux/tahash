@@ -1,8 +1,9 @@
 import csTimer from "cstimer_module";
 import {NumScrambles, TimeFormat} from "../../constants/time-formats.ts";
-import {ExtraArgs} from "../../interfaces/extra-args.js";
 import {getRandomString} from "../utils/global-utils.js";
 import {EventDisplayInfo} from "../../interfaces/event-display-info.js";
+import {ExtraArgsFmc} from "../../interfaces/event-extra-args/extra-args-fmc.js";
+import {ExtraArgsMbld} from "../../interfaces/event-extra-args/extra-args-mbld.js";
 
 // Competition event structure
 export class CompEvent<ArgsType = undefined> {
@@ -32,12 +33,6 @@ export class CompEvent<ArgsType = undefined> {
     timeFormat: TimeFormat;
 
     /**
-     * The submission's extra arguments.
-     * May be undefined if no extra arguments are needed.
-     */
-    emptyExtraArgs?: ArgsType;
-
-    /**
      * The expected length for the scramble.
      */
     scrLenExp: number = 0;
@@ -56,9 +51,8 @@ export class CompEvent<ArgsType = undefined> {
      * @param resultFormat The {@link TimeFormat} of the event.
      * @param scrLenExp The expected length for the scramble (negative/0 -> default csTimer value).
      * @param scrLenRadius Scramble length variance/radius.
-     * @param emptyExtraArgs The submission's extra arguments. May be undefined if no extra arguments are needed.
      */
-    constructor(eventTitle: string, eventId: string, scrType: string, iconName: string, resultFormat: TimeFormat, scrLenExp: number = 0, scrLenRadius: number = 0, emptyExtraArgs?: ArgsType) {
+    constructor(eventTitle: string, eventId: string, scrType: string, iconName: string, resultFormat: TimeFormat, scrLenExp: number = 0, scrLenRadius: number = 0) {
         this.eventTitle =   eventTitle;
         this.eventId =      eventId;
         this.scrType =      scrType;
@@ -66,7 +60,6 @@ export class CompEvent<ArgsType = undefined> {
         this.timeFormat =   resultFormat;
         this.scrLenExp =    scrLenExp;
         this.scrLenRadius = Math.abs(scrLenRadius);
-        this.emptyExtraArgs = emptyExtraArgs;
     }
 
     /**
@@ -137,7 +130,7 @@ export const WCAEvents: Readonly<CompEvent<any>[]> = [
     new CompEvent(  "6x6x6",    "666",      "666wca",   "event-666",    TimeFormat.mo3,     80),
     new CompEvent(  "7x7x7",    "777",      "777wca",   "event-777",    TimeFormat.mo3,     100),
     new CompEvent(  "3x3 BLD",  "3bld",     "333ni",    "event-333bf",  TimeFormat.bo3),
-    new CompEvent(  "FMC",      "fmc",      "333fm",    "event-333fm",  TimeFormat.bo3,     0,          0,              Object.freeze({ fmcSolution: [] })),
+    new CompEvent<ExtraArgsFmc>(  "FMC",      "fmc",      "333fm",    "event-333fm",  TimeFormat.bo3,     0,          0),
     new CompEvent(  "3x3 OH",   "oh",       "333",      "event-333oh",  TimeFormat.ao5),
     new CompEvent(  "Clock",    "clock",    "clkwca",   "event-clock",  TimeFormat.ao5),
     new CompEvent(  "Megaminx", "megaminx", "mgmp",     "event-minx",   TimeFormat.ao5,     70),
@@ -146,7 +139,7 @@ export const WCAEvents: Readonly<CompEvent<any>[]> = [
     new CompEvent(  "Square-1", "square-1", "sqrs",     "event-sq1",    TimeFormat.ao5),
     new CompEvent(  "4x4 BLD",  "4bld",     "444bld",   "event-444bf",  TimeFormat.bo3,     40),
     new CompEvent(  "5x5 BLD",  "5bld",     "555bld",   "event-555bf",  TimeFormat.bo3,     60),
-    new CompEvent(  "3x3 MBLD", "mbld",     "r3ni",     "event-333mbf", TimeFormat.multi,   1,          0,              Object.freeze({ numSuccess: 0, numAttempt: 0 }))
+    new CompEvent<ExtraArgsMbld>(  "3x3 MBLD", "mbld",     "r3ni",     "event-333mbf", TimeFormat.multi,   1)
 ];
 Object.freeze(WCAEvents);
 
@@ -188,83 +181,4 @@ export function getEventResultStr(eventId, packedTimes) {
         default:
             return "INVALID TIME FORMAT";
     }
-}
-
-function calculateAO5(packedTimes) {
-    const maxDNF = 2;
-    const pureCentis = getPureCentis(packedTimes);
-
-    let dnfCount = 0;
-    let average = 0;
-    let lowest = pureCentis[0];
-    let highest = pureCentis[0];
-
-    for (let i = 0; i < packedTimes.length; i++) {
-        if (packedTimes[i].penalty == Penalties.DNF) {
-            dnfCount++;
-            continue;
-        }
-
-        if (dnfCount >= maxDNF)
-            return DNF_STRING;
-
-        average += pureCentis[i];
-
-        lowest = Math.min(lowest, pureCentis[i]);
-        highest = Math.max(highest, pureCentis[i]);
-    }
-
-    if (dnfCount < 1) // don't count highest
-        average -= highest;
-    average -= lowest;
-
-    average = Math.floor(average / 3); // get the average
-    return centisToString(average);
-}
-
-function calculateMO3(packedTimes) {
-    let mean = 0;
-    const pureCentis = getPureCentis(packedTimes);
-
-    for (let i = 0; i < packedTimes.length; i++) {
-        if (packedTimes[i].penalty == Penalties.DNF)
-            return DNF_STRING; // max 1 dnf
-        
-        mean += pureCentis[i];
-    }
-    
-    mean = Math.floor(mean / 3); // get the mean
-    return centisToString(mean);
-}
-
-function calculateBO3(packedTimes) {
-    let best = packedTimes[0].centis;
-
-    for (let i = 1; i < packedTimes.length; i++)
-        best = Math.min(best, packedTimes[i].centis)
-
-    return centisToString(best);
-}
-
-function calculateMultiResult(packedTimes) {
-    const extraArgs = packedTimes[0].extraArgs;
-    return `${extraArgs.numSuccess}/${extraArgs.numAttempt} ${centisToString(packedTimes[0].centis)}`;
-}
-
-function calculateFMCResult(packedTimes) {
-    let mean = 0;
-
-    for (let i = 0; i < packedTimes.length; i++) {
-        if (packedTimes[i].penalty == Penalties.DNF)
-            return DNF_STRING; // max 1 dnf
-
-        if (!packedTimes.extraArgs.fmcSolution) {
-            console.error("ERROR: No FMC solution. Returning -1 (CompEvent.calculateFMCResult)");
-            return -1;
-        }
-        mean += packedTimes.extraArgs.fmcSolution.length;
-    }
-    
-    mean = Math.floor(mean / 3); // get the mean
-    return centisToString(mean);
 }

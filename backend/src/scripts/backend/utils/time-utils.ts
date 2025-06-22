@@ -1,5 +1,5 @@
 import { centisPerUnit, maxTimeParts, TimeUnit } from "../../constants/time-unit.js";
-import { PackedResult } from "../../interfaces/packed-result.js";
+import {applyPenaltyCentis, PackedResult} from "../../interfaces/packed-result.js";
 import { SolveResult } from "../../interfaces/solve-result.js";
 import {formatTimeParts, formatTimeWithPenalty, TimeParts} from "../../interfaces/time-parts.js";
 import {Penalty} from "../../constants/penalties.js";
@@ -88,13 +88,6 @@ export const unpackResults = (packResults: PackedResult[]): SolveResult[] =>
 // }
 
 // TODO: re-write with more context
-// /**
-//  * Convert a {@link PackedResult} into a centiseconds value, including penalty.
-//  * @param packedResult
-//  */
-// export function getPureCentis(packedResult: PackedResult): number {
-//     const res: TimeParts = applyPenalty();
-// }
 // convert a packed times array to a pure centiseconds array;
 // for +2 - adds to seconds
 // for DNF - sets time to -1
