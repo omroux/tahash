@@ -1,13 +1,14 @@
-import { getEmptyPackedTimes } from "../../utils/time-utils.ts";
 import { getEventResultStr, WCAEvents } from "../comp-event.ts";
 import { SubmissionState } from "./submission-state.ts";
+import {CompManager} from "./comp-manager.js";
+import {SubmissionData} from "../../../interfaces/submission-data.js";
 
 export class TahashComp {
-    #manager;
-    compNumber = -1;
-    startDate = null;
-    endDate = null;
-    data = [];
+    public readonly compNumber: number;
+    public readonly startDate: Date;
+    public readonly endDate: Date;
+
+    private data: SubmissionData[] = [];
     /*
     comp data structure IN DATABASE:
     data: [
@@ -42,31 +43,40 @@ export class TahashComp {
     ]
     */
 
-    // construct a TahashComp from a given source
-    // src - a source object to build the TahashComp from: {compNumber, startDate, endDate, data}
-    constructor(compManager, src) {
-        this.#manager = compManager;
-
+    /**
+     * Create an instance of a {@link TahashComp} from a source.
+     * @param src Source with the competition's data.
+     */
+    public constructor(src: { compNumber: number, startDate: Date, endDate: Date, data?: SubmissionData[] }) {
         src = src || {};
-        this.compNumber =   src.compNumber  ?? -1;
-        this.startDate =    src.startDate   || null;
-        this.endDate =      src.endDate     || null;
-        this.data =         src.data        ?? [];
+        this.compNumber = src.compNumber;
+        this.startDate = src.startDate;
+        this.endDate = src.endDate;
+        this.data = src.data        ?? [];
 
         // "normalize" date to only the date, ignore time of day
         this.startDate?.setHours(0, 0, 0, 0);
         this.endDate?.setHours(0, 0, 0, 0);
+    }
 
-        // update the empty currCompTimes array
-        this.getEmptyCurrCompTimes();
+    /**
+     * Get a clone of this {@link TahashComp}'s data.
+     */
+    public getData(): SubmissionData[] {
+        return [...this.data];
     }
 
     // save this TahashComp using the linked CompManager
-    async saveToDB() {
-        return await this.#manager.saveComp(this);
+    /**
+     * Save this {@link TahashComp} using the {@link CompManager} singleton.
+     */
+    public async saveToDB(): Promise<boolean> {
+        return await CompManager.saveComp(this);
     }
 
-    // is this comp currently active as the current Tahash comp?
+    /**
+     * Whether this comp is currently active.
+     */
     isActive() {
         const now = new Date();
         now.setHours(0, 0, 0, 0);
@@ -126,7 +136,7 @@ export class TahashComp {
     // initialize scrambles for all events that don't have scrambles
     initScrambles() {
         for (let i = 0; i < this.data.length; i++) {
-            if (this.data[i].scrambles.length != 0)
+            if (this.data[i].scrambles.ujlength != 0)
                 continue;
             this.data[i].scrambles = this.data[i].event.generateScrambles();
         }

@@ -12,6 +12,7 @@ export class CompManager {
      */
     private static instance: CompManager | undefined;
     private static collection: Collection;
+    private static activeComp: TahashComp;
 
     private static currCompNum: number = -1;
 
@@ -43,7 +44,7 @@ export class CompManager {
             console.log("Comps database is empty. Initializing empty comp...");
 
             // save an empty comp with compNumber 0
-            await saveComp
+            await CompManager.saveComp(new TahashComp());
         }
     }
 
@@ -88,15 +89,18 @@ export class CompManager {
         return !isNaN(compNumber) && compNumber > 0 && compNumber <= this.getCurrentCompNumber();
     }
 
-    // save a TahashComp to the database by its comp number (if it already exists, just update its values).
-    // returns whether the update has been acknowledged (usually true).
-    async saveComp(tahashComp) {
-        return (await this.#collection.updateOne({ compNumber: tahashComp.compNumber },
+    /**
+     * Save a {@link TahashComp} to the database by its comp number (if it already exists, just update its values).
+     * @param tahashComp
+     * @return Whether the update has been acknowledged (usually true).
+     */
+    public static async saveComp(tahashComp: TahashComp): Promise<boolean> {
+        return (await CompManager.collection.updateOne({ compNumber: tahashComp.compNumber },
             { $set: {
                 compNumber: tahashComp.compNumber,
                 startDate: tahashComp.startDate,
                 endDate:  tahashComp.endDate,
-                data:  compDataToDocData(tahashComp.data)
+                data:  compDataToDocData(tahashComp.getData())
                 } },
             { upsert: true })).acknowledged;
     }
