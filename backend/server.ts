@@ -24,7 +24,6 @@ import {
     setHostname,
     ADMINS_LIST
 } from "./server-utils.js";
-import { errorObject } from "./src/scripts/backend/utils/global-utils.js";
 import { tryAnalyzeTimes, getDisplayTime, formatTimeWithPenalty, packResults, unpackTimes, Penalties, getEmptyPackedTimes, isFullPackedTimesArr } from "./src/scripts/backend/utils/time-utils.js"
 import { getEventById } from "./src/scripts/backend/database/comp-event.js";
 import { Routes } from "./src/scripts/constants/routes.js";
@@ -402,13 +401,13 @@ app.get(Routes.Get.IsAdmin, async (req, res) => {
 /**
  * GET /getCompEvents?comp-number=X
  * 
- * Get a competition's events.
+ * Get a competition's events' ids.
  * 
  * Query Parameters:
  * - {@link QueryParams.CompNumber} (number): The competition number.
  * 
  * Response (JSON):
- * - 200 OK: An array [ { eventId: string, iconName: string, eventTitle: string } ].
+ * - 200 OK: An array [ eventId: string ].
  * - 400 Bad Request: Error object if the comp number was invalid.
  * - 404 Not Found: Error object if the requested comp was not found.
  */
@@ -431,7 +430,7 @@ app.get(Routes.Get.GetCompEvents, async(req, res) => {
         return;
     }
 
-    res.status(200).json(comp.getEventsInfo());
+    res.status(200).json(comp.eventIds);
 });
 
 /**

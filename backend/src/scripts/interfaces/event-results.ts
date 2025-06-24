@@ -1,7 +1,7 @@
 import {SubmissionData} from "./submission-data.js";
 
-export interface EventData {
+export interface EventResults<ArgsType = any> {
     eventId: string;
     scrambles: string[];
-    submissions: SubmissionData[];
+    submissions: SubmissionData<ArgsType>[];
 }

@@ -1,14 +1,32 @@
-import { getEventResultStr, WCAEvents } from "../comp-event.ts";
-import { SubmissionState } from "./submission-state.ts";
+import {generateScrambles, getEventResultStr, WCAEvents} from "../comp-event.ts";
+import {SubmissionState} from "./submission-state.ts";
 import {CompManager} from "./comp-manager.js";
 import {SubmissionData} from "../../../interfaces/submission-data.js";
+import {EventResults} from "../../../interfaces/event-results.js";
+import {EventDisplayInfo} from "../../../interfaces/event-display-info.js";
 
 export class TahashComp {
+    /**
+     * The number of this competition.
+     */
     public readonly compNumber: number;
+
+    /**
+     * The starting date of this competition.
+     */
     public readonly startDate: Date;
+
+    /**
+     * The ending date of this competition.
+     */
     public readonly endDate: Date;
 
-    private data: SubmissionData[] = [];
+    /**
+     * The ids of all the events in this competition.
+     */
+    public readonly eventIds: readonly string[];
+
+    private readonly data: EventResults[] = [];
     /*
     comp data structure IN DATABASE:
     data: [
@@ -47,26 +65,31 @@ export class TahashComp {
      * Create an instance of a {@link TahashComp} from a source.
      * @param src Source with the competition's data.
      */
-    public constructor(src: { compNumber: number, startDate: Date, endDate: Date, data?: SubmissionData[] }) {
+    public constructor(src: { compNumber: number, startDate: Date, endDate: Date, data?: EventResults[] }) {
         src = src || {};
         this.compNumber = src.compNumber;
         this.startDate = src.startDate;
         this.endDate = src.endDate;
         this.data = src.data        ?? [];
 
-        // "normalize" date to only the date, ignore time of day
+        // "normalize" Date to only the date, ignore time of day
         this.startDate?.setHours(0, 0, 0, 0);
         this.endDate?.setHours(0, 0, 0, 0);
+
+        // set up eventIds array
+        const evIds: string[] = [];
+        for (const evData of this.data)
+            evIds.push(evData.eventId);
+        this.eventIds = evIds;
     }
 
     /**
      * Get a clone of this {@link TahashComp}'s data.
      */
-    public getData(): SubmissionData[] {
+    public getData(): EventResults[] {
         return [...this.data];
     }
 
-    // save this TahashComp using the linked CompManager
     /**
      * Save this {@link TahashComp} using the {@link CompManager} singleton.
      */
@@ -77,7 +100,7 @@ export class TahashComp {
     /**
      * Whether this comp is currently active.
      */
-    isActive() {
+    public isActive() {
         const now = new Date();
         now.setHours(0, 0, 0, 0);
         return this.startDate <= now && now <= this.endDate;
@@ -89,16 +112,8 @@ export class TahashComp {
     getCompetitorList() {
     }
 
-    // get the submissions for an event by its event id
-    // returns: [ { userId, submissionState, times, resultStr } ]
-    // if the event was not found, returns null
-    getEventSubmissions(eventId) {
-        const eventData = this.getEventDataById(eventId);
-        return eventData ? eventData.results : null;
-    }
-
     // returns CompEvent[] of the events of this comp
-    getAllEventTypes() {
+    public getAllEventTypes() {
         const result = [];
 
         for (let i = 0; i < this.data.length; i++)
@@ -107,53 +122,41 @@ export class TahashComp {
         return result;
     }
 
-    // get the results of all events
-    // returns [ { eventId, results } ]
-    getAllResults() {
-        let allResults = [];
-
-        for (let i = 0; i < this.data.length; i++)
-            allResults.push({ eventId: this.data[i].event.eventId, results: this.data[i].results });
-
-        return allResults;
+    /**
+     * Get a copy of the {@link EventResults} of an event.
+     * @param eventId The id of the event.
+     * @result
+     * - If the event exists in the competition, returns its {@link EventResults}.
+     * - Otherwise, returns `undefined`.
+     */
+    public getEventResults(eventId: string): EventResults | undefined {
+        const evData: EventResults | undefined = this.data.find(d => d.eventId == eventId);
+        return evData ? Object.assign({}, evData) : undefined;
     }
 
-    // returns a copy of the data for a specific event object of an event from this comp by its eventId.
-    // if the comp does not contain an event with this id, returns null.
-    getEventDataById(eventId) {
-        const evData = this.data.find(d => d.event.eventId == eventId);
-        return evData ? Object.assign({}, evData) : null;
+    /**
+     * Get a copy of the {@link SubmissionData}[] of an event.
+     * @param eventId The id of the event.
+     * @result
+     * - If the event exists in the competition, returns its {@link SubmissionData}[].
+     * - Otherwise, returns `undefined`.
+     */
+    public getEventSubmissions(eventId: string): SubmissionData[] | undefined {
+        const evData: EventResults | undefined = this.data.find(d => d.eventId == eventId);
+        return evData ? [...evData.submissions] : undefined;
     }
 
-    // check whether this comp contains an event with a specific id.
-    // if it does, returns a copy of the CompEvent object.
-    // otherwise, returns null.
-    getEvent(eventId) {
-        const evData = this.data.find(d => d.event.eventId == eventId);
-        return evData ? Object.assign({}, evData.event) : null;
-    }
-
-    // initialize scrambles for all events that don't have scrambles
-    initScrambles() {
+    /**
+     * Generate (and set) scrambles for all events that don't have scrambles.
+     */
+    private fillScrambles(): void {
         for (let i = 0; i < this.data.length; i++) {
-            if (this.data[i].scrambles.ujlength != 0)
+            if (this.data[i].scrambles.length == 0)
                 continue;
-            this.data[i].scrambles = this.data[i].event.generateScrambles();
+            this.data[i].scrambles = generateScrambles(this.data[i].eventId);
         }
     }
-
-    // get the information about events of this Tahash comp
-    // returns an array: [ { eventId, iconName, eventTitle } ]
-    getEventsInfo() {
-        const events = [];
-
-        // populate array
-        for (let i = 0; i < this.data.length; i++)
-            events.push(this.data[i].event.getEventInfo());
-
-        return events;
-    }
-
+    
     // set the results of a user in an event
     // returns whether updating the result was successful
     setCompetitorResults(eventId, userId, packedTimes) {

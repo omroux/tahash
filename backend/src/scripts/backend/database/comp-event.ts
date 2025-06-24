@@ -143,10 +143,29 @@ const allEvents = WCAEvents.concat([]);
 
 /**
  * Get a {@link CompEvent} by its id (null if it doesn't exist).
- * @param eventId
+ * @param eventId The event's id.
+ * @return
+ * - If there exists an event with the given id, returns its {@link CompEvent}.
+ * - Otherwise, returns `undefined`.
  */
-export function getEventById(eventId: string): CompEvent<any> | null {
-    return allEvents.find(e => e.eventId === eventId) ?? null;
+export function getEventById(eventId: string): CompEvent<any> | undefined {
+    return allEvents.find(e => e.eventId === eventId) ?? undefined;
+}
+
+/**
+ * Generate scrambles for an event.
+ * @param eventId The event's id.
+ * @return
+ * - If there exists a {@link CompEvent} with the given id, returns an array of scrambles for it.
+ * - Otherwise, returns an empty array.
+ */
+ export function generateScrambles(eventId: string): string[] {
+    const event: CompEvent | undefined = getEventById(eventId);
+    return event ? event.generateScrambles() : [];
+}
+
+export function getEventDisplayInfo(eventId: string): EventDisplayInfo {
+     
 }
 
 // get the final result of the event (as a string), given the times (e.g. an ao5, mo3, bo3, ...)

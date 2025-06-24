@@ -8,7 +8,7 @@ import {BaseResult} from "./base-result.js";
 /**
  * Packed result - smaller size.
  */
-export interface PackedResult<ArgsType = undefined> extends BaseResult<ArgsType> {
+export interface PackedResult<ArgsType = any> extends BaseResult<ArgsType> {
     /**
      * The time of the solve represented in centiseconds.
      */
