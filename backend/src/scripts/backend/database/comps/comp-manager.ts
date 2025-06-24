@@ -1,5 +1,5 @@
 import { getEventById } from "../comp-event.ts";
-import { getNewCompSrc, TahashComp } from "./tahash-comp.js";
+import { createCompSrc, TahashComp } from "./tahash-comp.js";
 import {Collection, Document} from "mongodb";
 import type {UserManager} from "../users/user-manager.js";
 
@@ -130,7 +130,7 @@ export class CompManager {
             return;
         
         // create the new comp's source object
-        const src = getNewCompSrc(currComp.compNumber + 1, extraEvents, null, endDate);
+        const src = createCompSrc(currComp.compNumber + 1, extraEvents, null, endDate);
 
         // create a new comp and save it to the database
         const newComp = new TahashComp(src);

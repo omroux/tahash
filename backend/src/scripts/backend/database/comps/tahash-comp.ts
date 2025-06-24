@@ -1,10 +1,8 @@
-import {generateScrambles, getEventDisplayInfo, getEventResultStr, WCAEvents} from "../comp-event.ts";
-import {SubmissionState} from "./submission-state.ts";
+import {generateScrambles, getEventDisplayInfo, WCAEvents} from "../comp-event.ts";
 import {CompManager} from "./comp-manager.js";
 import {SubmissionData} from "../../../interfaces/submission-data.js";
 import {EventResults} from "../../../interfaces/event-results.js";
 import {EventDisplayInfo} from "../../../interfaces/event-display-info.js";
-import {PackedResult} from "../../../interfaces/packed-result.js";
 
 /**
  * Represents a Tahash competition.
@@ -81,6 +79,14 @@ export class TahashComp {
         // "normalize" Date to only the date, ignore time of day
         this.startDate?.setHours(0, 0, 0, 0);
         this.endDate?.setHours(0, 0, 0, 0);
+
+        // make sure startDate is first
+        if (this.endDate < this.startDate) {
+            console.warn("Attempted to create a TahashComp with endDate < startDate. Switching dates.");
+            const temp = this.endDate;
+            this.endDate = this.startDate;
+            this.startDate = temp;
+        }
 
         // initialize eventIds array
         const evIds: string[] = [];
@@ -176,7 +182,6 @@ export class TahashComp {
     //     // console.log("Saved result. new event data:", this.data[i].results);
     //     return true;
     // }
-
     // #_emptyCurrCompTimes = null;
     // /* returns a copy of an empty instance of a 'currCompTimes' array
     // if forceUpdate is true, forces to re-generate the currCompTimes array. */
@@ -199,52 +204,36 @@ export class TahashComp {
     // }
 }
 
+/**
+ * The regular length for a {@link TahashComp} in number of days.
+ */
+export const normalCompLength: number = 7;
 
-
-// get the src object for a new comp (starting on the current date)
-// extraEvents - array of CompEvent
-// startDate - the start date of the competition. if null, the start date will be today.
-// endDate - the date to end the competition. if null, the end date will be set to a comp from now.
-export function getNewCompSrc(compNumber, extraEvents = null, startDate = null, endDate = null) {
+/**
+ * Create a new source for a {@link TahashComp}.
+ * @param compNumber The comp's number.
+ * @param extraEvents Extra events for the comp.
+ * @param startDate The comp's start date.
+ * @param endDate The comp's end date.
+ */
+export function createCompSrc(compNumber: number, extraEvents: string[], startDate: Date | undefined , endDate: Date | undefined):
+    { compNumber: number; startDate: Date; endDate: Date; data: EventResults[] } {
     // add start date
-    if (!startDate) {
+    if (!startDate)
         startDate = new Date();
-        startDate.setHours(0, 0, 0, 0);
-    }
     startDate.setHours(0, 0, 0, 0);
 
     // add end date
     if (!endDate) {
         endDate = new Date();
-        endDate.setDate(endDate.getDate() + 7);
+        endDate.setDate(endDate.getDate() + normalCompLength);
     }
     endDate.setHours(0, 0, 0, 0);
 
-    const src = {
-        compNumber: compNumber,
-        startDate: startDate,
-        endDate: endDate,
-        data: []
-    };
+    // construct competition's data
+    const extras = extraEvents.filter(ev => !WCAEvents.some(wcaEv => wcaEv.eventId == ev)); // filter out duplicates
+    const allEventIds: string[] = WCAEvents.map(wcaEv => wcaEv.eventId).concat(extras);
+    const data: EventResults[] = allEventIds.map(evId => ({ eventId: evId, scrambles: [], submissions: [] }));
 
-    // add default events
-    for (let i = 0; i < WCAEvents.length; i++) {
-        src.data.push({
-            event: WCAEvents[i],
-            scrambles: [],
-            results: []
-        });
-    }
-
-    // add extra events
-    extraEvents ??= [];
-    for (let i = 0; i < extraEvents.length; i++) {
-        src.data.push({
-            event: extraEvents[i],
-            scrambles: [],
-            results: []
-        });
-    }
-
-    return src;
+    return { compNumber, startDate, endDate, data };
 }
