@@ -1,10 +1,14 @@
-import {generateScrambles, getEventResultStr, WCAEvents} from "../comp-event.ts";
+import {generateScrambles, getEventDisplayInfo, getEventResultStr, WCAEvents} from "../comp-event.ts";
 import {SubmissionState} from "./submission-state.ts";
 import {CompManager} from "./comp-manager.js";
 import {SubmissionData} from "../../../interfaces/submission-data.js";
 import {EventResults} from "../../../interfaces/event-results.js";
 import {EventDisplayInfo} from "../../../interfaces/event-display-info.js";
+import {PackedResult} from "../../../interfaces/packed-result.js";
 
+/**
+ * Represents a Tahash competition.
+ */
 export class TahashComp {
     /**
      * The number of this competition.
@@ -25,6 +29,8 @@ export class TahashComp {
      * The ids of all the events in this competition.
      */
     public readonly eventIds: readonly string[];
+
+    public readonly eventDisplayInfos: readonly EventDisplayInfo[];
 
     private readonly data: EventResults[] = [];
     /*
@@ -76,11 +82,14 @@ export class TahashComp {
         this.startDate?.setHours(0, 0, 0, 0);
         this.endDate?.setHours(0, 0, 0, 0);
 
-        // set up eventIds array
+        // initialize eventIds array
         const evIds: string[] = [];
         for (const evData of this.data)
             evIds.push(evData.eventId);
         this.eventIds = evIds;
+
+        // initialize eventDisplayInfos array
+        this.eventDisplayInfos = this.eventIds.map((evId) => getEventDisplayInfo(evId));
     }
 
     /**
@@ -110,16 +119,6 @@ export class TahashComp {
     // TODO: getCompetitorList method
     // (using sorted array and use binary search to search + insert?)
     getCompetitorList() {
-    }
-
-    // returns CompEvent[] of the events of this comp
-    public getAllEventTypes() {
-        const result = [];
-
-        for (let i = 0; i < this.data.length; i++)
-            result.push(this.data[i].event);
-
-        return result;
     }
 
     /**
@@ -156,81 +155,51 @@ export class TahashComp {
             this.data[i].scrambles = generateScrambles(this.data[i].eventId);
         }
     }
-    
+
+    // TODO: delete if unnecessary
     // set the results of a user in an event
     // returns whether updating the result was successful
-    setCompetitorResults(eventId, userId, packedTimes) {
-        for (let i = 0; i < this.data.length; i++) {
-            if (this.data[i].event.eventId != eventId)
-                continue;
+    // setUserResults(eventId: string, userId: string, packedTimes: PackedResult) {
+    //     const evIndex = this.data.findIndex((v) => v.eventId == eventId);
+    //     if (evIndex < 0)
+    //         return false; // didn't find event
+    //
+    //     const resultStr = getEventResultStr(eventId, packedTimes);
+    //     const newResult = {
+    //         userId: userId,
+    //         times: packedTimes,
+    //         submissionState: SubmissionState.Pending,
+    //         resultStr: resultStr };
+    //
+    //     if (this.data[i].results) this.data[i].results.push(newResult);
+    //     else this.data[i].results = [ newResult ];
+    //     // console.log("Saved result. new event data:", this.data[i].results);
+    //     return true;
+    // }
 
-            const resultStr = getEventResultStr(eventId, packedTimes);
-            const newResult = {
-                userId: userId,
-                times: packedTimes,
-                submissionState: SubmissionState.Pending,
-                resultStr: resultStr };
-            
-            if (this.data[i].results) this.data[i].results.push(newResult);
-            else this.data[i].results = [ newResult ];
-            // console.log("Saved result. new event data:", this.data[i].results);
-            return true;
-        }
-
-        // didn't find event
-        return false;
-    }
-
-    // update the submission state for a user's submission
-    // returns whether updating was successful
-    updateSubmissionState(eventId, userId, submissionState) {
-        const eventIndex = this.#getEventDataIndex(eventId);
-        if (eventIndex < 0)
-            return false;
-
-        const eventResults = this.data[eventIndex].results;
-        for (let i = 0; i < eventResults.length; i++) {
-            if (eventResults[i].userId == userId) {
-                this.data[eventIndex].results[i].submissionState = submissionState;
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    // get the event data index by the event's id
-    // returns -1 if the event wasn't found
-    #getEventDataIndex(eventId) {
-        for (let i = 0; i < this.data.length; i++) {
-            if (this.data[i].eventId == eventId)
-                return i;
-        }
-
-        return -1;
-    }
-    
-    #_emptyCurrCompTimes = null;
-    /* returns a copy of an empty instance of a 'currCompTimes' array
-    if forceUpdate is true, forces to re-generate the currCompTimes array. */
-    getEmptyCurrCompTimes(forceUpdate = false) {
-        if (!forceUpdate && this.#_emptyCurrCompTimes)
-            return this.#_emptyCurrCompTimes.slice(0); // return a copy
-
-        this.#_emptyCurrCompTimes = [];
-        const eventTypes = this.getAllEventTypes();
-
-        for (let i = 0; i < eventTypes.length; i++) {
-            this.#_emptyCurrCompTimes.push({
-                eventId: eventTypes[i].eventId,
-                finished: false,
-                times: getEmptyPackedTimes(eventTypes[i])
-            });
-        }
-
-        return this.#_emptyCurrCompTimes.slice(0); // return a copy
-    }
+    // #_emptyCurrCompTimes = null;
+    // /* returns a copy of an empty instance of a 'currCompTimes' array
+    // if forceUpdate is true, forces to re-generate the currCompTimes array. */
+    // getEmptyCurrCompTimes(forceUpdate = false) {
+    //     if (!forceUpdate && this.#_emptyCurrCompTimes)
+    //         return this.#_emptyCurrCompTimes.slice(0); // return a copy
+    //
+    //     this.#_emptyCurrCompTimes = [];
+    //     const eventTypes = this.getAllEventTypes();
+    //
+    //     for (let i = 0; i < eventTypes.length; i++) {
+    //         this.#_emptyCurrCompTimes.push({
+    //             eventId: eventTypes[i].eventId,
+    //             finished: false,
+    //             times: getEmptyPackedTimes(eventTypes[i])
+    //         });
+    //     }
+    //
+    //     return this.#_emptyCurrCompTimes.slice(0); // return a copy
+    // }
 }
+
+
 
 // get the src object for a new comp (starting on the current date)
 // extraEvents - array of CompEvent

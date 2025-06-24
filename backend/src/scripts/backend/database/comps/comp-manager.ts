@@ -133,7 +133,7 @@ export class CompManager {
         const src = getNewCompSrc(currComp.compNumber + 1, extraEvents, null, endDate);
 
         // create a new comp and save it to the database
-        const newComp = new TahashComp(this, src);
+        const newComp = new TahashComp(src);
         newComp.initScrambles();
         await newComp.saveToDB();
         this.#setCompNumber(this.#_currCompNum + 1);
@@ -156,7 +156,7 @@ export class CompManager {
         if (!this.compExists(compNumber))
             return false;
 
-        const res = await this.#collection.updateOne({
+        const res = await CompManager.collection.updateOne({
             compNumber: compNumber,
             "data.eventId": eventId,
             "data.results.userId": userId
@@ -168,7 +168,8 @@ export class CompManager {
             arrayFilters: [
                 { "event.eventId": eventId },
                 { "result.userId": userId }
-            ]
+            ],
+            upsert: false // don't update it if it doesn't exist
         });
 
         return res.matchedCount > 0;
