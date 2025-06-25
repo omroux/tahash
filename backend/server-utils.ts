@@ -265,7 +265,7 @@ export async function initDatabase(): Promise<Db> {
     await _compManager.initComps();
 
     // validate current comp
-    await _compManager.validateCurrentComp();
+    await _compManager.validateActiveComp();
 
     return _tahashDb;
 }

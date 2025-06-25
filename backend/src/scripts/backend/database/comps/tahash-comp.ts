@@ -3,6 +3,8 @@ import {CompManager} from "./comp-manager.js";
 import {SubmissionData} from "../../../interfaces/submission-data.js";
 import {EventResults} from "../../../interfaces/event-results.js";
 import {EventDisplayInfo} from "../../../interfaces/event-display-info.js";
+import {WithId} from "mongodb";
+import {SubmissionState} from "./submission-state.js";
 
 /**
  * Represents a Tahash competition.
@@ -69,7 +71,7 @@ export class TahashComp {
      * Create an instance of a {@link TahashComp} from a source.
      * @param src Source with the competition's data.
      */
-    public constructor(src: { compNumber: number, startDate: Date, endDate: Date, data?: EventResults[] }) {
+    public constructor(src: TahashCompFields) {
         src = src || {};
         this.compNumber = src.compNumber;
         this.startDate = src.startDate;
@@ -109,7 +111,7 @@ export class TahashComp {
      * Save this {@link TahashComp} using the {@link CompManager} singleton.
      */
     public async saveToDB(): Promise<boolean> {
-        return await CompManager.saveComp(this);
+        return await CompManager.getInstance().saveComp(this);
     }
 
     /**
@@ -154,12 +156,24 @@ export class TahashComp {
     /**
      * Generate (and set) scrambles for all events that don't have scrambles.
      */
-    private fillScrambles(): void {
+    public fillScrambles(): void {
         for (let i = 0; i < this.data.length; i++) {
             if (this.data[i].scrambles.length == 0)
                 continue;
             this.data[i].scrambles = generateScrambles(this.data[i].eventId);
         }
+    }
+
+    /**
+     * Update the submission state for a user's submission.
+     *
+     */
+    public updateSubmissionState(eventId: string, userId: number, newSubmissionState: SubmissionState) {
+
+    }
+
+    public static fromDocument(doc: WithId<TahashCompFields>): TahashComp{
+        return new TahashComp({ ...doc });
     }
 
     // TODO: delete if unnecessary
@@ -204,6 +218,13 @@ export class TahashComp {
     // }
 }
 
+export interface TahashCompFields {
+    compNumber: number;
+    startDate: Date;
+    endDate: Date;
+    data?: EventResults[]
+}
+
 /**
  * The regular length for a {@link TahashComp} in number of days.
  */
@@ -216,8 +237,7 @@ export const normalCompLength: number = 7;
  * @param startDate The comp's start date.
  * @param endDate The comp's end date.
  */
-export function createCompSrc(compNumber: number, extraEvents: string[], startDate: Date | undefined , endDate: Date | undefined):
-    { compNumber: number; startDate: Date; endDate: Date; data: EventResults[] } {
+export function createCompSrc(compNumber: number, extraEvents: string[] = [], startDate: Date | undefined = undefined, endDate: Date | undefined = undefined): TahashCompFields {
     // add start date
     if (!startDate)
         startDate = new Date();

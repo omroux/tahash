@@ -648,7 +648,7 @@ app.get(`${srcPrefix}/*`, (req, res) => {
 // dev commands
 app.get("/newcompp1234", async (req, res) => {
     // validate (create a new one - the last one is not active anymore)
-    await compManager().validateCurrentComp(null, null, true);
+    await compManager().validateActiveComp(null, null, true);
     res.redirect(Routes.Page.HomeRedirect);
 });
 
@@ -665,7 +665,7 @@ app.listen(WEBSITE_PORT, () => {
 
 // Every Monday at 20:01
 cron.schedule('1 20 * * 1', async () => {
-    await compManager().validateCurrentComp();
+    await compManager().validateActiveComp();
 }, { scheduled: true, timezone: "Israel" })/*.start()*/;
 // TODO: uncomment .start() to make cron actually schedule the job
 
