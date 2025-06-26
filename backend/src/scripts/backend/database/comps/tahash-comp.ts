@@ -166,15 +166,28 @@ export class TahashComp {
 
     /**
      * Update the submission state for a user's submission.
+     */
+    public updateSubmissionState(eventId: string, userId: number, newSubmissionState: SubmissionState): boolean {
+        const evIndex = this.data.findIndex(evResults => evResults.eventId === eventId);
+        if (evIndex < 0)
+            return false; // event doesn't exist in comp
+
+        const submissionIndex = this.data[evIndex].submissions.findIndex(sub => sub.userId === userId);
+        if (submissionIndex < 0)
+            return false; // user never submitted this event
+
+        this.data[evIndex].submissions[submissionIndex].submissionState = newSubmissionState;
+        return true;
+    }
+
+    /**
      *
      */
-    public updateSubmissionState(eventId: string, userId: number, newSubmissionState: SubmissionState) {
-
-    }
-
-    public static fromDocument(doc: WithId<TahashCompFields>): TahashComp{
+    public static fromDocument(doc: WithId<TahashCompFields>): TahashComp {
         return new TahashComp({ ...doc });
     }
+
+
 
     // TODO: delete if unnecessary
     // set the results of a user in an event
