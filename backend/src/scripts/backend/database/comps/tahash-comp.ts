@@ -166,8 +166,12 @@ export class TahashComp {
 
     /**
      * Update the submission state for a user's submission.
+     * @param eventId The submission's event.
+     * @param userId The submitter's user id.
+     * @param newSubmissionState The new {@link SubmissionState} for the submission.
+     * @return Whether submitting was successful (false if the eventId/userId were not found).
      */
-    public updateSubmissionState(eventId: string, userId: number, newSubmissionState: SubmissionState): boolean {
+    public setSubmissionState(eventId: string, userId: number, newSubmissionState: SubmissionState): boolean {
         const evIndex = this.data.findIndex(evResults => evResults.eventId === eventId);
         if (evIndex < 0)
             return false; // event doesn't exist in comp
@@ -181,7 +185,30 @@ export class TahashComp {
     }
 
     /**
-     *
+     * Submit results for a user.
+     * @param eventId The submission's event.
+     * @param userId The submitter's user id.
+     * @param results The results to submit.
+     * @return Whether submitting was successful. True unless:
+     * - The event was not found.
+     * - The user has already submitted results for this event.
+     */
+    public submitResults(eventId: string, userId: number, results: SubmissionData): boolean {
+        const evIndex = this.data.findIndex(evResults => evResults.eventId === eventId);
+        if (evIndex < 0)
+            return false; // event doesn't exist in comp
+
+        const alreadySubmitted = this.data[evIndex].submissions.some(sub => sub.userId === userId);
+        if (alreadySubmitted)
+            return false;
+
+        this.data[evIndex].submissions.push(results);
+        return true;
+    }
+
+    /**
+     * Get an instance of a TahashComp from a document containing the comp's fields.
+     * @param doc The document from the database.
      */
     public static fromDocument(doc: WithId<TahashCompFields>): TahashComp {
         return new TahashComp({ ...doc });
