@@ -1,13 +1,9 @@
 import { datediff } from "../../utils/global-utils.js";
 import { getUserDataByUserId } from "../../utils/api-utils.js";
-import { isFullPackedTimesArr } from "../../utils/time-utils.js";
-import { WCAUserData } from "../../../interfaces/wca-user-data.js";
+import { UserInfo } from "../../../interfaces/user-info.js";
 
-const updateWCADataInterval = 28; /* number of days to wait between updating wca data */
+const updateWCADataInterval: Readonly<number> = 28; /* number of days to wait between updating wca data */
 export class TahashUser {
-    /* user manager */
-    #manager: UserManager;
-
     /* the user's wca account id */
     userId: number;
 
@@ -66,7 +62,7 @@ export class TahashUser {
 
     // src - { userId, wcaData, lastUpdatedWcaData, lastComp, records, currCompTimes }
     constructor(userManager, src: { userId: number,
-        wcaData: WCAUserData,
+        wcaData: UserInfo,
         lastUpdatedWcaData: number,
         lastComp: number,
         records:  }) {

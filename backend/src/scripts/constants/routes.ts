@@ -24,7 +24,7 @@ export const Routes = {
         IsAdmin: "/is-admin",
         GetCompEvents: "/get-comp-events",
         GetEventSubmissions: "/get-event-submissions",
-        WCAUserData: "/wca-user-data",
+        WCAUserData: "/wca-user.ts-data",
         AuthenticateWithCode: "/auth-with-code",
         AuthenticateRefreshToken: "/auth-refresh-token"
     },

@@ -8,7 +8,7 @@ import {
     fetchToken,
     fetchRefreshToken,
     WCA_AUTH_URL,
-    getUserData as getWCAUserData
+    getUserDataByToken as getWCAUserData
 } from "./src/scripts/backend/utils/api-utils.js";
 import {
     renderPage,
@@ -30,7 +30,7 @@ import { Routes } from "./src/scripts/constants/routes.js";
 import { getQueryParam, getQueryParamNumber, QueryParams } from "./src/scripts/constants/query-params.js";
 import { getHeader, getHeaderNumber, Headers } from "./src/scripts/constants/headers.js";
 import { RequestFields } from "./src/scripts/constants/request-fields.js";
-import { WCAUserData } from "./src/scripts/interfaces/wca-user-data.js";
+import { UserInfo } from "./src/scripts/interfaces/user-info.js";
 
 
 // general setup
@@ -521,16 +521,16 @@ app.post(Routes.Post.UpdateSubmissionState, async (req, res) => {
 
 
 /**
- * GET /wca-user-data
+ * GET /wca-user.ts-data
  * 
- * Get a user's WCA user data ({@link WCAUserData}).
+ * Get a user's WCA user data ({@link UserInfo}).
  * 
  * Headers:
  * - {@link Headers.AccessToken} (string): The user's WCA access token.
  * 
  * Response (JSON):
  * - 400 Bad Request: Error object with details.
- * - 200 OK: The user's {@link WCAUserData}.
+ * - 200 OK: The user's {@link UserInfo}.
  */
 app.get(Routes.Get.WCAUserData, async (req, res) => {
     if (!sentFromClient(req)) {
@@ -544,7 +544,7 @@ app.get(Routes.Get.WCAUserData, async (req, res) => {
         return;
     }
 
-    const userData: WCAUserData = await getWCAUserData(accessToken);
+    const userData: UserInfo = await getWCAUserData(accessToken);
     if (userData)                   res.status(200).json(userData);
     else if (sentFromClient(req))   res.status(400).json(errorObject("error occurred"));
     else                            res.redirect(Routes.Page.Login);;

@@ -1,7 +1,5 @@
-import { getEventById } from "../comp-event.ts";
 import {createCompSrc, TahashComp, TahashCompFields} from "./tahash-comp.js";
-import {Collection, Document, WithId} from "mongodb";
-import type {UserManager} from "../users/user-manager.js";
+import {Collection, WithId} from "mongodb";
 
 /**
  * A singleton to manage the "comps" collection.
