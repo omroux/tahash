@@ -11,6 +11,11 @@ export type AO5BestResults = {
     single: PackedResult;
 
     /**
+     * All 5 attempts of the average that contains the best single.
+     */
+    singleAttempts: PackedResult[];
+
+    /**
      * Competition number where the best single was achieved.
      * - `>0`: tahash comp
      * - `0`: WCA comp
@@ -22,6 +27,11 @@ export type AO5BestResults = {
      * Best average of 5 result, in centiseconds.
      */
     average: number;
+
+    /**
+     * All 5 attempts that formed the best average.
+     */
+    averageAttempts: PackedResult[];
 
     /**
      * Competition number where the best average was achieved.
@@ -42,6 +52,11 @@ export type MO3BestResults = {
     single: PackedResult;
 
     /**
+     * All 3 attempts of the mean that contains the best single.
+     */
+    singleAttempts: PackedResult[];
+
+    /**
      * Competition number where the best single was achieved.
      * - `>0`: tahash comp
      * - `0`: WCA comp
@@ -53,6 +68,11 @@ export type MO3BestResults = {
      * Best mean of 3 result, in centiseconds.
      */
     mean: number;
+
+    /**
+     * All 3 attempts that formed the best mean.
+     */
+    meanAttempts: PackedResult[];
 
     /**
      * Competition number where the best mean was achieved.
@@ -80,9 +100,9 @@ export type MultiBestResults = {
     bestPoints: number;
 
     /**
-     * Time of the attempt that achieved the best score, as a PackedResult.
+     * Time of the attempt that achieved the best score, in centiseconds.
      */
-    timeOfBestAttempt: PackedResult;
+    timeOfBestAttempt: number;
 
     /**
      * Competition number where the best multi-blind attempt was achieved.
