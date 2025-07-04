@@ -38,7 +38,7 @@ export interface WcaUser {
  * Contains information about the currently authenticated user.
  */
 export interface WcaMeResponse {
-    me: WcaMeResponse;
+    me: WcaUser;
 }
 
 /**
@@ -46,5 +46,5 @@ export interface WcaMeResponse {
  * Contains information about a specific WCA user.
  */
 export interface WcaUserResponse {
-    user: WcaMeResponse;
+    user: WcaUser;
 }

@@ -3,8 +3,8 @@ import { config } from "dotenv";
 import { getEnvConfigOptions, getHostname } from "../../../../server-utils.js";
 import { getEnv } from "./env.js";
 import {ErrorObject, errorObject} from "../../interfaces/error-object.js";
-import {wcaUserToWcaUserInfo, UserInfo} from "../../interfaces/user-info.js";
-import {WcaMeResponse, WcaUser} from "../../interfaces/wca-api/wca-user.js";
+import {wcaUserToUserInfo, UserInfo} from "../../interfaces/user-info.js";
+import {WcaMeResponse, WcaUser, WcaUserResponse} from "../../interfaces/wca-api/wca-user.js";
 
 config(getEnvConfigOptions()); // configure .env file
 
@@ -65,16 +65,26 @@ export async function getUserDataByToken(token: string): Promise<ErrorObject | U
     if (response.error)
         return response as ErrorObject;
 
-    // no error, build and return the WCAUserData
+    // no error, build and return the UserInfo
     const wcaMeData: WcaMeResponse = response as WcaMeResponse;
-    return wcaUserToWcaUserInfo(wcaMeData.me);
+    return wcaUserToUserInfo(wcaMeData.me);
 }
 
-// get the "WCA-me" data of a user, given their user id (number)
-// if an error has occurred, returns an object with a string field called error (api response)
+/**
+ * Get the {@link UserInfo} of a user using an access token.
+ * @param userId The user's WCA user id number.
+ * @return
+ * - If an error occurred, returns an {@link ErrorObject} with details.
+ * - Otherwise, returns the requested {@link UserInfo}.
+ */
 export async function getUserDataByUserId(userId: number): Promise<ErrorObject | UserInfo> {
-    if (!userId || isNaN(userId)) return errorObject("invalid userId");
-    return (await sendWCARequest(`${wcaApiPath}/users/${userId}`)).user;
+    const response: ErrorObject | any = await sendWCARequest(`${wcaApiPath}/users/${userId}`);
+    if (response.error)
+        return response as ErrorObject;
+
+    // no error, build and return the UserInfo
+    const wcaUserData: WcaUserResponse = response as WcaUserResponse;
+    return wcaUserToUserInfo(wcaUserData.user);
 }
 
 /* returns a "records" array of the user's WCA records */
