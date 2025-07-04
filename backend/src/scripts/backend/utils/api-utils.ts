@@ -2,10 +2,11 @@ import fetch, { RequestInit, Response } from "node-fetch";
 import { config } from "dotenv";
 import { getEnvConfigOptions, getHostname } from "../../../../server-utils.js";
 import { getEnv } from "./env.js";
-import {ErrorObject, errorObject} from "../../interfaces/error-object.js";
+import {ErrorObject, errorObject, isErrorObject} from "../../interfaces/error-object.js";
 import {wcaUserToUserInfo, UserInfo} from "../../interfaces/user-info.js";
 import {WcaMeResponse, WcaUser, WcaUserResponse} from "../../interfaces/wca-api/wca-user.js";
 import {WcaOAuthTokenResponse} from "../../interfaces/wca-api/wca-oauth.js";
+import {RESPONSE} from "mongodb/src/constants.js";
 
 config(getEnvConfigOptions()); // configure .env file
 
@@ -62,20 +63,17 @@ async function sendWCARequest<T>(path: string, options: RequestInit = { method: 
  * - Otherwise, returns the requested {@link UserInfo}.
  */
 export async function getUserDataByToken(token: string): Promise<ErrorObject | UserInfo> {
-    if (!token)  return errorObject("invalid (null) access token");
-
     const options = {
         method: 'GET',
         headers: { Authorization: `Bearer ${token}` }
     };
 
-    const response: ErrorObject | any = await sendWCARequest(`${WCA_API_PATH}/me`, options);
-    if (response.error)
-        return response as ErrorObject;
+    const response: ErrorObject | WcaMeResponse = await sendWCARequest(`${WCA_API_PATH}/me`, options);
+    if (isErrorObject(response))
+        return response;
 
     // no error, build and return the UserInfo
-    const wcaMeData: WcaMeResponse = response as WcaMeResponse;
-    return wcaUserToUserInfo(wcaMeData.me);
+    return wcaUserToUserInfo(response.me);
 }
 
 /**
@@ -86,13 +84,12 @@ export async function getUserDataByToken(token: string): Promise<ErrorObject | U
  * - Otherwise, returns the requested {@link UserInfo}.
  */
 export async function getUserDataByUserId(userId: number): Promise<ErrorObject | UserInfo> {
-    const response: ErrorObject | any = await sendWCARequest(`${WCA_API_PATH}/users/${userId}`);
-    if (response.error)
-        return response as ErrorObject;
+    const response: ErrorObject | WcaUserResponse = await sendWCARequest<WcaUserResponse>(`${WCA_API_PATH}/users/${userId}`);
+    if (isErrorObject(response))
+        return response;
 
     // no error, build and return the UserInfo
-    const wcaUserData: WcaUserResponse = response as WcaUserResponse;
-    return wcaUserToUserInfo(wcaUserData.user);
+    return wcaUserToUserInfo(response.user);
 }
 
 /* returns a "records" array of the user's WCA records */
@@ -102,23 +99,11 @@ export async function getWCARecordsOfUser(userId) {
     return [];
 }
 
-// uses an http request from the wca auth app (wca login page) to fetch an auth token
-// hostname is the base url
-// returns the response as json
-// if an error has occurred, returns an object with a string field called error
-/* JSON RETURN FORMAT:
-{
-    "access_token": "0srFoq3y6_8IN0lu4iSl4Mlv5d2IAUuVFDeJWwPQTKo",
-    "token_type": "Bearer",
-    "expires_in": 7200,
-    "refresh_token": "DkuIE_1QWfq7bZSdXv-Ul0OZWRduIzCAmySra_ziZdk",
-    "scope": "public",
-    "created_at": 1750961954
-}
+/**
+ * Exchange an authentication token for a {@link WcaOAuthTokenResponse} object.
+ * @param auth_code The authentication code to use.
  */
-export async function exchangeAuthCode(auth_code) {
-    if (!auth_code) return errorObject("invalid (null) authentication code.");
-
+export async function exchangeAuthCode(auth_code: string): Promise<ErrorObject | WcaOAuthTokenResponse> {
     // build the HTTP Request
     const body = {
         client_id:        appId,
@@ -134,19 +119,15 @@ export async function exchangeAuthCode(auth_code) {
       body: JSON.stringify(body)
     };
 
-    // curl -X POST --json '{client_id: "}
-    // -h 'Content-Type=application/json'
-
-    const response: ErrorObject | WcaOAuthTokenResponse = await sendWCARequest("/oauth/token", options);
-
+    return await sendWCARequest<WcaOAuthTokenResponse>("/oauth/token", options);
 }
 
-// hostname is the base url
-// returns the response as json
-// if an error has occurred, returns an object with a string field called error
-export async function fetchRefreshToken(refreshToken) {
-    if (!refreshToken)  return errorObject("invalid (null) refresh token");
-
+/**
+ * Request a new authentication token using a refresh token from a previous call.
+ * @param refreshToken The refresh token to use.
+ */
+export async function renewAuthentication(refreshToken: string): Promise<ErrorObject | WcaOAuthTokenResponse> {
+    // build the HTTP request
     const body = {
         client_id:        appId,
         client_secret:    clientSecret,
@@ -160,5 +141,5 @@ export async function fetchRefreshToken(refreshToken) {
       body: JSON.stringify(body)
     };
 
-    return await sendWCARequest("/oauth/token", options);
+    return await sendWCARequest<WcaOAuthTokenResponse>("/oauth/token", options);
 }

@@ -6,7 +6,7 @@ import { config } from "dotenv";
 import cron from "node-cron";
 import {
     exchangeAuthCode,
-    fetchRefreshToken,
+    renewAuthentication,
     WCA_AUTH_URL,
     getUserDataByToken as getWCAUserData
 } from "./src/scripts/backend/utils/api-utils.js";
@@ -610,7 +610,7 @@ app.get(Routes.Get.AuthenticateRefreshToken, async (req, res) => {
         return;
     }
 
-    const tokenData = await fetchRefreshToken(refreshToken);
+    const tokenData = await renewAuthentication(refreshToken);
     if (tokenData.error) {
         res.status(400).json(errorObject(`Refresh token error - "${tokenData.error}"`));
         return;
