@@ -1,8 +1,6 @@
 import {PackedResult} from "./packed-result.js";
 
-export interface UserRecords {
-    eventId: string;
-
+export interface EventRecords {
     /**
      * // bestResults contains the best results for the event, and for each type of result
         it also saves the comp number (as an integer)
@@ -31,3 +29,5 @@ export interface UserRecords {
     // the full attempt
     times: PackedResult;
 }
+
+

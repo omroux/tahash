@@ -115,7 +115,7 @@ export class CompEvent<ArgsType = undefined> {
  */
 export const WCAEvents: Readonly<CompEvent<any>[]> = [
     // -- WCA Events --
-    //              Title       Id          ScrType     Icon            Format              scrLenExp   scrLenRadius    emptyExtraArgs
+    //              Title       Id          ScrType     Icon            Format              scrLenExp   scrLenRadius
     new CompEvent(  "3x3x3",    "333",      "333",      "event-333",    TimeFormat.ao5),
     new CompEvent(  "2x2x2",    "222",      "222so",    "event-222",    TimeFormat.ao5),
     new CompEvent(  "4x4x4",    "444",      "444wca",   "event-444",    TimeFormat.ao5),
@@ -148,7 +148,7 @@ const allEvents = WCAEvents.concat([]);
  * - If there exists an event with the given id, returns its {@link CompEvent}.
  * - Otherwise, returns `undefined`.
  */
-export function getEventById(eventId: string): CompEvent<any> | undefined {
+export function getEventById<ArgsType = undefined>(eventId: string): CompEvent<ArgsType> | undefined {
     return allEvents.find(e => e.eventId === eventId) ?? undefined;
 }
 
