@@ -2,66 +2,52 @@ import csTimer from "cstimer_module";
 import {NumScrambles, TimeFormat} from "../../constants/time-formats.ts";
 import {getRandomString} from "../utils/global-utils.js";
 import {EventDisplayInfo} from "../../interfaces/event-display-info.js";
-import {ExtraArgsFmc} from "../../interfaces/event-extra-args/extra-args-fmc.js";
-import {ExtraArgsMbld} from "../../interfaces/event-extra-args/extra-args-mbld.js";
 import {ExtraArgs} from "../../interfaces/extra-args.js";
 
 // Competition event structure
 export class CompEvent {
-    /**
-     * The event's display name.
-     */
-    public readonly eventTitle: string;
-
-    /**
-     * The event's id.
-     */
-    public readonly eventId: string;
-
-    /**
-     * The event's csTimer scramble type.
-     */
-    public readonly scrType: string;
-
-    /**
-     * The name of the event's icon in the icon library.
-     */
-    public readonly iconName: string;
-
-    /**
-     * The {@link TimeFormat} of the event.
-     */
-    public readonly timeFormat: TimeFormat;
-
-    /**
-     * The expected length for the scramble.
-     */
-    public readonly scrLenExp: number = 0;
-
-    /**
-     * Scramble length variance (radius).
-     */
-    public readonly scrLenRadius: number = 0;
-
     /**
      * Construct a competition event.
      * @param eventTitle The event's display name.
      * @param eventId The event's id.
      * @param scrType The event's csTimer scramble type.
      * @param iconName The name of the event's icon in the icon library.
-     * @param resultFormat The {@link TimeFormat} of the event.
+     * @param timeFormat The {@link TimeFormat} of the event.
      * @param scrLenExp The expected length for the scramble (negative/0 -> default csTimer value).
      * @param scrLenRadius Scramble length variance/radius.
      */
-    public constructor(eventTitle: string, eventId: string, scrType: string, iconName: string, resultFormat: TimeFormat, scrLenExp: number = 0, scrLenRadius: number = 0) {
-        this.eventTitle =   eventTitle;
-        this.eventId =      eventId;
-        this.scrType =      scrType;
-        this.iconName =     iconName;
-        this.timeFormat =   resultFormat;
-        this.scrLenExp =    scrLenExp;
+    constructor (
+        /** The event's display name. */
+        public readonly eventTitle: string,
+
+        /** The event's id. */
+        public readonly eventId: string,
+
+        /** The event's csTimer scramble type. */
+        public readonly scrType: string,
+
+        /** The name of the event's icon in the icon library. */
+        public readonly iconName: string,
+
+        /** The {@link TimeFormat} of the event. */
+        public readonly timeFormat: TimeFormat,
+
+        /** The expected length for the scramble (negative/0 -> default csTimer value). */
+        public readonly scrLenExp: number = 0,
+
+        /** Scramble length variance (radius). */
+        scrLenRadius: number = 0
+    ) {
         this.scrLenRadius = Math.abs(scrLenRadius);
     }
+
+    /** Scramble length variance (radius). */
+    public readonly scrLenRadius: number;
+
+    /**
+     * The event's display information as a {@link EventDisplayInfo}.
+     */
+    public readonly displayInfo: EventDisplayInfo = { eventId: "-", eventTitle: "-", iconName: "-" };
 
     /**
      * Generate the length of a scramble.
@@ -103,10 +89,9 @@ export class CompEvent {
 
     /**
      * Get the event's info.
-     * @return The format { eventId, eventTitle, iconName }.
      */
     public getEventInfo(): EventDisplayInfo {
-        return { eventId: this.eventId, eventTitle: this.eventTitle, iconName: this.iconName };
+        return this.displayInfo;
     }
 }
 
@@ -180,7 +165,14 @@ export function createEmptyArgs<T extends ExtraArgs>(eventId: string): T | undef
     return event ? event.generateScrambles() : [];
 }
 
+/**
+ * Get the {@link EventDisplayInfo} of an event.
+ * @param eventId The event's id.
+ */
 export function getEventDisplayInfo(eventId: string): EventDisplayInfo {
-     
+     const ev = getEventById(eventId);
+     return ev ?
+         ev.getEventInfo() :
+         { eventId, eventTitle: "NOT FOUND", iconName: "NOT-FOUND" };
 }
 
