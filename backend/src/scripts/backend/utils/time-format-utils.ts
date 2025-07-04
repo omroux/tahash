@@ -4,12 +4,13 @@ import {DNF_STRING, NULL_TIME_CENTIS} from "./time-utils.js";
 import {NumScrambles, TimeFormat} from "../../constants/time-formats.js";
 import {calcMultiBldTotalPoints, ExtraArgsMbld} from "../../interfaces/event-extra-args/extra-args-mbld.js";
 import {ExtraArgsFmc} from "../../interfaces/event-extra-args/extra-args-fmc.js";
+import {CompEvent, getEventById} from "../database/comp-event.js";
 
 /**
  * Calculate an average of 5 given the full attempt.
  * @return The result, in centiseconds.
  */
-export function calculateAO5(results: PackedResult[]): number {
+function calculateAO5(results: PackedResult[]): number {
     const maxDNF: number = 2;
     const pureCentis: number[] = getPureCentisArr(results);
 
@@ -45,7 +46,7 @@ export function calculateAO5(results: PackedResult[]): number {
  * Calculate a mean of 3 given the full attempt.
  * @return The result, in centiseconds.
  */
-export function calculateMO3(results: PackedResult[]): number {
+function calculateMO3(results: PackedResult[]): number {
     let mean = 0;
     const pureCentis: number[] = getPureCentisArr(results);
 
@@ -64,7 +65,7 @@ export function calculateMO3(results: PackedResult[]): number {
  * Calculate the best of 3 result given the full attempt.
  * @return The result, in centiseconds.
  */
-export function calculateBO3(results: PackedResult[]): number {
+function calculateBO3(results: PackedResult[]): number {
     let best = results[0].centis;
 
     for (let i = 1; i < NumScrambles[TimeFormat.bo3]; i++)
@@ -83,7 +84,7 @@ function calculateMultiResult(result: PackedResult<ExtraArgsMbld>): number {
 
 /**
  * Calculate the result of an FMC attempt.
- * @return The
+ * @return The average number of moves of all attempts in the mean.
  */
 function calculateFMCResult(results: PackedResult<ExtraArgsFmc>[]): number {
     let sum = 0;
@@ -105,4 +106,35 @@ function calculateFMCResult(results: PackedResult<ExtraArgsFmc>[]): number {
 // almost the same but in a cool one liner:
 // return results.reduce((sum, r) => sum + r.extraArgs.fmcSolution.length, 0) / NumScrambles[TimeFormat.mo3];
 
+/**
+ * Get the final result of the event (as a string), given the times (e.g. an ao5, mo3, ...).
+ * @param eventId The event's id.
+ * @param results The attempts.
+ * @return
+ * - If the event id was not found, returns -1.
+ * - Otherwise, returns the result.
+ */
+export function calcEventResult(eventId: string, results: PackedResult[]): number {
+    const compEvent: CompEvent | undefined = getEventById(eventId);
+
+    if (!compEvent)
+        return -1;
+
+    if (eventId === "fmc")
+        return calculateFMCResult(results);
+
+    switch (compEvent.timeFormat) {
+        case TimeFormat.ao5:
+            return calculateAO5(results);
+
+        case TimeFormat.mo3:
+            return calculateMO3(results);
+
+        case TimeFormat.bo3:
+            return calculateBO3(results);
+
+        case TimeFormat.multi:
+            return calculateMultiResult(results[0]);
+    }
+}
 

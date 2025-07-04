@@ -4,6 +4,7 @@ import {getRandomString} from "../utils/global-utils.js";
 import {EventDisplayInfo} from "../../interfaces/event-display-info.js";
 import {ExtraArgsFmc} from "../../interfaces/event-extra-args/extra-args-fmc.js";
 import {ExtraArgsMbld} from "../../interfaces/event-extra-args/extra-args-mbld.js";
+import {calculateFMCResult} from "../utils/time-format-utils.js";
 
 // Competition event structure
 export class CompEvent {
@@ -109,7 +110,6 @@ export class CompEvent {
     }
 }
 
-
 /**
  * Official WCA events ({@param CompEvent}[]).
  */
@@ -141,7 +141,6 @@ Object.freeze(WCAEvents);
  */
 const allEvents = WCAEvents.concat([]);
 // export type AllEventIds = typeof allEvents[number]["eventId"];
-
 
 /**
  * Get a {@link CompEvent} by its id (null if it doesn't exist).
@@ -178,29 +177,3 @@ export function getEventDisplayInfo(eventId: string): EventDisplayInfo {
      
 }
 
-// get the final result of the event (as a string), given the times (e.g. an ao5, mo3, bo3, ...)
-// for multibld, returns { numSuccess, numAttempt, resultStr }
-// returns null if the result couldn't be found
-export function getEventResultStr(eventId, packedTimes) {
-    const compEvent = getEventById(eventId);
-
-    if (!compEvent)
-        return "INVALID COMP EVENT";
-
-    switch (compEvent.timeFormat) {
-        case TimeFormat.ao5:
-            return calculateAO5(packedTimes);
-
-        case TimeFormat.mo3:
-            return eventId == "fmc" ? calculateFMCResult(packedTimes) : calculateMO3(packedTimes);
-
-        case TimeFormat.bo3:
-            return calculateBO3(packedTimes);
-
-        case TimeFormat.multi:
-            return calculateMultiResult(packedTimes);
-
-        default:
-            return "INVALID TIME FORMAT";
-    }
-}
