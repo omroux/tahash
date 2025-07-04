@@ -5,6 +5,7 @@ import { getEnv } from "./env.js";
 import {ErrorObject, errorObject} from "../../interfaces/error-object.js";
 import {wcaUserToUserInfo, UserInfo} from "../../interfaces/user-info.js";
 import {WcaMeResponse, WcaUser, WcaUserResponse} from "../../interfaces/wca-api/wca-user.js";
+import {WcaOAuthTokenResponse} from "../../interfaces/wca-api/wca-oauth.js";
 
 config(getEnvConfigOptions()); // configure .env file
 
@@ -19,11 +20,18 @@ const appId = getEnv("APP_ID");
 const clientSecret = getEnv("CLIENT_SECRET");
 
 /**
+ * WCA Website Base URL
+ */
+const WCA_BASE_URL = "https://www.worldcubeassociation.org";
+
+/**
  * WCA Api Path
  */
-const wcaApiPath = "/api/v0";
+const WCA_API_PATH = "/api/v0";
+
+
 export const WCA_AUTH_URL = (hostname: string): string =>
-    `https://www.worldcubeassociation.org/oauth/authorize?client_id=${appId}&redirect_uri=${encodeURIComponent(`${hostname}/auth-callback`)}&response_type=code&scope=`;
+    `${WCA_BASE_URL}/oauth/authorize?client_id=${appId}&redirect_uri=${encodeURIComponent(`${hostname}/auth-callback`)}&response_type=code&scope=`;
 
 /**
  * Sends a request to the WCA API. handles the response
@@ -33,17 +41,17 @@ export const WCA_AUTH_URL = (hostname: string): string =>
  * - If an error occurred, returns an {@link ErrorObject} with information.
  * - Otherwise, returns the data received from the API as a JSON object.
  */
-async function sendWCARequest(path: string, options: RequestInit = { method: 'GET' }): Promise<ErrorObject | any> {
-    const reqUrl = `https://www.worldcubeassociation.org${path}`;
+async function sendWCARequest<T>(path: string, options: RequestInit = { method: 'GET' }): Promise<ErrorObject | T> {
+    const reqUrl = `${WCA_BASE_URL}${path}`;
     const httpRes: Response = await fetch(reqUrl, options);
     if (!httpRes.ok)
         return errorObject(`HTTP Error: "${httpRes.statusText}"`);
 
     const data: any = await httpRes.json();
-    if (data.error)
+    if (data !== null && 'error' in data)
         return errorObject(`WCA API Error: "${data.error}" - ${data.error_description}`);
 
-    return data;
+    return data as T;
 }
 
 /**
@@ -61,7 +69,7 @@ export async function getUserDataByToken(token: string): Promise<ErrorObject | U
         headers: { Authorization: `Bearer ${token}` }
     };
 
-    const response: ErrorObject | any = await sendWCARequest(`${wcaApiPath}/me`, options);
+    const response: ErrorObject | any = await sendWCARequest(`${WCA_API_PATH}/me`, options);
     if (response.error)
         return response as ErrorObject;
 
@@ -78,7 +86,7 @@ export async function getUserDataByToken(token: string): Promise<ErrorObject | U
  * - Otherwise, returns the requested {@link UserInfo}.
  */
 export async function getUserDataByUserId(userId: number): Promise<ErrorObject | UserInfo> {
-    const response: ErrorObject | any = await sendWCARequest(`${wcaApiPath}/users/${userId}`);
+    const response: ErrorObject | any = await sendWCARequest(`${WCA_API_PATH}/users/${userId}`);
     if (response.error)
         return response as ErrorObject;
 
@@ -108,7 +116,7 @@ export async function getWCARecordsOfUser(userId) {
     "created_at": 1750961954
 }
  */
-export async function fetchToken(auth_code) {
+export async function exchangeAuthCode(auth_code) {
     if (!auth_code) return errorObject("invalid (null) authentication code.");
 
     // build the HTTP Request
@@ -120,13 +128,6 @@ export async function fetchToken(auth_code) {
         redirect_uri:     getHostname() + "/auth-callback"
     };
 
-    /*
-
-    curl -X POST -d 'client_id=4p0nZQNQLG3es117azdy9QXHikPURSTSQ-BR3WhFCA4' -d 'client_secret=_faDjKU89UopU2BuLutMmw7E6bXrpycrJ4jMhMmfa3A' -d 'grant_type=authorization_code' -d 'code=9b9GXScCc_31WNxQUDyZPe0Z2n6yzRrh2vDlVRIzZ7o' -d 'redirect_uri=http://localhost:3000/auth-callback'
-
-
-     */
-
     const options = {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
@@ -136,7 +137,8 @@ export async function fetchToken(auth_code) {
     // curl -X POST --json '{client_id: "}
     // -h 'Content-Type=application/json'
 
-    return await sendWCARequest("/oauth/token", options);
+    const response: ErrorObject | WcaOAuthTokenResponse = await sendWCARequest("/oauth/token", options);
+
 }
 
 // hostname is the base url

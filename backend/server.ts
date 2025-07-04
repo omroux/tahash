@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser";
 import { config } from "dotenv";
 import cron from "node-cron";
 import {
-    fetchToken,
+    exchangeAuthCode,
     fetchRefreshToken,
     WCA_AUTH_URL,
     getUserDataByToken as getWCAUserData
@@ -575,7 +575,7 @@ app.get(Routes.Get.AuthenticateWithCode, async (req, res) => {
     }
 
     // fetch token in callback
-    const tokenData = await fetchToken(authCode);
+    const tokenData = await exchangeAuthCode(authCode);
     if (tokenData.error) {
         res.status(400).json(errorObject(`Authentication error - "${tokenData}"`));
         return;
