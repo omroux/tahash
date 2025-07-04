@@ -4,7 +4,7 @@ import {getRandomString} from "../utils/global-utils.js";
 import {EventDisplayInfo} from "../../interfaces/event-display-info.js";
 import {ExtraArgsFmc} from "../../interfaces/event-extra-args/extra-args-fmc.js";
 import {ExtraArgsMbld} from "../../interfaces/event-extra-args/extra-args-mbld.js";
-import {calculateFMCResult} from "../utils/time-format-utils.js";
+import {ExtraArgs} from "../../interfaces/extra-args.js";
 
 // Competition event structure
 export class CompEvent {
@@ -154,12 +154,19 @@ export function getEventById(eventId: string): CompEvent | undefined {
 }
 
 /**
- * Map of all event argument types.
+ * Creates a default (empty) instance of the extra arguments type associated with a given event ID.
+ * @template T - The expected extra arguments type to return.
+ * @param {string} eventId - The ID of the event (e.g., "fmc", "mbld").
+ * @returns {T | undefined} A default-initialized object of type T if the event ID is recognized,
+ *                          or undefined otherwise.
  */
-export type ArgTypeMap<T extends string> =
-    T extends "fmc" ? ExtraArgsFmc :
-    T extends "mbld" ? ExtraArgsMbld :
-    undefined;
+export function createEmptyArgs<T extends ExtraArgs>(eventId: string): T | undefined {
+    if (eventId === "fmc")
+        return { fmcSolution: [] } as T;
+    else if (eventId === "mbld")
+        return { numSuccess: -1, numAttempt: -1 } as T;
+    return undefined;
+}
 
 /**
  * Generate scrambles for an event.

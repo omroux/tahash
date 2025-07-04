@@ -4,6 +4,7 @@ import {maxTimeParts, TimeUnit} from "../constants/time-unit.js";
 import {unpackTime} from "../backend/utils/time-utils.js";
 import {formatTimeParts, formatTimeWithPenalty} from "./time-parts.js";
 import {BaseResult} from "./base-result.js";
+import {CompEvent, createEmptyArgs} from "../backend/database/comp-event.js";
 
 /**
  * Packed result - smaller size.
@@ -34,21 +35,23 @@ export function applyPenaltyCentis(centis: number, penalty: Penalty = Penalties.
 export const formatPackedResults = (packedResults: PackedResult[]): string[] =>
     packedResults.map((pr) => formatCentisWithPenalty(pr.centis, pr.penalty));
 
-// TODO: fix
-export function getEmptyPackedTimes(compEvent) {
-    let nTimes = compEvent.getNumScrambles();
-    nTimes = nTimes < 1 ? 1 : nTimes;
-    const times = [];
+/**
+ * Get an empty instance of a {@link PackedResult}[] for an event.
+ * @param compEvent The event.
+ */
+export function getEmptyPackedResults<T extends ExtraArgs | undefined>(compEvent: CompEvent): PackedResult<T>[] {
+    const numScrs = compEvent.getNumScrambles();
+    const results: PackedResult<T>[] = [];
 
-    for (let i = 0; i < nTimes; i++) {
-        const newTime = { centis: -1, penalty: Penalties.None, extraArgs: undefined };
-        if (compEvent.emptyExtraArgs != null)
-            newTime.extraArgs = Object.assign({ }, compEvent.emptyExtraArgs);
-
-        times.push(newTime);
+    for (let i = 0; i < numScrs; i++) {
+        results.push({
+            centis: -1,
+            penalty: Penalties.None,
+            extraArgs: createEmptyArgs(compEvent.eventId) as T
+        });
     }
 
-    return times;
+    return results;
 }
 
 // given a packed times arr returns whether the user finished the event
