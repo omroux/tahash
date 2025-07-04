@@ -6,7 +6,7 @@ import {ExtraArgsFmc} from "../../interfaces/event-extra-args/extra-args-fmc.js"
 import {ExtraArgsMbld} from "../../interfaces/event-extra-args/extra-args-mbld.js";
 
 // Competition event structure
-export class CompEvent<ArgsType = undefined> {
+export class CompEvent {
     /**
      * The event's display name.
      */
@@ -113,7 +113,7 @@ export class CompEvent<ArgsType = undefined> {
 /**
  * Official WCA events ({@param CompEvent}[]).
  */
-export const WCAEvents: Readonly<CompEvent<any>[]> = [
+export const WCAEvents: Readonly<CompEvent[]> = [
     // -- WCA Events --
     //              Title       Id          ScrType     Icon            Format              scrLenExp   scrLenRadius
     new CompEvent(  "3x3x3",    "333",      "333",      "event-333",    TimeFormat.ao5),
@@ -123,7 +123,7 @@ export const WCAEvents: Readonly<CompEvent<any>[]> = [
     new CompEvent(  "6x6x6",    "666",      "666wca",   "event-666",    TimeFormat.mo3,     80),
     new CompEvent(  "7x7x7",    "777",      "777wca",   "event-777",    TimeFormat.mo3,     100),
     new CompEvent(  "3x3 BLD",  "3bld",     "333ni",    "event-333bf",  TimeFormat.bo3),
-    new CompEvent<ExtraArgsFmc>(  "FMC",      "fmc",      "333fm",    "event-333fm",  TimeFormat.bo3,     0,          0),
+    new CompEvent(  "FMC",      "fmc",      "333fm",    "event-333fm",  TimeFormat.bo3,     0,          0),
     new CompEvent(  "3x3 OH",   "oh",       "333",      "event-333oh",  TimeFormat.ao5),
     new CompEvent(  "Clock",    "clock",    "clkwca",   "event-clock",  TimeFormat.ao5),
     new CompEvent(  "Megaminx", "megaminx", "mgmp",     "event-minx",   TimeFormat.ao5,     70),
@@ -132,7 +132,7 @@ export const WCAEvents: Readonly<CompEvent<any>[]> = [
     new CompEvent(  "Square-1", "square-1", "sqrs",     "event-sq1",    TimeFormat.ao5),
     new CompEvent(  "4x4 BLD",  "4bld",     "444bld",   "event-444bf",  TimeFormat.bo3,     40),
     new CompEvent(  "5x5 BLD",  "5bld",     "555bld",   "event-555bf",  TimeFormat.bo3,     60),
-    new CompEvent<ExtraArgsMbld>(  "3x3 MBLD", "mbld",     "r3ni",     "event-333mbf", TimeFormat.multi,   1)
+    new CompEvent(  "3x3 MBLD", "mbld",     "r3ni",     "event-333mbf", TimeFormat.multi,   1)
 ];
 Object.freeze(WCAEvents);
 
@@ -140,6 +140,8 @@ Object.freeze(WCAEvents);
  * All possible events in Tahash.
  */
 const allEvents = WCAEvents.concat([]);
+// export type AllEventIds = typeof allEvents[number]["eventId"];
+
 
 /**
  * Get a {@link CompEvent} by its id (null if it doesn't exist).
@@ -148,9 +150,17 @@ const allEvents = WCAEvents.concat([]);
  * - If there exists an event with the given id, returns its {@link CompEvent}.
  * - Otherwise, returns `undefined`.
  */
-export function getEventById<ArgsType = undefined>(eventId: string): CompEvent<ArgsType> | undefined {
+export function getEventById(eventId: string): CompEvent | undefined {
     return allEvents.find(e => e.eventId === eventId) ?? undefined;
 }
+
+/**
+ * Map of all event argument types.
+ */
+export type ArgTypeMap<T extends string> =
+    T extends "fmc" ? ExtraArgsFmc :
+    T extends "mbld" ? ExtraArgsMbld :
+    undefined;
 
 /**
  * Generate scrambles for an event.
