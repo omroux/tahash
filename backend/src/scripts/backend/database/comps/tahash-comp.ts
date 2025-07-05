@@ -1,4 +1,4 @@
-import {generateScrambles, getEventDisplayInfo, WCAEvents} from "../comp-event.ts";
+import {EventId, generateScrambles, getEventDisplayInfo, WCAEvents} from "../comp-event.ts";
 import {CompManager} from "./comp-manager.js";
 import {SubmissionData} from "../../../interfaces/submission-data.js";
 import {EventResults} from "../../../interfaces/event-results.js";
@@ -136,7 +136,7 @@ export class TahashComp {
      * - If the event exists in the competition, returns its {@link EventResults}.
      * - Otherwise, returns `undefined`.
      */
-    public getEventResults(eventId: string): EventResults | undefined {
+    public getEventResults(eventId: EventId): EventResults | undefined {
         const evData: EventResults | undefined = this.data.find(d => d.eventId == eventId);
         return evData ? Object.assign({}, evData) : undefined;
     }
@@ -148,7 +148,7 @@ export class TahashComp {
      * - If the event exists in the competition, returns its {@link SubmissionData}[].
      * - Otherwise, returns `undefined`.
      */
-    public getEventSubmissions(eventId: string): SubmissionData[] | undefined {
+    public getEventSubmissions(eventId: EventId): SubmissionData[] | undefined {
         const evData: EventResults | undefined = this.data.find(d => d.eventId == eventId);
         return evData ? [...evData.submissions] : undefined;
     }
@@ -171,7 +171,7 @@ export class TahashComp {
      * @param newSubmissionState The new {@link SubmissionState} for the submission.
      * @return Whether submitting was successful (false if the eventId/userId were not found).
      */
-    public setSubmissionState(eventId: string, userId: number, newSubmissionState: SubmissionState): boolean {
+    public setSubmissionState(eventId: EventId, userId: number, newSubmissionState: SubmissionState): boolean {
         const evIndex = this.data.findIndex(evResults => evResults.eventId === eventId);
         if (evIndex < 0)
             return false; // event doesn't exist in comp
@@ -193,7 +193,7 @@ export class TahashComp {
      * - The event was not found.
      * - The user has already submitted results for this event.
      */
-    public submitResults(eventId: string, userId: number, results: SubmissionData): boolean {
+    public submitResults(eventId: EventId, userId: number, results: SubmissionData): boolean {
         const evIndex = this.data.findIndex(evResults => evResults.eventId === eventId);
         if (evIndex < 0)
             return false; // event doesn't exist in comp

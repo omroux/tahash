@@ -4,7 +4,7 @@ import {DNF_STRING, NULL_TIME_CENTIS} from "./time-utils.js";
 import {NumScrambles, TimeFormat} from "../../constants/time-formats.js";
 import {calcMultiBldTotalPoints, ExtraArgsMbld} from "../../interfaces/event-extra-args/extra-args-mbld.js";
 import {ExtraArgsFmc} from "../../interfaces/event-extra-args/extra-args-fmc.js";
-import {CompEvent, getEventById} from "../database/comp-event.js";
+import {CompEvent, EventId, getEventById} from "../database/comp-event.js";
 
 /**
  * Calculate an average of 5 given the full attempt.
@@ -114,11 +114,8 @@ function calculateFMCResult(results: PackedResult<ExtraArgsFmc>[]): number {
  * - If the event id was not found, returns -1.
  * - Otherwise, returns the result.
  */
-export function calcEventResult(eventId: string, results: PackedResult[]): number {
-    const compEvent: CompEvent | undefined = getEventById(eventId);
-
-    if (!compEvent)
-        return -1;
+export function calcEventResult(eventId: EventId, results: PackedResult[]): number {
+    const compEvent: CompEvent = getEventById(eventId);
 
     if (eventId === "fmc")
         return calculateFMCResult(results);

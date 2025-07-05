@@ -124,18 +124,47 @@ Object.freeze(WCAEvents);
 /**
  * All possible events in Tahash.
  */
-const allEvents = WCAEvents.concat([]);
-// export type AllEventIds = typeof allEvents[number]["eventId"];
+const allEvents: Readonly<CompEvent[]> = WCAEvents.concat([]);
+
+// Make sure there are no two events with the same id
+(function assertNoDuplicateEventIds() {
+    const seen = new Set<string>();
+    for (const e of allEvents) {
+        if (seen.has(e.eventId))
+            throw new Error(`Duplicate eventId detected: ${e.eventId}`);
+        seen.add(e.eventId);
+    }
+})();
 
 /**
- * Get a {@link CompEvent} by its id (null if it doesn't exist).
- * @param eventId The event's id.
- * @return
- * - If there exists an event with the given id, returns its {@link CompEvent}.
- * - Otherwise, returns `undefined`.
+ * All event ids in Tahash.
  */
-export function getEventById(eventId: string): CompEvent | undefined {
-    return allEvents.find(e => e.eventId === eventId) ?? undefined;
+export const eventIds: Readonly<string[]> = allEvents.map(e => e.eventId);
+
+/**
+ * A Tahash event's id.
+ */
+export type EventId = typeof allEvents[number]["eventId"];
+
+/**
+ * Lookup table for events by their id.
+ */
+const eventIdMap: Record<EventId, Readonly<CompEvent>> = Object.fromEntries(
+    allEvents.map(e => [e.eventId, e])
+) as Record<EventId, Readonly<CompEvent>>;
+
+/**
+ * Check if a string is a valid Tahash event id (a TypeScript type guard).
+ */
+function isEventId(id: string): id is EventId {
+    return eventIds.includes(id);
+}
+
+/**
+ * Get a {@link CompEvent} by its {@link EventId}.
+ */
+export function getEventById(eventId: EventId): CompEvent {
+    return eventIdMap[eventId];
 }
 
 /**
@@ -145,7 +174,7 @@ export function getEventById(eventId: string): CompEvent | undefined {
  * @returns {T | undefined} A default-initialized object of type T if the event ID is recognized,
  *                          or undefined otherwise.
  */
-export function createEmptyArgs<T extends ExtraArgs>(eventId: string): T | undefined {
+export function createEmptyArgs<T extends ExtraArgs>(eventId: EventId): T | undefined {
     if (eventId === "fmc")
         return { fmcSolution: [] } as T;
     else if (eventId === "mbld")
@@ -156,23 +185,17 @@ export function createEmptyArgs<T extends ExtraArgs>(eventId: string): T | undef
 /**
  * Generate scrambles for an event.
  * @param eventId The event's id.
- * @return
- * - If there exists a {@link CompEvent} with the given id, returns an array of scrambles for it.
- * - Otherwise, returns an empty array.
+ * @return An array of scrambles for of the requested event.
  */
- export function generateScrambles(eventId: string): string[] {
-    const event: CompEvent | undefined = getEventById(eventId);
-    return event ? event.generateScrambles() : [];
+ export function generateScrambles(eventId: EventId): string[] {
+    return getEventById(eventId).generateScrambles();
 }
 
 /**
  * Get the {@link EventDisplayInfo} of an event.
  * @param eventId The event's id.
  */
-export function getEventDisplayInfo(eventId: string): EventDisplayInfo {
-     const ev = getEventById(eventId);
-     return ev ?
-         ev.getEventInfo() :
-         { eventId, eventTitle: "NOT FOUND", iconName: "NOT-FOUND" };
+export function getEventDisplayInfo(eventId: EventId): EventDisplayInfo {
+     return getEventById(eventId).getEventInfo();
 }
 
