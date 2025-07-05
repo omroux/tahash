@@ -1,42 +1,111 @@
 // Manages the "users" collection
+import {Collection, WithId} from "mongodb";
 import { getUserDataByUserId, getWCARecordsOfUser } from "../../utils/api-utils.ts";
-import { TahashUser } from "./tahash-user.ts";
+import {TahashUser, TahashUserFields} from "./tahash-user.ts";
 import { getCompactWCAData } from "./tahash-user.ts";
+import {EventRecords} from "../../../interfaces/event-records.js";
+import {TimeFormat} from "../../../constants/time-formats.js";
+import {EventId} from "../comp-event.js";
+import {UserInfo} from "../../../interfaces/user-info.js";
 
+/**
+ * A singleton to manage the "users" collection of the database.
+ */
 export class UserManager {
+    /**
+     * The singleton instance of {@link UserManager}.
+     * @private
+     */
     private static instance: UserManager;
 
-    private readonly collection: Collection<>
+    private readonly collection: Collection<TahashUserFields>;
 
-    #collection;
+    /**
+     * Construct a {@link UserManager}.
+     * @param userCollection The MongoDB {@link Collection} of the users.
+     */
+    constructor(userCollection: Collection<TahashUserFields>) {
+        if (UserManager.instance !== undefined)
+            throw new Error("Attempted to instantiate a new singleton instance of UserManager where an instance already exists.");
 
-    // Construct a UserManager
-    constructor(userCollection) {
-        this.#collection = userCollection;
+        this.collection = userCollection;
     }
 
-    // get a user's doc from the database by their id
-    // null if not found
-    async getUserDocById(userId) {
-        return await this.#collection.findOne({ userId: userId });
+    /**
+     * Create an instance of the {@link UserManager} singleton.
+     * @param usersCollection The MongoDB {@link Collection} of the users.
+     * @return The new {@link UserManager} instance.
+     * @throws Error If a {@link UserManager} instance already exists.
+     */
+    public static init(usersCollection: Collection<TahashUserFields>): UserManager {
+        if (this.instance !== null)
+            throw new Error("UserManager instance already exists. Use UserManager.getInstance() instead.");
+
+        this.instance = new this(usersCollection);
+        return this.instance;
+    }
+
+    /**
+     * Get the singleton instance of the {@link UserManager}.
+     */
+    public static getInstance(): UserManager {
+        if (!this.instance)
+            throw new Error("UserManager not initialized. Call init() first.");
+
+        return this.instance;
+    }
+
+    /**
+     * Get a user's document from the database by their id.
+     * @param userId The requested user's id.
+     * @return
+     * - If the user doesn't exist in the database, returns `null`.
+     * - Otherwise, returns the document of the user.
+     */
+    public async getUserDocById(userId: number): Promise<WithId<TahashUserFields> | null> {
+        return await this.collection.findOne({ userId: userId });
     }
 
     // Get a user in the database by id.
     // If the user doesn't exist, returns a new (empty) TahashUser object of this manager and with the given id.
     // if saveIfCreated is true and the user doesn't exist in the database, fetches the user's WCA data and results and saves the user in the database.
     // if the compNumber is positive, updates the user's comp number
-    async getUserById(userId, saveIfCreated = true) {
-        let userSrc = await this.getUserDocById(userId);
-        const isNewUser = userSrc == null;
+    /**
+     * Get a user in the database by id.
+     * If the user doesn't exist, returns a new ("default") TahashUser object of this manager with the given id.
+     * @param userId
+     * @param saveIfCreated if true and the user doesn't exist in the database, fetches the user's WCA data and results and saves the user in the database.
+     */
+    public async getUserById(userId: number, saveIfCreated: boolean = true) {
+        let userDoc = await this.getUserDocById(userId);
+        const isNewUser = userDoc == null;
 
-        userSrc ??= { userId: userId }
+        let userInfo: UserInfo = {
+            id: userId,
+            name: "NOT FOUND",
+            wcaId: "NOT FOUND",
+            country: "-",
+            photoUrl: "-"
+        };
+        let records: Record<EventId, EventRecords<TimeFormat>> = { };
+        let lastUpdatedWcaData: number = -1;
+
         if (isNewUser && saveIfCreated) {
-            userSrc.wcaData = getCompactWCAData(await getUserDataByUserId(userId));
-            userSrc.records = await getWCARecordsOfUser(userId);
-            userSrc.lastUpdatedWcaData = Date.now();
+            userInfo = getCompactWCAData(await getUserDataByUserId(userId));
+            records = await getWCARecordsOfUser(userId);
+            lastUpdatedWcaData = Date.now();
         }
-        
-        const newUser = new TahashUser(this, userSrc);
+
+        const userSrc: TahashUserFields = userDoc ? { ...userDoc } : {
+            userId,
+            userInfo: userInfo,
+            lastUpdatedWcaData: lastUpdatedWcaData,
+            lastComp: -1,
+            records: records,
+            currCompTimes: { }
+        };
+
+        const newUser = new TahashUser(userSrc);
         newUser.updateCompNumber(this.#_currCompNumber, isNewUser);
 
         if (!isNewUser) {

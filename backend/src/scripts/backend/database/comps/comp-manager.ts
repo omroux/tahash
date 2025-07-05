@@ -2,7 +2,7 @@ import {createCompSrc, TahashComp, TahashCompFields} from "./tahash-comp.js";
 import {Collection, WithId} from "mongodb";
 
 /**
- * A singleton to manage the "comps" collection.
+ * A singleton to manage the "comps" collection of the database.
  */
 export class CompManager {
     /**
@@ -26,7 +26,7 @@ export class CompManager {
     }
 
     /**
-     * Create an instance of the {@link CompManager} singleton.
+     * Create the instance of the {@link CompManager} singleton.
      * @param compsCollection The MongoDB {@link Collection} of the comps.
      * @return The new {@link CompManager} instance.
      * @throws Error If a {@link CompManager} instance already exists.

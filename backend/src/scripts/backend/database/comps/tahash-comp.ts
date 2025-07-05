@@ -72,7 +72,6 @@ export class TahashComp {
      * @param src Source with the competition's data.
      */
     public constructor(src: TahashCompFields) {
-        src = src || {};
         this.compNumber = src.compNumber;
         this.startDate = src.startDate;
         this.endDate = src.endDate;
@@ -221,13 +220,12 @@ export class TahashComp {
     }
 
     /**
-     * Get an instance of a TahashComp from a document containing the comp's fields.
+     * Get an instance of a {@link TahashUser} from a document containing the comp's fields.
      * @param doc The document from the database.
      */
     public static fromDocument(doc: WithId<TahashCompFields>): TahashComp {
         return new TahashComp({ ...doc });
     }
-
 
 
     // TODO: delete if unnecessary
@@ -272,6 +270,9 @@ export class TahashComp {
     // }
 }
 
+/**
+ * Fields of a {@link TahashComp}.
+ */
 export interface TahashCompFields {
     compNumber: number;
     startDate: Date;

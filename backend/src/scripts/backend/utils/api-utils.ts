@@ -7,6 +7,9 @@ import {wcaUserToUserInfo, UserInfo} from "../../interfaces/user-info.js";
 import {WcaMeResponse, WcaUser, WcaUserResponse} from "../../interfaces/wca-api/wca-user.js";
 import {WcaOAuthTokenResponse} from "../../interfaces/wca-api/wca-oauth.js";
 import {RESPONSE} from "mongodb/src/constants.js";
+import {EventRecords} from "../../interfaces/event-records.js";
+import {TimeFormat} from "../../constants/time-formats.js";
+import {EventId} from "../database/comp-event.js";
 
 config(getEnvConfigOptions()); // configure .env file
 
@@ -94,9 +97,9 @@ export async function getUserDataByUserId(userId: number): Promise<ErrorObject |
 
 /* returns a "records" array of the user's WCA records */
 // TODO: implement getWCARecordsOfUser
-export async function getWCARecordsOfUser(userId) {
+export async function getWCARecordsOfUser(userId): Promise<Record<string, EventRecords<TimeFormat>>> {
     console.error("getWCARecordsOfUser not implemented");
-    return [];
+    return { };
 }
 
 /**

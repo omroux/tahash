@@ -1,23 +1,37 @@
 import { datediff } from "../../utils/global-utils.js";
 import { getUserDataByUserId } from "../../utils/api-utils.js";
 import { UserInfo } from "../../../interfaces/user-info.js";
+import {EventResults} from "../../../interfaces/event-results.js";
+import {EventRecords} from "../../../interfaces/event-records.js";
+import {TimeFormat} from "../../../constants/time-formats.js";
+import {EventId} from "../comp-event.js";
+import {UserEventResult} from "../../../interfaces/user-event-result.js";
+import {WithId} from "mongodb";
 
 const updateWCADataInterval: Readonly<number> = 28; /* number of days to wait between updating wca data */
 export class TahashUser {
-    /* the user's wca account id */
-    userId: number;
+    /**
+     * The user's wca account id.
+     */
+    public readonly userId: number;
 
-    /* the user's wca data: { name, wcaId, photoUrl } */
-    wcaData;
+    /**
+     * The user's wca data as {@link UserInfo}.
+     */
+    public readonly userInfo: Readonly<UserInfo>;
 
-    /* epoch number of date of last wca data update */
-    lastUpdatedWcaData;
+    /**
+     * Epoch number of date of last wca data update
+     */
+    public readonly lastUpdatedWcaData: number;
 
-    /* comp number of the last comp the user competed in */
-    lastComp;
+    /**
+     * Comp number of the last comp the user competed in.
+     */
+    public readonly lastComp: number;
 
     /* array of the user's records */
-    records; /*
+    public readonly records: Record<EventId, EventRecords<TimeFormat>>; /*
         user records structure:
         records: [
             {
@@ -49,7 +63,7 @@ export class TahashUser {
     */
 
     /* user's results of the last comp the user competed in */
-    currCompTimes; /*
+    public readonly currCompTimes: Record<EventId, UserEventResult>; /*
     user currCompTimes structure:
     currCompTimes: [
         {
@@ -61,33 +75,16 @@ export class TahashUser {
     */
 
     // src - { userId, wcaData, lastUpdatedWcaData, lastComp, records, currCompTimes }
-    constructor(userManager, src: { userId: number,
-        wcaData: UserInfo,
-        lastUpdatedWcaData: number,
-        lastComp: number,
-        records:  }) {
-        if (!userManager) {
-            console.error("Initializing TahashUser with no user manager");
-            return;
-        }
-        this.#manager = userManager;
+    constructor(src: TahashUserFields) {
+        if (src.userId < 0)
+            throw new Error("Initializing TahashUser with invalid user id");
 
-        if (!src) {
-            console.error("Initializing TahashUser with no source");
-            return;
-        }
-
-        if (!src.userId || src.userId < 0) {
-            console.error("Initializing TahashUser with invalid user id");
-            return;
-        }
         this.userId = src.userId;
-
-        this.wcaData = src.wcaData || { name: "NAME", wca_id: "WCA_ID", avatar: { url: "photo" } };
-        this.lastUpdatedWcaData = src.lastUpdatedWcaData || 0;
-        this.lastComp = src.lastComp || -1;
-        this.records = src.records || [];
-        this.currCompTimes = src.currCompTimes || [];
+        this.userInfo = src.userInfo;
+        this.lastUpdatedWcaData = Math.max(src.lastUpdatedWcaData, 0);
+        this.lastComp = Math.max(src.lastComp, -1);
+        this.records = src.records;
+        this.currCompTimes = src.currCompTimes;
     }
 
     // save this TahashUser using the linked UserManager
@@ -173,7 +170,7 @@ export class TahashUser {
     // get the user's wca data in a compact structure:
     // { userId, name, wcaId, photoUrl }
     getCompactWCAUserData(includePhoto) {
-        return { userId: this.userId, name: this.wcaData.name, wcaId: this.wcaData.wcaId,  }
+        return { userId: this.userId, name: this.userInfo.name, wcaId: this.userInfo.wcaId,  }
     }
 
     // try update the user's wca data
@@ -185,8 +182,16 @@ export class TahashUser {
             return false;
 
         this.lastUpdatedWcaData = Date.now();
-        this.wcaData = getCompactWCAData(await getUserDataByUserId(this.userId));
+        this.userInfo = getCompactWCAData(await getUserDataByUserId(this.userId));
         return true;
+    }
+
+    /**
+     * Get an instance of a {@link TahashUser} from a document containing the comp's fields.
+     * @param doc The document from the database.
+     */
+    public static fromDocument(doc: WithId<TahashUserFields>): TahashUser {
+        return new TahashUser({ ...doc });
     }
 }
 
@@ -195,3 +200,61 @@ export class TahashUser {
 export function getCompactWCAData(wcaData) {
     return { wcaId: wcaData.wca_id, name: wcaData.name, photoUrl: wcaData.avatar ? wcaData.avatar.url : "" }
 }
+
+export interface TahashUserFields {
+    /**
+     * The user's wca account id.
+     */
+    readonly userId: number;
+
+    /**
+     * The user's wca data as {@link UserInfo}.
+     */
+    readonly userInfo: Readonly<UserInfo>;
+
+    /**
+     * Epoch number of date of last wca data update
+     */
+    readonly lastUpdatedWcaData: number;
+
+    /**
+     * Comp number of the last comp the user competed in.
+     */
+    readonly lastComp: number;
+
+    /* array of the user's records */
+    readonly records: Record<EventId, EventRecords<TimeFormat>>; /*
+        user records structure:
+        records: [
+            {
+                eventId: str,
+                // bestResults contains the best results for the event, and for each type of result
+                //      it also saves the comp number (as an integer)
+                //      the comp number's values:
+                //          * >0 -> a tahash comp
+                //          * =0 -> a wca comp
+                //          * -1 -> never competed
+                bestResults:
+                    --- different for each event type:
+                    --  AO5:
+                        { single, singleComp
+                            average, averageComp }
+                    --  MO3/BO3:
+                        { single, singleComp
+                            mean, meanComp }
+                    --  BO3:
+                        { single, singleComp,
+                            mean, meanComp }
+                    --  Multi:
+                        { best total points / -1,
+                        time of attempt with best score / -1,
+                        bestComp }
+                times: packedTimes (-- the full attempt)
+            }
+        ]
+    */
+
+    /* user's results of the last comp the user competed in */
+    readonly currCompTimes: Record<EventId, UserEventResult>;
+}
+
