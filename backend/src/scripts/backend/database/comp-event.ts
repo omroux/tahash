@@ -4,7 +4,9 @@ import {getRandomString} from "../utils/global-utils.js";
 import {EventDisplayInfo} from "../../interfaces/event-display-info.js";
 import {ExtraArgs} from "../../interfaces/extra-args.js";
 
-// Competition event structure
+/**
+ * Represents a Tahash competition event.
+ */
 export class CompEvent {
     /**
      * Construct a competition event.
@@ -124,7 +126,12 @@ Object.freeze(WCAEvents);
 /**
  * All possible events in Tahash.
  */
-const allEvents: Readonly<CompEvent[]> = WCAEvents.concat([]);
+const allEvents: Readonly<CompEvent[]> = WCAEvents.concat([
+    // extra events here
+]);
+
+// freeze each event instance in allEvents.
+allEvents.forEach(Object.freeze);
 
 // Make sure there are no two events with the same id
 (function assertNoDuplicateEventIds() {

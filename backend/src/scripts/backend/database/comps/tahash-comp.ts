@@ -28,11 +28,11 @@ export class TahashComp {
     /**
      * The ids of all the events in this competition.
      */
-    public readonly eventIds: readonly string[];
+    public readonly eventIds: readonly EventId[];
 
     public readonly eventDisplayInfos: readonly EventDisplayInfo[];
 
-    private readonly data: EventResults[] = [];
+    private readonly data: Record<EventId, EventResults>;
     /*
     comp data structure IN DATABASE:
     data: [
@@ -76,7 +76,7 @@ export class TahashComp {
         this.compNumber = src.compNumber;
         this.startDate = src.startDate;
         this.endDate = src.endDate;
-        this.data = src.data        ?? [];
+        this.data = src.data || { };
 
         // "normalize" Date to only the date, ignore time of day
         this.startDate?.setHours(0, 0, 0, 0);
@@ -91,21 +91,35 @@ export class TahashComp {
         }
 
         // initialize eventIds array
-        const evIds: string[] = [];
-        for (const evData of this.data)
-            evIds.push(evData.eventId);
-        this.eventIds = evIds;
+        this.eventIds = Object.keys(this.data);
 
         // initialize eventDisplayInfos array
         this.eventDisplayInfos = this.eventIds.map((evId) => getEventDisplayInfo(evId));
     }
 
     /**
-     * Get a clone of this {@link TahashComp}'s data.
+     * Get a deep clone of this {@link TahashComp}'s data.
      */
-    public getData(): EventResults[] {
-        return [...this.data];
+    public getDataClone(): Record<EventId, EventResults> {
+        const clone: Partial<Record<EventId, EventResults>> = {};
+
+        for (const [eventId, result] of Object.entries(this.data) as [EventId, EventResults][]) {
+            clone[eventId] = {
+                scrambles: [...result.scrambles],
+                submissions: result.submissions.map(s => ({ ...s }))
+            };
+        }
+
+        return clone as Record<EventId, EventResults>;
     }
+
+    /**
+     * Get a direct reference to this {@link TahashComp}'s data (no clone).
+     */
+    public getData(): Record<EventId, EventResults> {
+        return this.data;
+    }
+
 
     /**
      * Save this {@link TahashComp} using the {@link CompManager} singleton.
@@ -137,7 +151,7 @@ export class TahashComp {
      * - Otherwise, returns `undefined`.
      */
     public getEventResults(eventId: EventId): EventResults | undefined {
-        const evData: EventResults | undefined = this.data.find(d => d.eventId == eventId);
+        const evData: EventResults | undefined = this.data[eventId];
         return evData ? Object.assign({}, evData) : undefined;
     }
 
@@ -149,7 +163,7 @@ export class TahashComp {
      * - Otherwise, returns `undefined`.
      */
     public getEventSubmissions(eventId: EventId): SubmissionData[] | undefined {
-        const evData: EventResults | undefined = this.data.find(d => d.eventId == eventId);
+        const evData: EventResults | undefined = this.data[eventId];
         return evData ? [...evData.submissions] : undefined;
     }
 
@@ -157,10 +171,10 @@ export class TahashComp {
      * Generate (and set) scrambles for all events that don't have scrambles.
      */
     public fillScrambles(): void {
-        for (let i = 0; i < this.data.length; i++) {
-            if (this.data[i].scrambles.length == 0)
+        for (const eventId in this.eventIds) {
+            if (this.data[eventId].scrambles.length > 0)
                 continue;
-            this.data[i].scrambles = generateScrambles(this.data[i].eventId);
+            this.data[eventId].scrambles = generateScrambles(eventId);
         }
     }
 
@@ -172,15 +186,15 @@ export class TahashComp {
      * @return Whether submitting was successful (false if the eventId/userId were not found).
      */
     public setSubmissionState(eventId: EventId, userId: number, newSubmissionState: SubmissionState): boolean {
-        const evIndex = this.data.findIndex(evResults => evResults.eventId === eventId);
-        if (evIndex < 0)
+        const results = this.data[eventId];
+        if (!results)
             return false; // event doesn't exist in comp
 
-        const submissionIndex = this.data[evIndex].submissions.findIndex(sub => sub.userId === userId);
+        const submissionIndex = results.submissions.findIndex(sub => sub.userId === userId);
         if (submissionIndex < 0)
             return false; // user never submitted this event
 
-        this.data[evIndex].submissions[submissionIndex].submissionState = newSubmissionState;
+        results.submissions[submissionIndex].submissionState = newSubmissionState;
         return true;
     }
 
@@ -194,15 +208,15 @@ export class TahashComp {
      * - The user has already submitted results for this event.
      */
     public submitResults(eventId: EventId, userId: number, results: SubmissionData): boolean {
-        const evIndex = this.data.findIndex(evResults => evResults.eventId === eventId);
-        if (evIndex < 0)
+        const eventResults = this.data[eventId];
+        if (!eventResults)
             return false; // event doesn't exist in comp
 
-        const alreadySubmitted = this.data[evIndex].submissions.some(sub => sub.userId === userId);
+        const alreadySubmitted = eventResults.submissions.some(sub => sub.userId === userId);
         if (alreadySubmitted)
             return false;
 
-        this.data[evIndex].submissions.push(results);
+        eventResults.submissions.push(results);
         return true;
     }
 
@@ -262,7 +276,7 @@ export interface TahashCompFields {
     compNumber: number;
     startDate: Date;
     endDate: Date;
-    data?: EventResults[]
+    data?: Record<EventId, EventResults>
 }
 
 /**
@@ -277,7 +291,7 @@ export const normalCompLength: number = 7;
  * @param startDate The comp's start date.
  * @param endDate The comp's end date.
  */
-export function createCompSrc(compNumber: number, extraEvents: string[] = [], startDate: Date | undefined = undefined, endDate: Date | undefined = undefined): TahashCompFields {
+export function createCompSrc(compNumber: number, extraEvents: EventId[] = [], startDate: Date | undefined = undefined, endDate: Date | undefined = undefined): TahashCompFields {
     // add start date
     if (!startDate)
         startDate = new Date();
@@ -290,10 +304,14 @@ export function createCompSrc(compNumber: number, extraEvents: string[] = [], st
     }
     endDate.setHours(0, 0, 0, 0);
 
-    // construct competition's data
-    const extras = extraEvents.filter(ev => !WCAEvents.some(wcaEv => wcaEv.eventId == ev)); // filter out duplicates
+    // filter out duplicates
+    const extras = extraEvents.filter(ev => !WCAEvents.some(wcaEv => wcaEv.eventId == ev));
     const allEventIds: string[] = WCAEvents.map(wcaEv => wcaEv.eventId).concat(extras);
-    const data: EventResults[] = allEventIds.map(evId => ({ eventId: evId, scrambles: [], submissions: [] }));
+
+    // construct competition's data (empty)
+    const data: Record<EventId, EventResults> = Object.fromEntries(
+        allEventIds.map(evId => [ evId, { scrambles: [], submissions: []} ])
+    );
 
     return { compNumber, startDate, endDate, data };
 }

@@ -4,6 +4,10 @@ import { TahashUser } from "./tahash-user.ts";
 import { getCompactWCAData } from "./tahash-user.ts";
 
 export class UserManager {
+    private static instance: UserManager;
+
+    private readonly collection: Collection<>
+
     #collection;
 
     // Construct a UserManager
