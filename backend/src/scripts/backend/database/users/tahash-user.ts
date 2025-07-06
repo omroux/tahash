@@ -7,6 +7,7 @@ import {TimeFormat} from "../../../constants/time-formats.js";
 import {EventId} from "../comp-event.js";
 import {UserEventResult} from "../../../interfaces/user-event-result.js";
 import {WithId} from "mongodb";
+import {CompManager} from "../comps/comp-manager.js";
 
 const updateWCADataInterval: Readonly<number> = 28; /* number of days to wait between updating wca data */
 export class TahashUser implements TahashUserFields {
@@ -88,6 +89,12 @@ export class TahashUser implements TahashUserFields {
         this.lastComp = Math.max(src.lastComp, -1);
         this.records = src.records;
         this.currCompTimes = src.currCompTimes;
+
+        // update the current comp number
+        if (CompManager.getInstance().getActiveCompNum() != this.lastComp) {
+            this.currCompTimes = { };
+            this.lastComp = CompManager.getInstance().getActiveCompNum();
+        }
     }
 
     // save this TahashUser using the linked UserManager
@@ -159,15 +166,6 @@ export class TahashUser implements TahashUserFields {
             statuses[this.currCompTimes[i].eventId] = this.currCompTimes[i].finished ? "finished" : "unfinished";
 
         return statuses;
-    }
-
-    /* update the user's last comp number,
-    and clear the user's saved times if they haven't competed in the current comp */
-    updateCompNumber(newCompNumber, force = false) {
-        if (!force && newCompNumber == this.lastComp)
-            return;
-        this.currCompTimes = [];
-        this.lastComp = newCompNumber;
     }
 
     // get the user's wca data in a compact structure:

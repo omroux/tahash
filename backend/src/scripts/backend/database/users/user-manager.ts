@@ -72,7 +72,7 @@ export class UserManager {
      * @param userId
      * @param saveIfCreated if true and the user doesn't exist in the database, fetches the user's WCA data and results and saves the user in the database.
      */
-    public async getUserById(userId: number, saveIfCreated: boolean = true): TahashUser {
+    public async getUserById(userId: number, saveIfCreated: boolean = true): Promise<TahashUser> {
         let userDoc = await this.getUserDocById(userId);
         const isNewUser = userDoc == null;
 
@@ -102,19 +102,17 @@ export class UserManager {
         };
 
         const newUser = new TahashUser(userSrc);
-        newUser.updateCompNumber(this.#_currCompNumber, isNewUser);
 
         if (!isNewUser) {
             if (await newUser.updateWCAData())
                 await this.saveUser(newUser);
         }
-
-        if (isNewUser && saveIfCreated)
+        else if (saveIfCreated)
             await this.saveUser(newUser);
 
         return newUser;
     }
-    
+
     /**
      * Save a {@link TahashUser} to the database by their user id (if the user already exists, updates their values)
      * @param tahashUser The user to save.
@@ -133,16 +131,15 @@ export class UserManager {
             { upsert: true })).acknowledged;
     }
 
-    #_currCompNumber = -1;
-    /* update the current comp number (updates to highest between current and new) */
-    setCompNumber(newCompNum) {
-        this.#_currCompNumber = newCompNum;
-    }
-
-    /* get the user's (compact) WCA user data by their id
-    if the user wasn't found, returns null */
-    async getUserDataById(userId) {
-        const userDoc = await this.getUserDocById(userId);
-        return userDoc ? userDoc.wcaData : null;
+    /**
+     * Get (a clone of) a user's {@link UserInfo}.
+     * @param userId The user's id.
+     * @return
+     * - If the user wasn't found in the database, returns `null`.
+     * - Otherwise, returns the requested {@link UserInfo}.
+     */
+    async getUserDataById(userId: number): Promise<UserInfo | null> {
+        const userDoc: TahashUserFields | null = await this.getUserDocById(userId);
+        return userDoc ? {...userDoc.userInfo} : null;
     }
 }
