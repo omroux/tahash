@@ -1,7 +1,7 @@
 import {EventId, generateScrambles, getEventDisplayInfo, WCAEvents} from "../comp-event.ts";
 import {CompManager} from "./comp-manager.js";
 import {SubmissionData} from "../../../interfaces/submission-data.js";
-import {EventResults} from "../../../interfaces/event-results.js";
+import {CompEventResults} from "../../../interfaces/comp-event-results.js";
 import {EventDisplayInfo} from "../../../interfaces/event-display-info.js";
 import {WithId} from "mongodb";
 import {SubmissionState} from "./submission-state.js";
@@ -32,7 +32,7 @@ export class TahashComp implements TahashCompFields {
 
     public readonly eventDisplayInfos: readonly EventDisplayInfo[];
 
-    public readonly data: Record<EventId, EventResults>;
+    public readonly data: Record<EventId, CompEventResults>;
     /*
     comp data structure IN DATABASE:
     data: [
@@ -99,23 +99,23 @@ export class TahashComp implements TahashCompFields {
     /**
      * Get a deep clone of this {@link TahashComp}'s data.
      */
-    public getDataClone(): Record<EventId, EventResults> {
-        const clone: Partial<Record<EventId, EventResults>> = {};
+    public getDataClone(): Record<EventId, CompEventResults> {
+        const clone: Partial<Record<EventId, CompEventResults>> = {};
 
-        for (const [eventId, result] of Object.entries(this.data) as [EventId, EventResults][]) {
+        for (const [eventId, result] of Object.entries(this.data) as [EventId, CompEventResults][]) {
             clone[eventId] = {
                 scrambles: [...result.scrambles],
                 submissions: result.submissions.map(s => ({ ...s }))
             };
         }
 
-        return clone as Record<EventId, EventResults>;
+        return clone as Record<EventId, CompEventResults>;
     }
 
     /**
      * Get a direct reference to this {@link TahashComp}'s data (no clone).
      */
-    public getData(): Record<EventId, EventResults> {
+    public getData(): Record<EventId, CompEventResults> {
         return this.data;
     }
 
@@ -142,14 +142,14 @@ export class TahashComp implements TahashCompFields {
     }
 
     /**
-     * Get a copy of the {@link EventResults} of an event.
+     * Get a copy of the {@link CompEventResults} of an event.
      * @param eventId The id of the event.
      * @result
-     * - If the event exists in the competition, returns its {@link EventResults}.
+     * - If the event exists in the competition, returns its {@link CompEventResults}.
      * - Otherwise, returns `undefined`.
      */
-    public getEventResults(eventId: EventId): EventResults | undefined {
-        const evData: EventResults | undefined = this.data[eventId];
+    public getEventResults(eventId: EventId): CompEventResults | undefined {
+        const evData: CompEventResults | undefined = this.data[eventId];
         return evData ? Object.assign({}, evData) : undefined;
     }
 
@@ -161,7 +161,7 @@ export class TahashComp implements TahashCompFields {
      * - Otherwise, returns `undefined`.
      */
     public getEventSubmissions(eventId: EventId): SubmissionData[] | undefined {
-        const evData: EventResults | undefined = this.data[eventId];
+        const evData: CompEventResults | undefined = this.data[eventId];
         return evData ? [...evData.submissions] : undefined;
     }
 
@@ -276,7 +276,7 @@ export interface TahashCompFields {
     compNumber: number;
     startDate: Date;
     endDate: Date;
-    data?: Record<EventId, EventResults>
+    data?: Record<EventId, CompEventResults>
 }
 
 /**
@@ -309,7 +309,7 @@ export function createCompSrc(compNumber: number, extraEvents: EventId[] = [], s
     const allEventIds: string[] = WCAEvents.map(wcaEv => wcaEv.eventId).concat(extras);
 
     // construct competition's data (empty)
-    const data: Record<EventId, EventResults> = Object.fromEntries(
+    const data: Record<EventId, CompEventResults> = Object.fromEntries(
         allEventIds.map(evId => [ evId, { scrambles: [], submissions: []} ])
     );
 

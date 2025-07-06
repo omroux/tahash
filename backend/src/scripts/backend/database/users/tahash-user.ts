@@ -1,13 +1,15 @@
 import { datediff } from "../../utils/global-utils.js";
 import { getUserDataByUserId } from "../../utils/api-utils.js";
 import { UserInfo } from "../../../interfaces/user-info.js";
-import {EventResults} from "../../../interfaces/event-results.js";
+import {CompEventResults} from "../../../interfaces/comp-event-results.js";
 import {EventRecords} from "../../../interfaces/event-records.js";
 import {TimeFormat} from "../../../constants/time-formats.js";
 import {EventId} from "../comp-event.js";
 import {UserEventResult} from "../../../interfaces/user-event-result.js";
 import {WithId} from "mongodb";
 import {CompManager} from "../comps/comp-manager.js";
+import {isFullPackedTimesArr, PackedResult} from "../../../interfaces/packed-result.js";
+import {UserManager} from "./user-manager.js";
 
 const updateWCADataInterval: Readonly<number> = 28; /* number of days to wait between updating wca data */
 export class TahashUser implements TahashUserFields {
@@ -64,16 +66,7 @@ export class TahashUser implements TahashUserFields {
     */
 
     /* user's results of the last comp the user competed in */
-    public readonly currCompTimes: Record<EventId, UserEventResult>; /*
-    user currCompTimes structure:
-    currCompTimes: [
-        {
-            eventId: str,
-            finished: bool,
-            times: packedTimes
-        }
-    ]
-    */
+    public readonly eventResults: Record<EventId, UserEventResult>;
 
     /**
      * Create an instance of a {@link TahashUser} from a source.
@@ -88,57 +81,50 @@ export class TahashUser implements TahashUserFields {
         this.lastUpdatedWcaData = Math.max(src.lastUpdatedWcaData, 0);
         this.lastComp = Math.max(src.lastComp, -1);
         this.records = src.records;
-        this.currCompTimes = src.currCompTimes;
+        this.eventResults = src.eventResults;
 
         // update the current comp number
         if (CompManager.getInstance().getActiveCompNum() != this.lastComp) {
-            this.currCompTimes = { };
+            this.eventResults = { };
             this.lastComp = CompManager.getInstance().getActiveCompNum();
         }
     }
 
-    // save this TahashUser using the linked UserManager
-    async saveToDB() {
-        await this.#manager.saveUser(this);
+    /**
+     * Save this {@link TahashUser} using the {@link UserManager} singleton.
+     */
+    public async saveToDb(): Promise<boolean> {
+        return await UserManager.getInstance().saveUser(this);
     }
 
-    /* set the times object for an event in the current competition.
-    times is a packedTimes object of the attempt.
-    overwrite: whether to overwrite an event the user already submitted
-    */
-    setEventTimes(eventId, times, overwrite = false) {
-        if (!eventId || !times)
-            return;
-
+    /**
+     * Update a user's result of an event.
+     * @param eventId The event's id.
+     * @param times The times of the event.
+     * @param overwrite Whether to overwrite the event if the user already finished it.
+     */
+    public setEventTimes(eventId: EventId, times: PackedResult[], overwrite = false): boolean {
         if (!overwrite && this.finishedEvent(eventId))
-            return;
+            return false;
 
         const finished = isFullPackedTimesArr(times);
 
-        // if a submission of this event already exists, update it
-        for (let i = 0; i < this.currCompTimes.length; i++) {
-            if (this.currCompTimes[i].eventId == eventId) {
-                this.currCompTimes[i].finished = finished;
-                this.currCompTimes[i].times = times;
-                return;
-            }
-        }
-
-        // no submission yet, add it
-        this.currCompTimes.push({
-            eventId: eventId,
+        // update the user's submission for the event
+        this.eventResults[eventId] = ({
             finished: finished,
             times: times
         });
+
+        return true;
     }
 
     /* get the times object of an event in the current competition.
     returns a packedTimes object of the attempt.
     if the event was not found, returns null. */
     getEventTimes(eventId) {
-        for (let i = 0; i < this.currCompTimes.length; i++) {
-            if (this.currCompTimes[i].eventId == eventId)
-                return this.currCompTimes[i].times;
+        for (let i = 0; i < this.eventResults.length; i++) {
+            if (this.eventResults[i].eventId == eventId)
+                return this.eventResults[i].times;
         }
 
         return null;
@@ -147,9 +133,9 @@ export class TahashUser implements TahashUserFields {
     // check if the user finished an event (submitted a full result) in a competition
     /* check if the user finished an event (submitted a full result) in the current competition */
     finishedEvent(eventId) {
-        for (let i = 0; i < this.currCompTimes.length; i++) {
-            if (this.currCompTimes[i].eventId == eventId)
-                return this.currCompTimes[i].finished;
+        for (let i = 0; i < this.eventResults.length; i++) {
+            if (this.eventResults[i].eventId == eventId)
+                return this.eventResults[i].finished;
         }
 
         return false;
@@ -162,8 +148,8 @@ export class TahashUser implements TahashUserFields {
     getEventStatuses() {
         const statuses = { };
 
-        for (let i = 0; i < this.currCompTimes.length; i++)
-            statuses[this.currCompTimes[i].eventId] = this.currCompTimes[i].finished ? "finished" : "unfinished";
+        for (let i = 0; i < this.eventResults.length; i++)
+            statuses[this.eventResults[i].eventId] = this.eventResults[i].finished ? "finished" : "unfinished";
 
         return statuses;
     }
@@ -260,6 +246,6 @@ export interface TahashUserFields {
     /**
      * User's results of the last comp the user competed in.
      */
-    readonly currCompTimes: Record<EventId, UserEventResult>;
+    readonly eventResults: Record<EventId, UserEventResult>;
 }
 

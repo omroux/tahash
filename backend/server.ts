@@ -284,7 +284,7 @@ app.post(Routes.Post.UpdateTimes, async (req, res) => {
     }
 
     userObj.setEventTimes(eventId, times);
-    await userObj.saveToDB();
+    await userObj.saveToDb();
     res.status(200).json({ text: "Saved successfully!" });
     
     if (userObj.finishedEvent(eventId)) {

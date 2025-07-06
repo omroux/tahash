@@ -98,7 +98,7 @@ export class UserManager {
             lastUpdatedWcaData: lastUpdatedWcaData,
             lastComp: -1,
             records: records,
-            currCompTimes: { }
+            eventResults: { }
         };
 
         const newUser = new TahashUser(userSrc);
@@ -126,7 +126,7 @@ export class UserManager {
                 lastUpdatedWcaData: tahashUser.lastUpdatedWcaData,
                 lastComp: tahashUser.lastComp,
                 records: tahashUser.records,
-                currCompTimes: tahashUser.currCompTimes
+                eventResults: tahashUser.eventResults
             } },
             { upsert: true })).acknowledged;
     }
