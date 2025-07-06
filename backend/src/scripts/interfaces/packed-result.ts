@@ -54,7 +54,6 @@ export function getEmptyPackedResults<T extends ExtraArgs | undefined>(compEvent
     return results;
 }
 
-// given a packed times arr returns whether the user finished the event
 /**
  * Check if a {@link PackedResult} array is full of valid solves.
  * @param packedResults

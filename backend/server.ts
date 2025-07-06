@@ -337,7 +337,7 @@ app.get(Routes.Get.RetrieveTimes, async (req, res) => {
         return;
     }
 
-    const times = userObj.getEventTimes(eventId) ?? getEmptyPackedTimes(compEvent);
+    const times = userObj.getEventResult(eventId) ?? getEmptyPackedTimes(compEvent);
     res.status(200).json(times);
 });
 

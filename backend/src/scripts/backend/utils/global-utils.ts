@@ -26,7 +26,19 @@ export function getRandomString(len: number = 8, charSet: string | null = null) 
  * @param second Second date.
  */
 export function datediff(first: Date, second: Date): number {
-    return Math.round(Math.abs(second.getTime() - first.getTime()) / (1000 * 60 * 60 * 24));
+    return datediffEpoch(first.getTime(), second.getTime());
+}
+
+/**
+ * Get the number of days between two dates (absolute value).
+ * Take the difference between the dates and divide by milliseconds per day.
+ * Round to nearest whole number to deal with DST.
+ * solution from https://stackoverflow.com/a/543152
+ * @param first First date.
+ * @param second Second date.
+ */
+export function datediffEpoch(first: number, second: number): number {
+    return Math.round(Math.abs(second - first) / (1000 * 60 * 60 * 24));
 }
 
 /**

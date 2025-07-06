@@ -2,11 +2,11 @@
 import {Collection, WithId} from "mongodb";
 import { getUserDataByUserId, getWCARecordsOfUser } from "../../utils/api-utils.ts";
 import {TahashUser, TahashUserFields} from "./tahash-user.ts";
-import { getCompactWCAData } from "./tahash-user.ts";
 import {EventRecords} from "../../../interfaces/event-records.js";
 import {TimeFormat} from "../../../constants/time-formats.js";
 import {EventId} from "../comp-event.js";
 import {UserInfo} from "../../../interfaces/user-info.js";
+import {isErrorObject} from "../../../interfaces/error-object.js";
 
 /**
  * A singleton to manage the "users" collection of the database.
@@ -87,7 +87,8 @@ export class UserManager {
         let lastUpdatedWcaData: number = -1;
 
         if (isNewUser && saveIfCreated) {
-            userInfo = getCompactWCAData(await getUserDataByUserId(userId));
+            const userInfoResponse = await getUserDataByUserId(userId);
+            userInfo = isErrorObject(userInfoResponse) ? userInfo : userInfoResponse;
             records = await getWCARecordsOfUser(userId);
             lastUpdatedWcaData = Date.now();
         }
@@ -104,7 +105,7 @@ export class UserManager {
         const newUser = new TahashUser(userSrc);
 
         if (!isNewUser) {
-            if (await newUser.updateWCAData())
+            if (await newUser.tryUpdateWcaData())
                 await this.saveUser(newUser);
         }
         else if (saveIfCreated)

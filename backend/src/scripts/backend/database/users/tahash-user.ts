@@ -1,7 +1,6 @@
-import { datediff } from "../../utils/global-utils.js";
-import { getUserDataByUserId } from "../../utils/api-utils.js";
-import { UserInfo } from "../../../interfaces/user-info.js";
-import {CompEventResults} from "../../../interfaces/comp-event-results.js";
+import {datediffEpoch} from "../../utils/global-utils.js";
+import {getUserDataByUserId} from "../../utils/api-utils.js";
+import {UserInfo} from "../../../interfaces/user-info.js";
 import {EventRecords} from "../../../interfaces/event-records.js";
 import {TimeFormat} from "../../../constants/time-formats.js";
 import {EventId} from "../comp-event.js";
@@ -10,6 +9,8 @@ import {WithId} from "mongodb";
 import {CompManager} from "../comps/comp-manager.js";
 import {isFullPackedTimesArr, PackedResult} from "../../../interfaces/packed-result.js";
 import {UserManager} from "./user-manager.js";
+import {EventSubmissionStatus} from "../../../constants/event-submission-status.js";
+import {isErrorObject} from "../../../interfaces/error-object.js";
 
 const updateWCADataInterval: Readonly<number> = 28; /* number of days to wait between updating wca data */
 export class TahashUser implements TahashUserFields {
@@ -21,12 +22,12 @@ export class TahashUser implements TahashUserFields {
     /**
      * The user's wca data as {@link UserInfo}.
      */
-    public readonly userInfo: Readonly<UserInfo>;
+    public userInfo: Readonly<UserInfo>;
 
     /**
      * Epoch number of date of last wca data update
      */
-    public readonly lastUpdatedWcaData: number;
+    public lastUpdatedWcaData: number;
 
     /**
      * Comp number of the last comp the user competed in.
@@ -118,58 +119,58 @@ export class TahashUser implements TahashUserFields {
         return true;
     }
 
-    /* get the times object of an event in the current competition.
-    returns a packedTimes object of the attempt.
-    if the event was not found, returns null. */
-    getEventTimes(eventId) {
-        for (let i = 0; i < this.eventResults.length; i++) {
-            if (this.eventResults[i].eventId == eventId)
-                return this.eventResults[i].times;
-        }
-
-        return null;
+    /**
+     * Get the user's results in an event in the current competition.
+     * @param eventId The event's id.
+     * @return
+     * - If the event was not found, returns `null`.
+     * - Otherwise, returns a {@link UserEventResult} of the user's results in the event.
+     */
+    getEventResult(eventId: EventId): UserEventResult | undefined {
+        return this.eventResults[eventId];
     }
 
-    // check if the user finished an event (submitted a full result) in a competition
-    /* check if the user finished an event (submitted a full result) in the current competition */
-    finishedEvent(eventId) {
-        for (let i = 0; i < this.eventResults.length; i++) {
-            if (this.eventResults[i].eventId == eventId)
-                return this.eventResults[i].finished;
-        }
-
-        return false;
+    /**
+     * Check if the user finished an event (submitted a full result) in the current competition.
+     * @param eventId The event's id.
+     */
+    finishedEvent(eventId: EventId): boolean {
+        const eventResult = this.eventResults[eventId];
+        return eventResult !== undefined && eventResult.finished;
     }
 
-    /* get event statuses for the current competition:
-    for each event the user started to submit returns "unfinished",
-    and for events the user submitted returns "finished".
-    returns { eventId: status } */
-    getEventStatuses() {
-        const statuses = { };
+    /**
+     * Get the user's event statuses for the current competition.
+     * @return For each event the user started to submit (and not finished), its value will be {@link EventSubmissionStatus.InProgress}.
+     * For events the user fully submitted, returns {@link EventSubmissionStatus.Completed}.
+     * All other events in the competition are not included in the returned {@link Record}.
+     */
+    getEventStatuses(): Record<EventId, EventSubmissionStatus> {
+        const statuses: Record<EventId, EventSubmissionStatus> = { };
 
-        for (let i = 0; i < this.eventResults.length; i++)
-            statuses[this.eventResults[i].eventId] = this.eventResults[i].finished ? "finished" : "unfinished";
+        for (const [ eventId, results ] of Object.entries(this.eventResults))
+            statuses[eventId] = results.finished ? EventSubmissionStatus.Completed : EventSubmissionStatus.InProgress;
 
         return statuses;
     }
 
-    // get the user's wca data in a compact structure:
-    // { userId, name, wcaId, photoUrl }
-    getCompactWCAUserData(includePhoto) {
-        return { userId: this.userId, name: this.userInfo.name, wcaId: this.userInfo.wcaId,  }
-    }
-
-    // try update the user's wca data
-    // force: whether to force updating
-    // returns whether the data was updated
-    // (data will not update unless enough time has passed)
-    async updateWCAData(force = false) {
-        if (!force && datediff(this.lastUpdatedWcaData, Date.now()) < updateWCADataInterval)
+    /**
+     * Try to update the user's user info ({@link UserInfo}).
+     * @param force Whether to force updating.
+     * @return Whether the data was updated (data will not update unless enough time has passed or forced=true).
+     */
+    public async tryUpdateWcaData(force = false): Promise<boolean> {
+        if (!force && datediffEpoch(this.lastUpdatedWcaData, Date.now()) < updateWCADataInterval)
             return false;
 
         this.lastUpdatedWcaData = Date.now();
-        this.userInfo = getCompactWCAData(await getUserDataByUserId(this.userId));
+        const response = await getUserDataByUserId(this.userId);
+        if (isErrorObject(response)) {
+            console.error(`User ${this.userInfo.wcaId} encountered an error (get user data) in TahashUser.updateWCAData().\nError:${response.error} - ${response.context}`);
+            return false;
+        }
+
+        this.userInfo = response;
         return true;
     }
 
@@ -180,12 +181,6 @@ export class TahashUser implements TahashUserFields {
     public static fromDocument(doc: WithId<TahashUserFields>): TahashUser {
         return new TahashUser({ ...doc });
     }
-}
-
-// get only the necessary values from a user's wca data
-// returns { wcaId, name, photoUrl }
-export function getCompactWCAData(wcaData) {
-    return { wcaId: wcaData.wca_id, name: wcaData.name, photoUrl: wcaData.avatar ? wcaData.avatar.url : "" }
 }
 
 export interface TahashUserFields {
