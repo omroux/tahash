@@ -163,7 +163,7 @@ const eventIdMap: Record<EventId, Readonly<CompEvent>> = Object.fromEntries(
 /**
  * Check if a string is a valid Tahash event id (a TypeScript type guard).
  */
-function isEventId(id: string): id is EventId {
+export function isEventId(id: string): id is EventId {
     return eventIds.includes(id);
 }
 

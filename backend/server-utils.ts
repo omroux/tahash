@@ -38,7 +38,11 @@ let _hostname: string | undefined = undefined;
  * Get the hostname the website is running on
  * @returns If the hostname was set, returns the hostname. Otherwise, returns null.
  */
-export const getHostname = (): string | undefined => _hostname;
+export const getHostname = (): string => {
+    if (!_hostname)
+        throw new Error("Tried to get hostname when it was not set.");
+    return _hostname;
+}
 
 /**
  * Set the website's hostname if it hasn't been set yet.

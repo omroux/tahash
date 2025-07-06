@@ -18,19 +18,22 @@ import {
     isLoggedIn,
     getHostname,
     initDatabase,
-    compManager,
-    userManager,
     getEnvConfigOptions,
     setHostname,
     ADMINS_LIST
 } from "./server-utils.js";
-import { tryAnalyzeTimes, getDisplayTime, formatTimeWithPenalty, packResults, unpackTimes, Penalties, getEmptyPackedTimes, isFullPackedTimesArr } from "./src/scripts/backend/utils/time-utils.js"
-import { getEventById } from "./src/scripts/backend/database/comp-event.js";
+import {getEventById} from "./src/scripts/backend/database/comp-event.js";
 import { Routes } from "./src/scripts/constants/routes.js";
 import { getQueryParam, getQueryParamNumber, QueryParams } from "./src/scripts/constants/query-params.js";
 import { getHeader, getHeaderNumber, Headers } from "./src/scripts/constants/headers.js";
 import { RequestFields } from "./src/scripts/constants/request-fields.js";
 import { UserInfo } from "./src/scripts/interfaces/user-info.js";
+import { CompManager } from "./src/scripts/backend/database/comps/comp-manager.ts";
+import {ErrorObject, errorObject, isErrorObject} from "./src/scripts/interfaces/error-object.js";
+import {UserManager} from "./src/scripts/backend/database/users/user-manager.js";
+import {getEmptyPackedResults, PackedResult} from "./src/scripts/interfaces/packed-result.js";
+import {SubmissionState} from "./src/scripts/backend/database/comps/submission-state.js";
+import {createCompSrc} from "./src/scripts/backend/database/comps/tahash-comp.js";
 
 
 // general setup
@@ -59,24 +62,24 @@ app.use(cookieParser());
 app.use(express.json());
 
 
-// region page routing
+// region Page Routing
 
 // "/" => redirect to home page
-app.get(Routes.Page.HomeRedirect, (req: Request, res: Response) => {
+app.get(Routes.Page.HomeRedirect, (_: Request, res: Response) => {
     res.redirect(Routes.Page.Home);
 });
 
 
 // Route for home
 app.get(Routes.Page.Home, async (req, res) => {
-    const currComp = await compManager().getCurrentComp();
+    const currComp = CompManager.getInstance().getActiveComp();
 
     renderPage(req, res, "home.ejs", { title: "Home" }, 
         { compInfo: {
             compNumber: currComp.compNumber,
             startDate: currComp.startDate,
             endDate: currComp.endDate,
-            events: currComp.getEventsInfo()
+            events: currComp.eventDisplayInfos
          } },
          [ "src/stylesheets/pages/home.css" ]
     );
@@ -109,7 +112,7 @@ app.get(Routes.Page.Profile, async (req, res) => {
 
 
 // Automatically redirect to authentication
-app.get(Routes.Page.RedirectToAuth, (req, res) => {
+app.get(Routes.Page.RedirectToAuth, (_, res) => {
     res.redirect(WCA_AUTH_URL(getHostname()));
 });
 
@@ -122,7 +125,7 @@ app.get(Routes.Page.AuthCallback, async (req, res) => {
 
 // Route for scrambles page
 app.get(Routes.Page.Scrambles, async (req, res) => {
-    const currComp = await compManager().getCurrentComp();
+    const currComp = CompManager.getInstance().getActiveComp();
     
     renderPage(req,
         res,
@@ -131,7 +134,7 @@ app.get(Routes.Page.Scrambles, async (req, res) => {
         {
             compNumber: currComp.compNumber,
             loading: true,
-            events: currComp.getEventsInfo()
+            events: currComp.eventDisplayInfos
         },
         [ "/src/stylesheets/pages/scrambles.css",
             "/src/stylesheets/event-boxes.css",
@@ -154,34 +157,30 @@ app.get(Routes.Page.Error, async (req, res) => {
  * - {@link QueryParams.EventId} - The event to compete in
  */
 app.get(Routes.Page.CompeteEvent, async (req, res) => {
-    const currComp = await compManager().getCurrentComp();
+    const currComp = CompManager.getInstance().getActiveComp();
     const loggedIn = isLoggedIn(req);
 
     // not logged in -> login
     if (!loggedIn) {
-        res.redirect(Routes.Page.Login);;
+        res.redirect(Routes.Page.Login);
         return;
     }
 
-    const pageOptions = {};
-    const eventData = currComp.getEventDataById(req.params.eventId);
-    if (eventData) {
-        pageOptions.eventData = {
-            event: eventData.event,
-            scrambles: eventData.scrambles
-        };
-    }
-    else {  // TODO: redirect to "event not found page"?
+    const eventId = req.params.eventId ?? "";
+    const eventResults = currComp.getEventResults(eventId);
+    if (!eventResults) {
         res.redirect("/scrambles");
         return;
     }
 
+    const compEvent = getEventById(eventId);
 
     renderPage(req,
         res,
         "/compete.ejs",
-        { title: "מדידת זמן " + eventData.event.eventTitle },
-        pageOptions,
+        { title: "מדידת זמן " + compEvent.eventTitle  },
+        { event: compEvent,
+            scrambles: eventResults.scrambles },
         [ "/src/stylesheets/pages/compete.css",
             eventIconsSrc ]);
 });
@@ -197,9 +196,9 @@ app.get(Routes.Page.CompeteEvent, async (req, res) => {
  */
 app.get(Routes.Page.AdminDashboard, async (req, res) => {
     const compNum: number | undefined = getQueryParamNumber(req, QueryParams.CompNumber);
-    if (!compNum || !compManager().compExists(compNum)) {
+    if (!compNum || !CompManager.getInstance().compExists(compNum)) {
         // if the comp number received was invalid, redirect to current comp
-        const currCompNum = compManager().getCurrentCompNumber();
+        const currCompNum = CompManager.getInstance().getActiveCompNum();
         res.redirect(`/admin-dashboard?${QueryParams.CompNumber}=${currCompNum}`);
         return;
     }
@@ -259,7 +258,7 @@ app.post(Routes.Post.UpdateHostname , (req, res) => {
  * - {@link RequestFields.Times} (packedTimes): The (packed) times to update into.
  * 
  * Response:
- * - 200 OK: JSON - `{ text: "Saved successfully!" }`
+ * - 200 OK: JSON - `{ text: "Saved successfully!"}`
  * - 400 Bad Request: JSON error object with an error (invalid body/user already submitted).
  */
 app.post(Routes.Post.UpdateTimes, async (req, res) => {
@@ -277,7 +276,7 @@ app.post(Routes.Post.UpdateTimes, async (req, res) => {
         return;
     }
 
-    const userObj = await userManager().getUserById(userId);
+    const userObj = await UserManager.getInstance().getUserById(userId);
     if (userObj.finishedEvent(eventId)) {
         res.status(400).json(errorObject(`User ${userId} already submitted event ${eventId}`));
         return;
@@ -288,8 +287,8 @@ app.post(Routes.Post.UpdateTimes, async (req, res) => {
     res.status(200).json({ text: "Saved successfully!" });
     
     if (userObj.finishedEvent(eventId)) {
-        const currComp = await compManager().getCurrentComp();
-        currComp.setCompetitorResults(eventId, userId, times);
+        const currComp = CompManager.getInstance().getActiveComp();
+        currComp.submitResults(eventId, userId, times);
         await currComp.saveToDB();
     }
 });
@@ -329,7 +328,7 @@ app.get(Routes.Get.RetrieveTimes, async (req, res) => {
         return;
     }
 
-    const userObj = await userManager().getUserById(userId);
+    const userObj = await UserManager.getInstance().getUserById(userId);
     const compEvent = getEventById(eventId);
 
     if (!compEvent) { // event doesn't exist
@@ -337,7 +336,7 @@ app.get(Routes.Get.RetrieveTimes, async (req, res) => {
         return;
     }
 
-    const times = userObj.getEventResult(eventId) ?? getEmptyPackedTimes(compEvent);
+    const times = userObj.getEventResult(eventId) ?? getEmptyPackedResults(compEvent);
     res.status(200).json(times);
 });
 
@@ -367,7 +366,7 @@ app.get(Routes.Get.EventStatuses, async (req, res) => {
         return;
     }
 
-    const userObj = await userManager().getUserById(userId);
+    const userObj = await UserManager.getInstance().getUserById(userId);
     res.status(200).json(userObj.getEventStatuses());
 });
 
@@ -424,7 +423,7 @@ app.get(Routes.Get.GetCompEvents, async(req, res) => {
         return;
     }
 
-    const comp = await compManager().getTahashComp(compNumber);
+    const comp = await CompManager.getInstance().getTahashComp(compNumber);
     if (!comp) {
         res.status(404).json(errorObject(`Comp with comp number ${compNumber} does not exist.`));
         return;
@@ -461,7 +460,12 @@ app.get(Routes.Get.GetEventSubmissions, async (req, res) => {
         return;
     }
 
-    const comp = await compManager().getTahashComp(compNumber);
+    const comp = await CompManager.getInstance().getTahashComp(compNumber);
+    if (!comp) {
+        res.status(404).json(errorObject(`Comp with comp number ${compNumber} does not exist.`));
+        return;
+    }
+
     const submissions = comp.getEventSubmissions(eventId);
     
     if (!submissions) {
@@ -470,12 +474,32 @@ app.get(Routes.Get.GetEventSubmissions, async (req, res) => {
     }
 
     // load users' data
+    const result: {
+        userId: number,
+        submissionState: SubmissionState,
+        times: PackedResult[],
+        resultStr: string,
+        userData: {
+           wcaId: string,
+           name: string
+       }
+    }[] = [ ];
     for (let i = 0; i < submissions.length; i++) {
-        const fullUserData = await userManager().getUserDataById(submissions[i].userId);
-        submissions[i].userData = { wcaId: fullUserData.wcaId, name: fullUserData.name };
+        const fullUserData = await UserManager.getInstance().getUserDataById(submissions[i].userId);
+        if (!fullUserData) {
+            console.error(`Data of user ${submissions[i].userId} was not found! (server.js GET /get-event-submissions`);
+            continue; // skip user if they weren't found
+        }
+
+        result.push({
+            userId: submissions[i].userId,
+            submissionState: submissions[i].submissionState,
+            times: submissions[i].times,
+            resultStr: submissions[i].resultStr,
+            userData: { wcaId: fullUserData.wcaId, name: fullUserData.name }});
     }
 
-    res.status(200).json(submissions);
+    res.status(200).json(result);
 });
 
 
@@ -502,20 +526,23 @@ app.post(Routes.Post.UpdateSubmissionState, async (req, res) => {
     const compNumber = Number(req.body.compNumber);
     const eventId = req.body.eventId;
     const userId = Number(req.body.userId);
-    const submissionState = Number(req.body.submissionState);
+    const submissionStateNum = Number(req.body.submissionState);
 
-    if (!compNumber || !eventId || !userId || !submissionState) {
+    if (!compNumber || !eventId || !userId || !submissionStateNum || submissionStateNum < 0 || submissionStateNum >= Object.keys(SubmissionState).length) {
         console.log(req.body);
         res.status(400).json(errorObject("/updateSubmissionState must include compNumber, eventId, userId and submissionState values"));
         return;
     }
 
-    if (!compManager().compExists(compNumber)) {
+
+    if (!CompManager.getInstance().compExists(compNumber)) {
         res.status(400).json(errorObject(`Competition ${compNumber} does not exist`));
         return;
     }
 
-    const successful = await compManager().updateSubmissionState(compNumber, eventId, userId, submissionState);
+    const activeComp = CompManager.getInstance().getActiveComp();
+    const successful = activeComp.setSubmissionState(eventId, userId, submissionStateNum);
+    await activeComp.saveToDB();
     res.status(200).json({ successful: successful });
 });
 
@@ -544,10 +571,10 @@ app.get(Routes.Get.WCAUserData, async (req, res) => {
         return;
     }
 
-    const userData: UserInfo = await getWCAUserData(accessToken);
-    if (userData)                   res.status(200).json(userData);
+    const userData: ErrorObject | UserInfo = await getWCAUserData(accessToken);
+    if (!isErrorObject(userData))                   res.status(200).json(userData);
     else if (sentFromClient(req))   res.status(400).json(errorObject("error occurred"));
-    else                            res.redirect(Routes.Page.Login);;
+    else                            res.redirect(Routes.Page.Login);
 });
 
 /**
@@ -576,8 +603,8 @@ app.get(Routes.Get.AuthenticateWithCode, async (req, res) => {
 
     // fetch token in callback
     const tokenData = await exchangeAuthCode(authCode);
-    if (tokenData.error) {
-        res.status(400).json(errorObject(`Authentication error - "${tokenData}"`));
+    if (isErrorObject(tokenData)) {
+        res.status(400).json(errorObject(`Authentication error - "${tokenData.error}": ${tokenData.context}`));
         return;
     }
 
@@ -596,7 +623,7 @@ app.get(Routes.Get.AuthenticateWithCode, async (req, res) => {
  * 
  * Response:
  * - 400 Bad Request: Error object with details.
- * - 200 OK: The token data received (resposne from the WCA API).
+ * - 200 OK: The token data received (response from the WCA API).
  */
 app.get(Routes.Get.AuthenticateRefreshToken, async (req, res) => {
     if (!sentFromClient(req)) {
@@ -611,8 +638,8 @@ app.get(Routes.Get.AuthenticateRefreshToken, async (req, res) => {
     }
 
     const tokenData = await renewAuthentication(refreshToken);
-    if (tokenData.error) {
-        res.status(400).json(errorObject(`Refresh token error - "${tokenData.error}"`));
+    if (isErrorObject(tokenData)) {
+        res.status(400).json(errorObject(`Refresh token error - "${tokenData.error}": ${tokenData.context}`));
         return;
     }
 
@@ -646,9 +673,11 @@ app.get(`${srcPrefix}/*`, (req, res) => {
 
 // TODO: remove before publishing
 // dev commands
-app.get("/newcompp1234", async (req, res) => {
+app.get("/newcompp1234", async (_, res) => {
     // validate (create a new one - the last one is not active anymore)
-    await compManager().validateActiveComp(null, null, true);
+    await CompManager.getInstance().validateActiveComp(createCompSrc(
+        CompManager.getInstance().getActiveCompNum() + 1,
+        [ /* TODO: extra events here */ ] ));
     res.redirect(Routes.Page.HomeRedirect);
 });
 
@@ -665,7 +694,9 @@ app.listen(WEBSITE_PORT, () => {
 
 // Every Monday at 20:01
 cron.schedule('1 20 * * 1', async () => {
-    await compManager().validateActiveComp();
+    await CompManager.getInstance().validateActiveComp(createCompSrc(
+        CompManager.getInstance().getActiveCompNum() + 1,
+        [ /* TODO: extra events here */ ] ));
 }, { scheduled: true, timezone: "Israel" })/*.start()*/;
 // TODO: uncomment .start() to make cron actually schedule the job
 

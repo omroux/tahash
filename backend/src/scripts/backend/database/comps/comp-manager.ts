@@ -86,6 +86,13 @@ export class CompManager {
     }
 
     /**
+     * Get a direct reference to the active {@link TahashComp}.
+     */
+    public getActiveComp(): TahashComp {
+        return this.activeComp;
+    }
+
+    /**
      * Get a {@link TahashComp} object from the database by its comp number.
      * @param compNumber The comp number.
      * @return
