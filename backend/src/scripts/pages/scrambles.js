@@ -1,4 +1,4 @@
-import { resizeEventBoxes } from "/src/scripts/backend/utils/eventBoxesUtils.js";
+import { resizeEventBoxes } from "/src/scripts/backend/utils/event-boxes-utils.js";
 const eventBoxIdPrefix = "event-select-";
 const eventBoxes = document.querySelectorAll(`[id^="${eventBoxIdPrefix}"]`);
 

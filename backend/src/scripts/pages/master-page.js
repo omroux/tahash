@@ -2,7 +2,7 @@ const loadingContainer = document.querySelector("#loading_container");
 const contentContainer = document.querySelector("#content_container");
 const logsContainer = document.getElementById("logsContainer");
 
-// #region Debugging System
+// region Debugging System
 
 // post a new log at the top of the page
 // returns the log element
@@ -18,9 +18,9 @@ const postLog = (txt, alignLeft = false) => {
     return newEl;
 };
 
-// #endregion
+// endregion
 
-// #region Displaying Errors
+// region Displaying Errors
 
 const errorsStorage = "errorsList";
 // go to /error and display error messages
@@ -30,9 +30,9 @@ function throwError(...errors) {
     window.location = "/error";
 };
 
-// #endregion
+// endregion
 
-// #region Cookies Management
+// region Cookies Management
 
 function setCookie(name, value, expireMs = null) {
     let expires = "";
@@ -59,9 +59,9 @@ function deleteCookie(name) {
     setCookie(name, "", 0);
 }
 
-// #endregion
+// endregion
 
-// #region Page Loading System
+// region Page Loading System
 
 const getLoadingState = () => contentContainer.hidden;
 // set the loading state of the page
@@ -69,9 +69,9 @@ const getLoadingState = () => contentContainer.hidden;
 // false => show content, hide loading
 const setLoadingState = (state) => { loadingContainer.hidden = !(contentContainer.hidden = state); }
 
-// #endregion
+// endregion
 
-// #region Login System
+// region Login System
 
 const accessTokenStorage = "accessToken";
 const refreshTokenStorage = "refreshToken";
@@ -114,9 +114,9 @@ const hasTokenExpired = () => {
     return false;
 };
 
-// #endregion
+// endregion
 
-// #region WCA me handling
+// region WCA me handling
 
 function hasStoredWcaMeData() {
     return sessionStorage.getItem(wcaMeStorage) != null;
@@ -146,9 +146,9 @@ async function getWcaMe(forceFetch = false) {
     return wcaMeData;
 }
 
-// #endregion
+// endregion
 
-// #region Requests Handling
+// region Requests Handling
 
 // "global" headers
 const wcaIdHeader = "wca-id";
@@ -187,9 +187,9 @@ async function sendRequest(path, options = {}) {
 
 }
 
-// #endregion
+// endregion
 
-// #region Admin Permissions
+// region Admin Permissions
 
 // update the admin permissions using the WCA API token data
 // forces wca data to fetch, and fetches admin perms from the server.
@@ -204,9 +204,9 @@ async function getAdminPerms() {
     return res.isAdmin;
 }
 
-// #endregion
+// endregion
 
-// #region On Page Load System
+// region On Page Load System
 const pageLoadCallback = [];
 let _invokedPageLoad = false;
 const onPageLoad = (callback) => { if (_invokedPageLoad) { callback() } else { pageLoadCallback.push(callback); } };
@@ -218,9 +218,9 @@ const _invokePageLoad = () => {
     }, 10);
 };
 
-// #endregion
+// endregion
 
-// #region Login Maintenance
+// region Login Maintenance
 
 setLoadingState(true);
 setLoggedInState(false);
@@ -251,21 +251,21 @@ else {
     _invokePageLoad();
 }
 
-// #endregion
+// endregion
 
-// #region General Utils
+// region General Utils
 
 // Sleep for [ms] milliseconds
 async function sleep(ms) {
     return await new Promise(resolve => setTimeout(resolve, ms));
 }
-// #endregion
+// endregion
 
-// #region HTML Common Attribute
+// region HTML Common Attribute
 
 const hiddenAttribute = "hidden";
 
 const hideElement = (element) => element.setAttribute(hiddenAttribute, "");
 const unhideElement = (element) => element.removeAttribute(hiddenAttribute);
 
-// #endregion
+// endregion

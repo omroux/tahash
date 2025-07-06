@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "outDir": "./dist",
+    "target": "ES2017",
+    "module": "NodeNext",
+    "strict": true,
+    "lib": [ "ES2021", "dom" ],
+    "forceConsistentCasingInFileNames": true,
+    "allowImportingTsExtensions": true,
+    "esModuleInterop": true
+  },
+  "include": ["./**/*"]
+}
