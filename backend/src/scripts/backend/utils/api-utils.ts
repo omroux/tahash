@@ -95,7 +95,7 @@ export async function getUserDataByUserId(userId: number): Promise<ErrorObject |
 
 /* returns a "records" array of the user's WCA records */
 // TODO: implement getWCARecordsOfUser
-export async function getWCARecordsOfUser(userId): Promise<Record<string, EventRecords<TimeFormat>>> {
+export async function getWCARecordsOfUser(userId: number): Promise<Record<string, EventRecords<TimeFormat>>> {
     console.error("getWCARecordsOfUser not implemented");
     return { };
 }
