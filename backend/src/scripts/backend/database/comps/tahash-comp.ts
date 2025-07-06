@@ -288,8 +288,8 @@ export const normalCompLength: number = 7;
  * Create a new source for a {@link TahashComp}.
  * @param compNumber The comp's number.
  * @param extraEvents Extra events for the comp.
- * @param startDate The comp's start date.
- * @param endDate The comp's end date.
+ * @param startDate The comp's start date. Defaults to today.
+ * @param endDate The comp's end date. Defaults to {@link normalCompLength} days from now.
  */
 export function createCompSrc(compNumber: number, extraEvents: EventId[] = [], startDate: Date | undefined = undefined, endDate: Date | undefined = undefined): TahashCompFields {
     // add start date

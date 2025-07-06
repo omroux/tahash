@@ -4,12 +4,10 @@ import { getEnvConfigOptions, getHostname } from "../../../../server-utils.js";
 import { getEnv } from "./env.js";
 import {ErrorObject, errorObject, isErrorObject} from "../../interfaces/error-object.js";
 import {wcaUserToUserInfo, UserInfo} from "../../interfaces/user-info.js";
-import {WcaMeResponse, WcaUser, WcaUserResponse} from "../../interfaces/wca-api/wca-user.js";
+import {WcaMeResponse, WcaUserResponse} from "../../interfaces/wca-api/wca-user.js";
 import {WcaOAuthTokenResponse} from "../../interfaces/wca-api/wca-oauth.js";
-import {RESPONSE} from "mongodb/src/constants.js";
 import {EventRecords} from "../../interfaces/event-records.js";
 import {TimeFormat} from "../../constants/time-formats.js";
-import {EventId} from "../database/comp-event.js";
 
 config(getEnvConfigOptions()); // configure .env file
 

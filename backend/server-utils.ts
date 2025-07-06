@@ -1,12 +1,13 @@
 import fs from 'fs';
 import ejs from 'ejs';
 import path from 'path';
-import {Db, MongoClient } from "mongodb";
+import {Collection, Db, MongoClient} from "mongodb";
 import {Request, Response} from "express";
 import { CompManager } from './src/scripts/backend/database/comps/comp-manager.js';
 import { UserManager } from './src/scripts/backend/database/users/user-manager.js';
-import { IncomingHttpHeaders } from 'http';
 import { getHeader, Headers } from './src/scripts/constants/headers.js';
+import {TahashUserFields} from "./src/scripts/backend/database/users/tahash-user.js";
+import {createCompSrc, TahashCompFields} from "./src/scripts/backend/database/comps/tahash-comp.js";
 
 
 // -- General constants/properties
@@ -74,7 +75,7 @@ export function getEnvConfigOptions(): { path?: string } {
     const deployEnvPath = path.join(__dirname + "/../deploy/.env");
     _isContainer = !fs.existsSync(deployEnvPath);
     return  (_isContainer ? { } : { path: deployEnvPath });
-};
+}
 // endregion
 
 // region Page Rendering
@@ -123,7 +124,7 @@ export function renderPage(req: Request,
                 content: str,
                 stylesheets: stylesheets,
                 loggedIn: pgOpts.loggedIn,
-                compNumber: compManager()?.getCurrentCompNumber() /* comp number in header */
+                compNumber: CompManager.getInstance().getActiveCompNum() /* comp number in header */
             };
 
             res.render("layout.ejs", layOpts);
@@ -188,8 +189,8 @@ const compsCollectionName = "comps";
 const usersCollectionName = "users";
 
 let _tahashDb: Db | undefined;
-let _compManager: CompManager | undefined;
-let _userManager: UserManager | undefined;
+// let _compManager: CompManager | undefined;
+// let _userManager: UserManager | undefined;
 
 /**
  * Get the singleton instance of the current active tahash database.
@@ -202,30 +203,30 @@ export const tahashDB = (): Db => {
     
     return _tahashDb;
 }
-
-/**
- * The current active {@link CompManager}.
- * @returns {CompManager} The singleton instance of the {@link CompManager}.
- * @throws {Error} if the {@link CompManager} singleton has not been initialized.
- */
-export const compManager = (): CompManager => {
-    if (!_compManager)
-        throw new Error("Comp manager is not initialized.");
-
-    return _compManager;
-}
-
-/**
- * Get the instance of the current active {@link UserManager}.
- * @returns {UserManager} The singleton instance of the {@link UserManager}.
- * @throws {Error} if the {@link UserManager} singleton has not been initialized.
- */
-export const userManager = (): UserManager => {
-    if (!_userManager)
-        throw new Error("User manager is not initialized.");
-
-    return _userManager;
-}
+//
+// /**
+//  * The current active {@link CompManager}.
+//  * @returns {CompManager} The singleton instance of the {@link CompManager}.
+//  * @throws {Error} if the {@link CompManager} singleton has not been initialized.
+//  */
+// export const compManager = (): CompManager => {
+//     if (!_compManager)
+//         throw new Error("Comp manager is not initialized.");
+//
+//     return _compManager;
+// }
+//
+// /**
+//  * Get the instance of the current active {@link UserManager}.
+//  * @returns {UserManager} The singleton instance of the {@link UserManager}.
+//  * @throws {Error} if the {@link UserManager} singleton has not been initialized.
+//  */
+// export const userManager = (): UserManager => {
+//     if (!_userManager)
+//         throw new Error("User manager is not initialized.");
+//
+//     return _userManager;
+// }
 
 /**
  * Initialize the MongoDB connection, load the database, {@link CompManager} and {@link UserManager}.
@@ -254,18 +255,18 @@ export async function initDatabase(): Promise<Db> {
     const mongoClient: MongoClient = await MongoClient.connect(connectionString, { connectTimeoutMS: 5000 });
     _tahashDb = mongoClient.db(tahashDbName);
 
-    // initialize user manaager
-    const a = _tahashDb.collection(usersCollectionName);
-    _userManager = new UserManager(_tahashDb.collection(usersCollectionName));
+    // initialize user manager
+    const usersCollection: Collection<TahashUserFields> = _tahashDb.collection(usersCollectionName);
+    UserManager.init(usersCollection);
 
     // initialize comp manager
-    _compManager = new CompManager(_tahashDb.collection(compsCollectionName), userManager());
-
-    // initialize comps collection in case it's empty
-    await _compManager.initComps();
+    const compsCollection: Collection<TahashCompFields> = _tahashDb.collection(compsCollectionName);
+    await CompManager.init(compsCollection);
 
     // validate current comp
-    await _compManager.validateActiveComp();
+    await CompManager.getInstance().validateActiveComp(createCompSrc(
+        CompManager.getInstance().getActiveCompNum() + 1,
+        [ /* TODO: extra events here */ ] ));
 
     return _tahashDb;
 }
