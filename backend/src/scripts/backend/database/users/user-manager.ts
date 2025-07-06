@@ -66,17 +66,13 @@ export class UserManager {
         return await this.collection.findOne({ userId: userId });
     }
 
-    // Get a user in the database by id.
-    // If the user doesn't exist, returns a new (empty) TahashUser object of this manager and with the given id.
-    // if saveIfCreated is true and the user doesn't exist in the database, fetches the user's WCA data and results and saves the user in the database.
-    // if the compNumber is positive, updates the user's comp number
     /**
      * Get a user in the database by id.
      * If the user doesn't exist, returns a new ("default") TahashUser object of this manager with the given id.
      * @param userId
      * @param saveIfCreated if true and the user doesn't exist in the database, fetches the user's WCA data and results and saves the user in the database.
      */
-    public async getUserById(userId: number, saveIfCreated: boolean = true) {
+    public async getUserById(userId: number, saveIfCreated: boolean = true): TahashUser {
         let userDoc = await this.getUserDocById(userId);
         const isNewUser = userDoc == null;
 
@@ -118,23 +114,23 @@ export class UserManager {
 
         return newUser;
     }
-
-    // save a TahashUser to the database by their user id (if they already exist, just update their values)
-    // returns whether the update has been acknowledged (usually true)
-    async saveUser(tahashUser) {
-        if (!tahashUser)
-            return false;
-
-        return await this.#collection.updateOne({ userId: tahashUser.userId },
+    
+    /**
+     * Save a {@link TahashUser} to the database by their user id (if the user already exists, updates their values)
+     * @param tahashUser The user to save.
+     * @return Whether the update has been acknowledges (usually true).
+     */
+    public async saveUser(tahashUser: TahashUser): Promise<boolean> {
+        return (await this.collection.updateOne({ userId: tahashUser.userId },
             { $set: {
                 userId: tahashUser.userId,
-                wcaData: tahashUser.wcaData,
+                userInfo: tahashUser.userInfo,
                 lastUpdatedWcaData: tahashUser.lastUpdatedWcaData,
                 lastComp: tahashUser.lastComp,
                 records: tahashUser.records,
                 currCompTimes: tahashUser.currCompTimes
             } },
-            { upsert: true }).acknowledged;
+            { upsert: true })).acknowledged;
     }
 
     #_currCompNumber = -1;

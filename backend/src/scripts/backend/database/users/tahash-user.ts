@@ -9,7 +9,7 @@ import {UserEventResult} from "../../../interfaces/user-event-result.js";
 import {WithId} from "mongodb";
 
 const updateWCADataInterval: Readonly<number> = 28; /* number of days to wait between updating wca data */
-export class TahashUser {
+export class TahashUser implements TahashUserFields {
     /**
      * The user's wca account id.
      */
@@ -74,7 +74,10 @@ export class TahashUser {
     ]
     */
 
-    // src - { userId, wcaData, lastUpdatedWcaData, lastComp, records, currCompTimes }
+    /**
+     * Create an instance of a {@link TahashUser} from a source.
+     * @param src Source with the user's data.
+     */
     constructor(src: TahashUserFields) {
         if (src.userId < 0)
             throw new Error("Initializing TahashUser with invalid user id");
@@ -222,7 +225,9 @@ export interface TahashUserFields {
      */
     readonly lastComp: number;
 
-    /* array of the user's records */
+    /**
+     * Array of the user's records.
+     */
     readonly records: Record<EventId, EventRecords<TimeFormat>>; /*
         user records structure:
         records: [
@@ -254,7 +259,9 @@ export interface TahashUserFields {
         ]
     */
 
-    /* user's results of the last comp the user competed in */
+    /**
+     * User's results of the last comp the user competed in.
+     */
     readonly currCompTimes: Record<EventId, UserEventResult>;
 }
 

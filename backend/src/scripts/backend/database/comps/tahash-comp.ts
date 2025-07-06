@@ -9,7 +9,7 @@ import {SubmissionState} from "./submission-state.js";
 /**
  * Represents a Tahash competition.
  */
-export class TahashComp {
+export class TahashComp implements TahashCompFields {
     /**
      * The number of this competition.
      */
@@ -32,7 +32,7 @@ export class TahashComp {
 
     public readonly eventDisplayInfos: readonly EventDisplayInfo[];
 
-    private readonly data: Record<EventId, EventResults>;
+    public readonly data: Record<EventId, EventResults>;
     /*
     comp data structure IN DATABASE:
     data: [
@@ -118,7 +118,6 @@ export class TahashComp {
     public getData(): Record<EventId, EventResults> {
         return this.data;
     }
-
 
     /**
      * Save this {@link TahashComp} using the {@link CompManager} singleton.
